@@ -3,7 +3,7 @@ Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, e-commerce, ecommerce, sell, sales, store, cart, checkout, shop, payments, selling
 Requires at least: 4.6
-Tested up to: 4.8
+Tested up to: 4.9
 Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -106,9 +106,9 @@ You can add additional parameters in the shortcode to customize your stripe paym
 * **shipping-address** - Specify whether Checkout form should collect the customer's shipping address (e.g. shipping-address="true"). The default is false.
 * **panel-label** - The label of the payment button in the Checkout form (e.g. panel-label="Pay $2.00"). Checkout does not translate custom labels to the customer's preferred language.
 * **zip-code** - Specify whether Checkout form should validate the customer's billing postal code (e.g. zip-code="true"). The default is false.
-* **label** - The text that is displayed on the blue payment button(e.g. label="Buy Now"). Default is "Pay with Card". Checkout does not translate this label at the moment.
+* **label** - The text that is displayed on the blue payment button (e.g. label="Buy Now"). Default is "Pay with Card". Checkout does not translate this label at the moment.
+* **allow-remember-me** - Specify whether to exclude the option to "Remember Me" for future purchases (e.g. allow-remember-me="false"). The default is true.
 * **bitcoin** - Specify whether Checkout form should accept Bitcoin (e.g. bitcoin="true"). The default is false.
-* **alipay** - Specify whether Checkout form should accept Alipay (e.g. alipay="true"). The default is false.
 
 For detailed setup instructions please visit the [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
