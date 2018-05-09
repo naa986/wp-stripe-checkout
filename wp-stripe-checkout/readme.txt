@@ -14,6 +14,8 @@ Sell anything from your WordPress site with Stripe. Accept credit card payments 
 
 [WordPress Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. You can integrate Stripe's payment form into your website with a simple shortcode. This makes accepting credit card payments easier than ever with very little setup and effort.
 
+https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
+
 = What is Stripe Checkout Form? =
 
 Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
