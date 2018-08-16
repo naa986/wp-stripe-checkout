@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, e-commerce, ecommerce, sell, sales, store, cart, checkout, shop, payments, selling
 Requires at least: 4.6
 Tested up to: 4.9
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -152,6 +152,10 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.0.3 =
+* Fixed a bug that caused this error - "Cannot load wp-stripe-checkout-settings".
+* The plugin can now send a purchase receipt email to the customer. It can also send a sale notification email to a chosen recipient.
 
 = 1.0.2 =
 * Updated some permalinks in the plugin
