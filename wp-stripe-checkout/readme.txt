@@ -147,6 +147,9 @@ Yes.
 
 1. Stripe Checkout Demo
 2. Stripe Checkout Orders Menu
+3. Stripe Checkout Email Sender Options
+4. Stripe Checkout Purchase Receipt Email Settings
+5. Stripe Checkout Sale Notification Email Settings
 
 == Upgrade Notice ==
 none
