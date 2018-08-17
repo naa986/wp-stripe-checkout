@@ -1,7 +1,7 @@
 === Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, e-commerce, ecommerce, sell, sales, store, cart, checkout, shop, payments, selling
+Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 4.6
 Tested up to: 4.9
 Stable tag: 1.0.3
@@ -12,19 +12,19 @@ Sell anything from your WordPress site with Stripe. Accept credit card payments 
 
 == Description ==
 
-[WordPress Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. You can integrate Stripe's payment form into your website with a simple shortcode. This makes accepting credit card payments easier than ever with very little setup and effort.
+[Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. You can integrate Stripe's payment form into your website with a simple shortcode. This makes accepting credit card payments easier than ever with very little setup and effort.
 
 https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
 
-= What is Stripe Checkout Form? =
+=== What is Stripe Checkout Form? ===
 
 Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
 
-= Does Stripe Checkout require HTTPS? =
+=== Does Stripe Checkout require HTTPS? ===
 
 All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
 
-= Why Stripe Checkout? =
+=== Why Stripe Checkout? ===
 
 * Take Credit card payments easily and directly on your store.
 * Accept almost any type of credit or debit card such as Visa, MasterCard, American Express, JCB, Discover, Diners Club.
@@ -44,48 +44,75 @@ All payment submissions are made via a secure HTTPS connection. However, in orde
 * Option to verify the card's zipcode during checkout.
 * Allow your customers to pay with a localized experience during checkout (12 languages supported and growing).
 
-= Supported Countries =
+=== Supported Countries ===
 
 Stripe is currently available for businesses in 25 countries:
 
 * Australia
+* Austria
+* Belgium
 * Canada
 * Denmark
 * Finland
 * France
+* Germany
+* Hong Kong
 * Ireland
+* Italy
 * Japan
+* Luxembourg
+* Netherlands
+* New Zealand
 * Norway
+* Portugal
 * Singapore
 * Spain
 * Sweden
+* Switzerland
 * United Kingdom
 * United States
-* Austria (BETA)
-* Belgium (BETA)
-* Germany (BETA)
-* Hong Kong (BETA)
-* Italy (BETA)
-* Luxembourg (BETA)
-* Netherlands (BETA)
-* Portugal (BETA)
-* Brazil (PRIVATE BETA)
-* Mexico (PRIVATE BETA)
-* New Zealand (PRIVATE BETA)
-* Switzerland (PRIVATE BETA)
 
-If you're running businesses from one of these countries, you'll be able to accept payments from customers anywhere in the world.
+If you are running businesses from one of these countries, you will be able to accept payments from customers anywhere in the world.
 
-= Plugin Setup =
+=== Plugin Configuration ===
 
-Once you have activated the plugin, you need to configure some settings related to your Stripe merchant account. It's located under "WP Stripe Checkout -> Settings".
+Once you have activated the plugin, you need to configure some settings related to your Stripe merchant account. It's located under "WP Stripe Checkout -> Settings -> General".
 
-* Stripe Test Secret Key
-* Stripe Test Publishable Key
-* Stripe Live Secret Key
-* Stripe Live Publishable Key
-* Currency Code
-* Return URL
+* Test Mode: A checkbox that allows you to run Stripe transactions on your site in test mode using test API keys.
+* Stripe Test Secret Key: Your Stripe secret key to run transactions in test mode
+* Stripe Test Publishable Key: Your Stripe publishable key to run transactions in test mode
+* Stripe Live Secret Key: Your Stripe secret key to run transactions in live mode
+* Stripe Live Publishable Key: Your Stripe publishable key to run transactions in live mode
+* Currency Code: The default currency code that will be used when accepting a payment
+* Return URL: The page URL to which the customer will be redirected after a successful payment
+
+= Emails =
+
+Stripe checkout plugin comes with an "Emails" tab where you will be able to configure some email related settings.
+
+**Email Sender Options**
+
+In this section you can choose to customize the default From Name and From Email Address that will be used when sending an email.
+
+**Purchase Receipt Email**
+
+When this feature is enabled an email sent to the customer after completion of a successful purchase. Options you can customize here:
+
+* The subject of the purchase receipt email
+* The content type of the purchase receipt email. The default is "text/plain". But you can also set it to "text/html"
+* The body of the purchase receipt email.
+
+**Sale Notification Email**
+
+When this feature is enabled an email is sent to your chosen recipient after completion of a successful purchase. Options you can customize here:
+
+* The subject of the sale notification email
+* The content type of the sale notification email. The default is "text/plain". But you can also set it to "text/html"
+* The body of the sale notification email.
+
+You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
+=== How to Create a Stripe Payment Button ===
 
 In order to create a Stripe payment button you can add the following shortcode to a post/page:
 
@@ -95,7 +122,7 @@ In order to accept donations for a cause you can use the shortcode like the foll
 
 `[wp_stripe_checkout item_name="Watsi's medical work" description="Donations for Watsi's medical work" amount="1.00" label="Donate to Watsi"]`
 
-= Shortcode Parameters =
+=== Shortcode Parameters ===
 
 You can add additional parameters in the shortcode to customize your stripe payment button.
 
@@ -112,7 +139,7 @@ You can add additional parameters in the shortcode to customize your stripe paym
 * **allow-remember-me** - Specify whether to exclude the option to "Remember Me" for future purchases (e.g. allow-remember-me="false"). The default is true.
 * **bitcoin** - Specify whether Checkout form should accept Bitcoin (e.g. bitcoin="true"). The default is false.
 
-For detailed setup instructions please visit the [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 == Installation ==
 
