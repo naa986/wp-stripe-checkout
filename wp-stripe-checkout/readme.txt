@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 4.6
 Tested up to: 4.9
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,9 +24,9 @@ Stripe Checkout Form is a beautiful payment form specifically designed for deskt
 
 All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
 
-=== Why Stripe Checkout? ===
+=== Benefits of Stripe Payments & Stripe Plugin ===
 
-* Take Credit card payments easily and directly on your store.
+* Take Credit card payments easily and directly on your store with a simple pay form.
 * Accept almost any type of credit or debit card such as Visa, MasterCard, American Express, JCB, Discover, Diners Club.
 * Accept donations directly on your website
 * Accept gift and prepaid cards.
@@ -43,6 +43,10 @@ All payment submissions are made via a secure HTTPS connection. However, in orde
 * Display a logo of your brand or product on the checkout form.
 * Option to verify the card's zipcode during checkout.
 * Allow your customers to pay with a localized experience during checkout (12 languages supported and growing).
+* Automatically send a Stripe receipt to your customer after a purchase.
+* Send a purchase confirmation email to your customer after a transaction.
+* Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
+* Bill customers directly from your Stripe account dashboard.
 
 === Supported Countries ===
 
@@ -74,7 +78,7 @@ Stripe is currently available for businesses in 25 countries:
 
 If you are running businesses from one of these countries, you will be able to accept payments from customers anywhere in the world.
 
-=== Plugin Configuration ===
+=== Stripe Plugin Configuration ===
 
 Once you have activated the plugin, you need to configure some settings related to your Stripe merchant account. It's located under "WP Stripe Checkout -> Settings -> General".
 
@@ -182,6 +186,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.0.4 =
+* A new customer is now created for each purchase. With this feature, a seller will be able to charge the customer later from their Stripe account.
 
 = 1.0.3 =
 * Fixed a bug that caused this error - "Cannot load wp-stripe-checkout-settings".

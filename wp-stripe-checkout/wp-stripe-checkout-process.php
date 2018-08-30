@@ -43,9 +43,11 @@ function wp_stripe_checkout_process_order() {
     }
     
     $payment_data['billing_name'] = isset($_POST['stripeBillingName']) && !empty($_POST['stripeBillingName']) ? sanitize_text_field($_POST['stripeBillingName']) : '';
+    $customer_description = '';
     $payment_data['billing_first_name'] = '';
     $payment_data['billing_last_name'] = '';
     if(!empty($payment_data['billing_name'])){
+        $customer_description = __('Name', 'wp-stripe-checkout').': '.$payment_data['billing_name'];
         $billing_name_parts = explode(" ", $payment_data['billing_name']);
         $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
         $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
@@ -71,27 +73,37 @@ function wp_stripe_checkout_process_order() {
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     // Other charge data
-    $post_data['source'] = $stripeToken;
     $post_data['currency'] = strtolower($payment_data['currency_code']);
     $post_data['amount'] = $payment_data['price'] * 100;
     $post_data['description'] = $payment_data['product_description'];
     $post_data['capture'] = 'true';
     $payment_data['customer_email'] = '';
-    if (isset($_POST['stripeEmail'])) {
+    if(isset($_POST['stripeEmail'])) {
         $payment_data['customer_email'] = sanitize_email($_POST['stripeEmail']);
         $post_data['receipt_email'] = $payment_data['customer_email'];
+        //create a Stripe customer
+        $customer_args = array(
+                'email'       => $payment_data['customer_email'],
+                'description' => $customer_description,
+                'source' => $stripeToken,
+        );
+        wp_stripe_checkout_debug_log("Creating a Stripe customer", true);
+        $response = wp_stripe_checkout_stripe_request($customer_args, 'customers');
+        wp_stripe_checkout_debug_log("Response Data", true);
+        wp_stripe_checkout_debug_log(print_r($response, true), true);
+        $post_data['customer'] = $response->id;
     }
-
+    //only specify a source if no customber is created
+    if(!isset($post_data['customer'])) {
+        $post_data['source'] = $stripeToken;
+    }
     $post_data['expand[]'] = 'balance_transaction';
 
     // Make the request
+    wp_stripe_checkout_debug_log("Creating a charge request", true);
     $response = wp_stripe_checkout_stripe_request($post_data);
-
-    if (is_wp_error($response)) {
-        throw new Exception($response->get_error_message());
-    }
     wp_stripe_checkout_debug_log("Response Data", true);
-    wp_stripe_checkout_debug_log_array($response, true);
+    wp_stripe_checkout_debug_log(print_r($response, true), true);
     //process data
     $payment_data['txn_id'] = $response->id;
     $args = array(
@@ -265,11 +277,11 @@ function wp_stripe_checkout_stripe_request($request, $api = 'charges', $method =
     );
 
     if (is_wp_error($response)) {
-        wp_die(__('There was a problem connecting to the payment gateway.', 'wp-stripe-checkout'));
+        wp_die(__('There was a problem connecting to the payment gateway.', 'wp-stripe-checkout').print_r($response, true ));
     }
 
     if (empty($response['body'])) {
-        wp_die(__('Empty response.', 'wp-stripe-checkout'));
+        wp_die(__('Empty response.', 'wp-stripe-checkout').print_r($response, true ));
     }
 
     $parsed_response = json_decode($response['body']);
