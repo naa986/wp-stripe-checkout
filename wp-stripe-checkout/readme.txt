@@ -1,4 +1,4 @@
-=== Stripe Checkout ===
+=== WordPress Stripe Plugin - Accept Stripe Payments ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
@@ -8,7 +8,7 @@ Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Sell anything from your WordPress site with Stripe. Accept credit card payments via streamlined checkout and mobile-ready payment form.
+Sell anything from your website with WordPress Stripe plugin. Accept Stripe payments in WordPress via streamlined checkout and mobile-ready payment form.
 
 == Description ==
 
@@ -16,7 +16,7 @@ Sell anything from your WordPress site with Stripe. Accept credit card payments 
 
 https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
 
-=== What is Stripe Checkout Form? ===
+=== What is a Stripe Checkout Form? ===
 
 Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
 
@@ -24,7 +24,7 @@ Stripe Checkout Form is a beautiful payment form specifically designed for deskt
 
 All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
 
-=== Benefits of Stripe Payments & Stripe Plugin ===
+=== Benefits of Stripe Payments & WordPress Stripe Plugin ===
 
 * Take Credit card payments easily and directly on your store with a simple pay form.
 * Accept almost any type of credit or debit card such as Visa, MasterCard, American Express, JCB, Discover, Diners Club.
@@ -78,7 +78,7 @@ Stripe is currently available for businesses in 25 countries:
 
 If you are running businesses from one of these countries, you will be able to accept payments from customers anywhere in the world.
 
-=== Stripe Plugin Configuration ===
+=== WordPress Stripe Plugin Configuration ===
 
 Once you have activated the plugin, you need to configure some settings related to your Stripe merchant account. It's located under "WP Stripe Checkout -> Settings -> General".
 
@@ -154,33 +154,33 @@ For detailed setup instructions please visit the [Stripe](https://noorsplugin.co
 
 == Frequently Asked Questions ==
 
-= Can this plugin be used to accept credit card payments on my website? =
+= Can this Stripe plugin be used to accept credit card payments on my website? =
 
 Yes.
 
-= Can this plugin be used to accept donations on my website? =
+= Can this Stripe plugin be used to accept donations on my website? =
 
 Yes.
 
-= Can this plugin be used to accept Bitcoin payments on my website? =
+= Can this Stripe plugin be used to accept Bitcoin payments on my website? =
 
 Yes.
 
-= Does this plugin support 1-tap payments on mobile phones and tablets? =
+= Does this Stripe plugin support 1-tap payments on mobile phones and tablets? =
 
 Yes.
 
-= Does Stripe Checkout verify that credit cards are valid? =
+= Does this Stripe plugin verify that credit cards are valid? =
 
 Yes.
 
 == Screenshots ==
 
-1. Stripe Checkout Demo
-2. Stripe Checkout Orders Menu
-3. Stripe Checkout Email Sender Options
-4. Stripe Checkout Purchase Receipt Email Settings
-5. Stripe Checkout Sale Notification Email Settings
+1. Stripe Payments plugin Demo
+2. Stripe Plugin Orders Menu
+3. Stripe Plugin Email Sender Options
+4. Stripe Plugin Purchase Receipt Email Settings
+5. Stripe Plugin Sale Notification Email Settings
 
 == Upgrade Notice ==
 none
