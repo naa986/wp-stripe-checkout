@@ -25,6 +25,7 @@ function wp_stripe_checkout_process_order() {
     }
     $payment_data = array();
     $payment_data['product_name'] = sanitize_text_field($_POST['item_name']);
+    /*
     $transient_name = 'wpstripecheckout-amount-' . sanitize_title_with_dashes($payment_data['product_name']);
     $payment_data['price'] = get_transient($transient_name);
     if(!isset($payment_data['price']) || !is_numeric($payment_data['price'])){
@@ -37,6 +38,22 @@ function wp_stripe_checkout_process_order() {
         $error_msg = __('Currency could not be found.', 'wp-stripe-checkout');
         wp_die($error_msg);
     }
+    */
+    if (!isset($_POST['item_price']) || !is_numeric($_POST['item_price'])) {
+        $error_msg = __('Product price could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $payment_data['price'] = sanitize_text_field($_POST['item_price']);
+    if (!isset($_POST['item_amount']) || !is_numeric($_POST['item_amount'])) {
+        $error_msg = __('Product amount could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $payment_data['amount'] = sanitize_text_field($_POST['item_amount']);
+    if (!isset($_POST['item_currency']) || empty($_POST['item_currency'])) {
+        $error_msg = __('Currency could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $payment_data['currency_code'] = sanitize_text_field($_POST['item_currency']);
     $payment_data['product_description'] = '';
     if(isset($_POST['item_description']) && !empty($_POST['item_description'])){
         $payment_data['product_description'] = sanitize_text_field($_POST['item_description']);
@@ -74,7 +91,7 @@ function wp_stripe_checkout_process_order() {
     wp_stripe_checkout_debug_log_array($_POST, true);
     // Other charge data
     $post_data['currency'] = strtolower($payment_data['currency_code']);
-    $post_data['amount'] = $payment_data['price'] * 100;
+    $post_data['amount'] = $payment_data['amount']; //$payment_data['price'] * 100;
     $post_data['description'] = $payment_data['product_description'];
     $post_data['capture'] = 'true';
     $payment_data['customer_email'] = '';

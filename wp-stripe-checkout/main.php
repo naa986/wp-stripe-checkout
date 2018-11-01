@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.0.4
+  Version: 1.0.5
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.0.4';
+    var $plugin_version = '1.0.5';
     var $db_version = '1.0.1';
     var $plugin_url;
     var $plugin_path;
@@ -587,11 +587,14 @@ function wp_stripe_checkout_button_handler($atts) {
     if(!isset($atts['currency']) || empty($atts['currency'])){
         $atts['currency'] = $currency;
     }
+    /*
     $transient_name = 'wpstripecheckout-amount-' . sanitize_title_with_dashes($atts['item_name']);
     set_transient( $transient_name, $atts['amount'], 4 * 3600 );
     $transient_name = 'wpstripecheckout-currency-' . sanitize_title_with_dashes($atts['item_name']);
     set_transient( $transient_name, $atts['currency'], 4 * 3600 );
-    $atts['amount'] = $atts['amount'] * 100;
+    */
+    $price = $atts['amount']; //actual item price
+    $atts['amount'] = $atts['amount'] * 100;  //the price supported by Stripe
     //unset item_name because Stripe doesn't recognize it
     $item_name = $atts['item_name'];
     unset($atts['item_name']);
@@ -604,6 +607,7 @@ function wp_stripe_checkout_button_handler($atts) {
     $button_code .= '></script>';
     $button_code .= wp_nonce_field('wp_stripe_checkout', '_wpnonce', true, false);
     $button_code .= '<input type="hidden" value="'.$item_name.'" name="item_name" />';
+    $button_code .= '<input type="hidden" value="'.$price.'" name="item_price" />';
     $button_code .= '<input type="hidden" value="'.$atts['amount'].'" name="item_amount" />';
     $button_code .= '<input type="hidden" value="'.$atts['currency'].'" name="item_currency" />';
     $button_code .= '<input type="hidden" value="'.$description.'" name="item_description" />';
