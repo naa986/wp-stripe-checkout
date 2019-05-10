@@ -58,7 +58,10 @@ function wp_stripe_checkout_process_order() {
     if(isset($_POST['item_description']) && !empty($_POST['item_description'])){
         $payment_data['product_description'] = sanitize_text_field($_POST['item_description']);
     }
-    
+    $success_url = '';
+    if (isset($_POST['success_url']) && !empty($_POST['success_url'])) {
+        $success_url = esc_url_raw($_POST['success_url']);
+    }
     $payment_data['billing_name'] = isset($_POST['stripeBillingName']) && !empty($_POST['stripeBillingName']) ? sanitize_text_field($_POST['stripeBillingName']) : '';
     $customer_description = '';
     $payment_data['billing_first_name'] = '';
@@ -267,7 +270,11 @@ function wp_stripe_checkout_process_order() {
     wp_stripe_checkout_debug_log("Oder processing completed", true, true);
     do_action('wpstripecheckout_payment_completed', $payment_data);
     $stripe_options = wp_stripe_checkout_get_option();
-    if(isset($stripe_options['return_url']) && !empty($stripe_options['return_url'])){
+    if(!empty($success_url)){
+        wp_safe_redirect($success_url);
+        exit;
+    }
+    else if(isset($stripe_options['return_url']) && !empty($stripe_options['return_url'])){
         wp_safe_redirect($stripe_options['return_url']);
         exit;
     }

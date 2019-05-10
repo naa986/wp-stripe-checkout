@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.0.5
+  Version: 1.0.6
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.0.5';
+    var $plugin_version = '1.0.6';
     var $db_version = '1.0.1';
     var $plugin_url;
     var $plugin_path;
@@ -55,12 +55,14 @@ class WP_STRIPE_CHECKOUT {
             add_filter('plugin_action_links', array($this, 'add_plugin_action_links'), 10, 2);
         }
         add_action('admin_notices', array($this, 'admin_notice'));
+        //add_action('wp_head', array($this, 'wp_head'));
         add_action('wp_enqueue_scripts', array($this, 'plugin_scripts'));
         add_action('admin_menu', array($this, 'add_options_menu'));
         add_action('init', array($this, 'plugin_init'));
         add_filter('manage_wpstripeco_order_posts_columns', 'wp_stripe_checkout_order_columns');
         add_action('manage_wpstripeco_order_posts_custom_column', 'wp_stripe_checkout_custom_column', 10, 2);
         add_shortcode('wp_stripe_checkout', 'wp_stripe_checkout_button_handler');
+        //add_shortcode('wp_stripe_checkout_v3', 'wp_stripe_checkout_v3_button_handler');
     }
 
     function plugins_loaded_handler() {  //Runs when plugins_loaded action gets fired
@@ -104,7 +106,16 @@ class WP_STRIPE_CHECKOUT {
             
         }
     }
-
+    
+    function wp_head(){
+        $output = '';
+        global $post;
+	if(is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'wp_stripe_checkout_v3')){
+            $output .= '<script src="https://js.stripe.com/v3"></script>';
+        }
+        echo $output;
+    }
+    
     function plugin_url() {
         if ($this->plugin_url)
             return $this->plugin_url;
@@ -576,6 +587,13 @@ function wp_stripe_checkout_button_handler($atts) {
     if(isset($atts['description']) && !empty($atts['description'])){
         $description = $atts['description'];
     }
+    $success_url = '';
+    if(isset($atts['success_url'])){ 
+        if(!empty($atts['success_url'])){
+            $success_url = $atts['success_url'];
+        }
+        unset($atts['success_url']);
+    }
     $options = wp_stripe_checkout_get_option();
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
@@ -611,8 +629,50 @@ function wp_stripe_checkout_button_handler($atts) {
     $button_code .= '<input type="hidden" value="'.$atts['amount'].'" name="item_amount" />';
     $button_code .= '<input type="hidden" value="'.$atts['currency'].'" name="item_currency" />';
     $button_code .= '<input type="hidden" value="'.$description.'" name="item_description" />';
+    if(!empty($success_url)){
+        $button_code .= '<input type="hidden" value="'.$success_url.'" name="success_url" />';
+    }
     $button_code .= '<input type="hidden" value="1" name="wp_stripe_checkout" />';
     $button_code .= '</form>';
+    return $button_code;
+}
+
+function wp_stripe_checkout_v3_button_handler($atts) {
+    if(!isset($atts['sku']) || empty($atts['sku'])){
+        return __('You need to provide the product sku in the shortcode', 'wp-stripe-checkout');
+    }
+    if(!isset($atts['success_url']) || empty($atts['success_url'])){
+        return __('You need to provide a success url in the shortcode', 'wp-stripe-checkout');
+    }
+    if(!isset($atts['cancel_url']) || empty($atts['cancel_url'])){
+        return __('You need to provide a cancel url in the shortcode', 'wp-stripe-checkout');
+    }
+    $options = wp_stripe_checkout_get_option();
+    $key = $options['stripe_publishable_key'];
+    if(WP_STRIPE_CHECKOUT_TESTMODE){
+        $key = $options['stripe_test_publishable_key'];
+    }
+    if(!isset($key) || empty($key)){
+        return __('You need to provide your publishable key in the settings', 'wp-stripe-checkout');
+    }
+    $id = uniqid();
+    $button_code = <<<EOT
+    <button id="wpsc$id">Pay</button>        
+    <script>        
+    var stripe_$id = Stripe('$key');
+    var checkoutButton_$id = document.querySelector('#wpsc$id');
+    checkoutButton_$id.addEventListener('click', function () {
+      stripe_$id.redirectToCheckout({
+        items: [{
+          sku: '{$atts['sku']}',
+          quantity: 1
+        }],
+        successUrl: '{$atts['success_url']}',
+        cancelUrl: '{$atts['cancel_url']}'
+      });
+    });
+    </script>        
+EOT;
     return $button_code;
 }
 
