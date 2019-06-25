@@ -327,7 +327,8 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         '{txn_id}',
         '{product_name}',
         '{currency_code}',
-        '{price}'
+        '{price}',
+        '{customer_email}'
     );
     $replace = array(
         $payment_data['billing_first_name'], 
@@ -337,6 +338,7 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         $payment_data['product_name'],
         $payment_data['currency_code'],
         $payment_data['price'],
+        $payment_data['customer_email']
     );
     $content = str_replace($search, $replace, $content);
     return $content;
