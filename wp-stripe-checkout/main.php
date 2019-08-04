@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.0.7
+  Version: 1.0.8
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,8 +15,8 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.0.7';
-    var $db_version = '1.0.1';
+    var $plugin_version = '1.0.8';
+    var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
     
@@ -604,6 +604,11 @@ function wp_stripe_checkout_button_handler($atts) {
     $currency = $options['stripe_currency_code'];
     if(!isset($atts['currency']) || empty($atts['currency'])){
         $atts['currency'] = $currency;
+    }
+    //prefill the email if the user is logged in
+    if(is_user_logged_in()){
+        $current_user = wp_get_current_user();
+        $atts['email'] = $current_user->user_email;
     }
     /*
     $transient_name = 'wpstripecheckout-amount-' . sanitize_title_with_dashes($atts['item_name']);

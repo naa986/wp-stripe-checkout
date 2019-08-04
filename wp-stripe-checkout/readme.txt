@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 4.6
 Tested up to: 5.2
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,6 +187,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.0.8 =
+* The email address field is now prefilled for a logged-in WordPress user.
 
 = 1.0.7 =
 * Added a new email tag {customer_email} that can be used to show the email address of the customer.
