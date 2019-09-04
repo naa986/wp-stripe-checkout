@@ -1,14 +1,228 @@
 <?php
 
+function wp_stripe_checkout_process_webhook(){
+    if(!isset($_REQUEST['wp_stripe_co_webhook']))
+    {
+        return;
+    }
+    //status_header(200);
+    http_response_code(200);
+    // retrieve the request's body and parse it as JSON
+    $body = @file_get_contents('php://input');
+    // grab the event information
+    $event_json = json_decode($body);
+
+    $allowed_events = array("checkout.session.completed"); //add event types that we want to handle
+    if (!in_array($event_json->type, $allowed_events))   
+    {
+        return;
+    }
+    wp_stripe_checkout_debug_log("Received event notification from Stripe. Event type: ".$event_json->type, true);
+    wp_stripe_checkout_debug_log_array($event_json, true);
+    $client_reference_id = sanitize_text_field($event_json->data->object->client_reference_id);
+    if(!isset($client_reference_id) || empty($client_reference_id)){
+        wp_stripe_checkout_debug_log("Client Reference ID could not be found. This notification cannot be processed.", false);
+        return;
+    }
+    if(strpos($client_reference_id, 'wpsc') === false){
+        wp_stripe_checkout_debug_log("This payment was not initiated by the Stripe checkout plugin.", false);
+        return;
+    }
+    $subscription_id = sanitize_text_field($event_json->data->object->subscription);
+    if(isset($subscription_id) && !empty($subscription_id)){
+        wp_stripe_checkout_debug_log("Subscription notification cannot be processed at the moment.", false);
+        return;
+    }
+    $payment_intent_id = $event_json->data->object->payment_intent;
+    if(!isset($payment_intent_id) || empty($payment_intent_id)){
+        wp_stripe_checkout_debug_log("Payment Intent ID could not be found. This notification cannot be processed.", false);
+        return;
+    }
+    $payment_data = array();
+    $item_type = sanitize_text_field($event_json->data->object->display_items[0]->type);
+    if($item_type=="sku"){
+        $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->sku->attributes->name);
+    }
+    else if($item_type=="custom"){
+        $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->custom->name);
+    }
+    $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->custom->name);
+    $amount = sanitize_text_field($event_json->data->object->display_items[0]->amount);
+    $payment_data['price'] = $amount/100;
+    $currency = sanitize_text_field($event_json->data->object->display_items[0]->currency);
+    $payment_data['currency_code'] = strtoupper($currency);
+    
+    $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
+    
+    $billing_name = $payment_intent->charges->data[0]->billing_details->name;
+    $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
+    $payment_data['billing_first_name'] = '';
+    $payment_data['billing_last_name'] = '';
+    if(!empty($payment_data['billing_name'])){
+        $billing_name_parts = explode(" ", $payment_data['billing_name']);
+        $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
+        $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+    }
+    $address_line1 = $payment_intent->charges->data[0]->billing_details->address->line1;
+    $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
+    $address_zip = $payment_intent->charges->data[0]->billing_details->address->postal_code;
+    $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
+    $address_state = $payment_intent->charges->data[0]->billing_details->address->state;
+    $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
+    $address_city = $payment_intent->charges->data[0]->billing_details->address->city;
+    $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
+    $address_country = $payment_intent->charges->data[0]->billing_details->address->country;
+    $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
+    $customer_email = $payment_intent->charges->data[0]->billing_details->email;
+    $payment_data['customer_email'] = sanitize_email($customer_email);
+    $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
+    //process data
+    $txn_id = sanitize_text_field($payment_intent->charges->data[0]->id);
+    if(!isset($txn_id) || empty($txn_id)){
+        $txn_id = $payment_intent_id;
+    }
+    $payment_data['txn_id'] = $txn_id;
+    $args = array(
+        'post_type' => 'wpstripeco_order',
+        'meta_query' => array(
+            array(
+                'key' => '_txn_id',
+                'value' => $payment_data['txn_id'],
+                'compare' => '=',
+            ),
+        ),
+    );
+    $query = new WP_Query($args);
+    if ($query->have_posts()) {  //a record already exists
+        wp_stripe_checkout_debug_log("An order with this transaction ID already exists. This payment will not be processed.", false);
+        return;
+    }
+    $content = '';
+    $content .= '<strong>Transaction ID:</strong> '.$payment_data['txn_id'].'<br />';
+    $content .= '<strong>Product name:</strong> '.$payment_data['product_name'].'<br />';
+    $content .= '<strong>Amount:</strong> '.$payment_data['price'].'<br />';
+    $content .= '<strong>Currency:</strong> '.$payment_data['currency_code'].'<br />';
+    if(!empty($payment_data['billing_name'])){
+        $content .= '<strong>Billing Name:</strong> '.$payment_data['billing_name'].'<br />';
+    }
+    if(!empty($payment_data['customer_email'])){
+        $content .= '<strong>Email:</strong> '.$payment_data['customer_email'].'<br />'; 
+    }
+    if(!empty($payment_data['stripe_customer_id'])){
+        $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
+    }
+    if(!empty($payment_data['billing_address_line1'])){
+        $content .= '<strong>Billing Address:</strong> '.$payment_data['billing_address_line1'];
+        if(!empty($payment_data['billing_address_city'])){
+            $content .= ', '.$payment_data['billing_address_city'];
+        }
+        if(!empty($payment_data['billing_address_state'])){
+            $content .= ', '.$payment_data['billing_address_state'];
+        }
+        if(!empty($payment_data['billing_address_zip'])){
+            $content .= ', '.$payment_data['billing_address_zip'];
+        }
+        if(!empty($payment_data['billing_address_country'])){
+            $content .= ', '.$payment_data['billing_address_country'];
+        }
+        $content .= '<br />';
+    }
+    $payment_data['order_id'] = '';
+    $wp_stripe_checkout_order = array(
+        'post_title' => 'order',
+        'post_type' => 'wpstripeco_order',
+        'post_content' => '',
+        'post_status' => 'publish',
+    );
+    wp_stripe_checkout_debug_log("Updating order information", true);
+    $post_id = wp_insert_post($wp_stripe_checkout_order);  //insert a new order
+    $post_updated = false;
+    if ($post_id > 0) {
+        $post_content = $content;
+        $updated_post = array(
+            'ID' => $post_id,
+            'post_title' => $post_id,
+            'post_type' => 'wpstripeco_order',
+            'post_content' => $post_content
+        );
+        $updated_post_id = wp_update_post($updated_post);  //update the order
+        if ($updated_post_id > 0) {  //successfully updated
+            $post_updated = true;
+        }
+    }
+    //save order information
+    if ($post_updated) {
+        $payment_data['order_id'] = $post_id;
+        update_post_meta($post_id, '_txn_id', $payment_data['txn_id']);
+        update_post_meta($post_id, '_name', $payment_data['billing_name']);
+        update_post_meta($post_id, '_amount', $payment_data['price']);
+        update_post_meta($post_id, '_email', $payment_data['customer_email']);
+        wp_stripe_checkout_debug_log("Order information updated", true);
+        $email_options = wp_stripe_checkout_get_email_option();
+        add_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');
+        add_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name');
+        if(isset($email_options['purchase_email_enabled']) && !empty($email_options['purchase_email_enabled']) && !empty($payment_data['customer_email'])){
+            $subject = $email_options['purchase_email_subject'];
+            $type = $email_options['purchase_email_type'];
+            $body = $email_options['purchase_email_body'];
+            $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
+            if($type == "html"){
+                add_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+                $body = apply_filters('wp_stripe_checkout_email_body_wpautop', true) ? wpautop($body) : $body;
+            }
+            wp_stripe_checkout_debug_log("Sending a purchase receipt email to ".$payment_data['customer_email'], true);
+            $mail_sent = wp_mail($payment_data['customer_email'], $subject, $body);
+            if($type == "html"){
+                remove_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+            }
+            if($mail_sent == true){
+                wp_stripe_checkout_debug_log("Email was sent successfully by WordPress", true);
+            }
+            else{
+                wp_stripe_checkout_debug_log("Email could not be sent by WordPress", false);
+            }
+        }
+        if(isset($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_recipient'])){
+            $subject = $email_options['sale_notification_email_subject'];
+            $type = $email_options['sale_notification_email_type'];
+            $body = $email_options['sale_notification_email_body'];
+            $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
+            if($type == "html"){
+                add_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+                $body = apply_filters('wp_stripe_checkout_email_body_wpautop', true) ? wpautop($body) : $body;
+            }
+            wp_stripe_checkout_debug_log("Sending a sale notification email to ".$email_options['sale_notification_email_recipient'], true);
+            $mail_sent = wp_mail($email_options['sale_notification_email_recipient'], $subject, $body);
+            if($type == "html"){
+                remove_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+            }
+            if($mail_sent == true){
+                wp_stripe_checkout_debug_log("Email was sent successfully by WordPress", true);
+            }
+            else{
+                wp_stripe_checkout_debug_log("Email could not be sent by WordPress", false);
+            }
+        }
+        remove_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');
+        remove_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name');      
+        do_action('wpstripecheckout_order_processed', $post_id);
+    } else {
+        wp_stripe_checkout_debug_log("Order information could not be updated", false);
+        return;
+    }
+    wp_stripe_checkout_debug_log("Oder processing completed", true, true);
+    do_action('wpstripecheckout_payment_completed', $payment_data);
+}
+
 function wp_stripe_checkout_process_order() {
-    if (!isset($_POST['wp_stripe_checkout']) && !isset($_POST['wp_stripe_checkout'])) {
+    if (!isset($_POST['wp_stripe_checkout_legacy']) && !isset($_POST['wp_stripe_checkout_legacy'])) {
         return;
     }
     if (!isset($_POST['stripeToken']) && !isset($_POST['stripeTokenType'])) {
         return;
     }
     $nonce = $_REQUEST['_wpnonce'];
-    if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout')){
+    if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_legacy')){
         $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
         wp_die($error_msg);
     }
@@ -108,7 +322,7 @@ function wp_stripe_checkout_process_order() {
                 'source' => $stripeToken,
         );
         wp_stripe_checkout_debug_log("Creating a Stripe customer", true);
-        $response = wp_stripe_checkout_stripe_request($customer_args, 'customers');
+        $response = WP_SC_Stripe_API::request($customer_args, 'customers');
         wp_stripe_checkout_debug_log("Response Data", true);
         wp_stripe_checkout_debug_log(print_r($response, true), true);
         $post_data['customer'] = $response->id;
@@ -121,7 +335,7 @@ function wp_stripe_checkout_process_order() {
 
     // Make the request
     wp_stripe_checkout_debug_log("Creating a charge request", true);
-    $response = wp_stripe_checkout_stripe_request($post_data);
+    $response = WP_SC_Stripe_API::request($post_data);
     wp_stripe_checkout_debug_log("Response Data", true);
     wp_stripe_checkout_debug_log(print_r($response, true), true);
     //process data
@@ -277,45 +491,6 @@ function wp_stripe_checkout_process_order() {
     else if(isset($stripe_options['return_url']) && !empty($stripe_options['return_url'])){
         wp_safe_redirect($stripe_options['return_url']);
         exit;
-    }
-}
-
-function wp_stripe_checkout_stripe_request($request, $api = 'charges', $method = 'POST') {
-
-    $stripe_options = wp_stripe_checkout_get_option();
-    $secret_key = $stripe_options['stripe_secret_key'];
-    if (WP_STRIPE_CHECKOUT_TESTMODE) {
-        $secret_key = $stripe_options['stripe_test_secret_key'];
-    }
-    $response = wp_safe_remote_post(
-        'https://api.stripe.com/v1/' . $api, array(
-            'method' => $method,
-            'headers' => array(
-                'Authorization' => 'Basic ' . base64_encode($secret_key . ':'),
-                'Stripe-Version' => '2018-07-27'
-            ),
-            'body' => $request,
-            'timeout' => 70,
-            'user-agent' => 'wpstripecheckout'
-        )
-    );
-
-    if (is_wp_error($response)) {
-        wp_die(__('There was a problem connecting to the payment gateway.', 'wp-stripe-checkout').print_r($response, true ));
-    }
-
-    if (empty($response['body'])) {
-        wp_die(__('Empty response.', 'wp-stripe-checkout').print_r($response, true ));
-    }
-
-    $parsed_response = json_decode($response['body']);
-
-    // Handle response
-    if (!empty($parsed_response->error)) {
-        $error_msg = (!empty($parsed_response->error->code)) ? $parsed_response->error->code : 'stripe_error: ' . $parsed_response->error->message;
-        wp_die($error_msg);
-    } else {
-        return $parsed_response;
     }
 }
 

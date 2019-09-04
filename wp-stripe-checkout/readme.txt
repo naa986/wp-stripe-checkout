@@ -1,10 +1,10 @@
-=== WordPress Stripe Plugin - Accept Stripe Payments ===
+=== WordPress Stripe Checkout Plugin ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 4.6
 Tested up to: 5.2
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,71 +12,28 @@ Sell anything from your website with WordPress Stripe plugin. Accept Stripe paym
 
 == Description ==
 
-[Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. You can integrate Stripe's payment form into your website with a simple shortcode. This makes accepting credit card payments easier than ever with very little setup and effort.
+[Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
-https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
+Stripe Checkout comes with a smart payment page that works seamlessly across devices and is designed to increase your conversion.
 
-=== What is a Stripe Checkout Form? ===
+=== Benefits of Stripe Checkout Payments ===
 
-Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
-
-=== Does Stripe Checkout require HTTPS? ===
-
-All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
-
-=== Benefits of Stripe Payments & WordPress Stripe Plugin ===
-
-* Take Credit card payments easily and directly on your store with a simple pay form.
-* Accept almost any type of credit or debit card such as Visa, MasterCard, American Express, JCB, Discover, Diners Club.
-* Accept donations directly on your website
-* Accept gift and prepaid cards.
-* Support for other payment methods such as Bitcoin and China's Alipay.
+* Smooth checkout flow that automatically handles SCA (Strong Customer Authentication) requirements for you.
+* Accept credit and debit card payments.
+* Accept Apple Pay payments with no additional setup.
+* Support Dynamic 3D Secure payment authentication.
+* Localized for 14 languages.
+* Automatically send email receipts to your customers.
+* Build conversion-optimized payment forms, hosted on Stripe.
 * Simplified mobile-ready experience for customers.
-* Optimized payment form designed to maximize customer conversion.
-* Option to collect customer's billing address during checkout.
-* Option to Collect customer's shipping address during checkout.
 * It works on its own. There is no complex setup like a membership/e-commerce plugin.
 * No setup fees, monthly fees or hidden costs. You are charged on a percentage basis for each payment (2.9% + 30 cents for International cards and 1.75% + 30 cents for domestic cards).
-* Seamless transfer to your bank account. Once everything is set up, transfers arrive in your bank account on a 2-day rolling basis. 
+* Seamless transfer to your bank account. Once everything is set up, transfers arrive in your bank account on a 2-day rolling basis.
 * Easily Switch between live and sandbox mode for testing.
 * Real-time fee reporting in your Stripe account.
-* Display a logo of your brand or product on the checkout form.
-* Option to verify the card's zipcode during checkout.
-* Allow your customers to pay with a localized experience during checkout (12 languages supported and growing).
-* Automatically send a Stripe receipt to your customer after a purchase.
+* Display a logo of your brand or product on the payment page.
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
-* Bill customers directly from your Stripe account dashboard.
-
-=== Supported Countries ===
-
-Stripe is currently available for businesses in 25 countries:
-
-* Australia
-* Austria
-* Belgium
-* Canada
-* Denmark
-* Finland
-* France
-* Germany
-* Hong Kong
-* Ireland
-* Italy
-* Japan
-* Luxembourg
-* Netherlands
-* New Zealand
-* Norway
-* Portugal
-* Singapore
-* Spain
-* Sweden
-* Switzerland
-* United Kingdom
-* United States
-
-If you are running businesses from one of these countries, you will be able to accept payments from customers anywhere in the world.
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -89,8 +46,9 @@ Once you have activated the plugin, you need to configure some settings related 
 * Stripe Live Publishable Key: Your Stripe publishable key to run transactions in live mode
 * Currency Code: The default currency code that will be used when accepting a payment
 * Return URL: The page URL to which the customer will be redirected after a successful payment
+* Stripe Webhook URL: The page URL to which Stripe will send notification after an event
 
-= Emails =
+=== Emails ===
 
 Stripe checkout plugin comes with an "Emails" tab where you will be able to configure some email related settings.
 
@@ -116,7 +74,45 @@ When this feature is enabled an email is sent to your chosen recipient after com
 
 You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
-=== How to Create a Stripe Payment Button ===
+=== How to use Stripe Checkout ===
+
+**Step 1: Enable Checkout in the Dashboard**
+
+To begin using Checkout, log into the Stripe Dashboard and navigate to the Checkout settings (Settings > Stripe apps > CHECKOUT). From here you can enable the client integration and customize the look and feel of your checkout page. 
+
+**Step 2: Create a Product**
+
+Navigate to the "Products" section in the Dashboard and create a new product (New > One-time purchase products). When you create a product in the Dashboard, Stripe creates a SKU ID for it. You will need to use this SKU ID in shortcode to create a button.
+
+**Step 3: Add a Webhook Endpoint**
+
+Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send notification after a checkout payment is successful.
+
+**Step 4: Add a Checkout Shortcode**
+
+In order to create a Stripe checkout button you can add the following shortcode to a post/page:
+
+`[wp_stripe_checkout_v3 sku="sku_EmRwzU81QKnkaq"]`
+
+=== Shortcode Parameters ===
+
+* **sku** - SKU of the product created in your Stripe account.
+
+You can add additional parameters in the shortcode to customize your Stripe checkout button.
+
+* **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
+* **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
+* **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
+
+For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
+=== Legacy Stripe Checkout ===
+
+https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
+
+Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
+
+All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
 
 In order to create a Stripe payment button you can add the following shortcode to a post/page:
 
@@ -125,8 +121,6 @@ In order to create a Stripe payment button you can add the following shortcode t
 In order to accept donations for a cause you can use the shortcode like the following:
 
 `[wp_stripe_checkout item_name="Watsi's medical work" description="Donations for Watsi's medical work" amount="1.00" label="Donate to Watsi"]`
-
-=== Shortcode Parameters ===
 
 You can add additional parameters in the shortcode to customize your stripe payment button.
 
@@ -154,6 +148,10 @@ For detailed setup instructions please visit the [Stripe](https://noorsplugin.co
 1. Click "Install Now" and then hit the activate button
 
 == Frequently Asked Questions ==
+
+= Does this plugin support strong customer authentication? =
+
+Yes.
 
 = Can this Stripe plugin be used to accept credit card payments on my website? =
 
@@ -187,6 +185,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.0.9 =
+* Added a new checkout method that supports strong customer authentication.
 
 = 1.0.8 =
 * The email address field is now prefilled for a logged-in WordPress user.
