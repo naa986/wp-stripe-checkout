@@ -94,9 +94,9 @@ In order to create a Stripe checkout button you can add the following shortcode 
 
 `[wp_stripe_checkout_v3 sku="sku_EmRwzU81QKnkaq"]`
 
-=== Shortcode Parameters ===
+**sku** - SKU of the product created in your Stripe account.
 
-* **sku** - SKU of the product created in your Stripe account.
+=== Shortcode Parameters ===
 
 You can add additional parameters in the shortcode to customize your Stripe checkout button.
 
