@@ -16,6 +16,8 @@ Sell anything from your website with WordPress Stripe plugin. Accept Stripe paym
 
 Stripe Checkout comes with a smart payment page that works seamlessly across devices and is designed to increase your conversion.
 
+https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
+
 === Benefits of Stripe Checkout Payments ===
 
 * Smooth checkout flow that automatically handles SCA (Strong Customer Authentication) requirements for you.
