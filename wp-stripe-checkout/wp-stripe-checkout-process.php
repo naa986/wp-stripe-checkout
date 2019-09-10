@@ -40,13 +40,13 @@ function wp_stripe_checkout_process_webhook(){
     }
     $payment_data = array();
     $item_type = sanitize_text_field($event_json->data->object->display_items[0]->type);
+    $payment_data['product_name'] = '';
     if($item_type=="sku"){
         $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->sku->attributes->name);
     }
     else if($item_type=="custom"){
         $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->custom->name);
     }
-    $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->custom->name);
     $amount = sanitize_text_field($event_json->data->object->display_items[0]->amount);
     $payment_data['price'] = $amount/100;
     $currency = sanitize_text_field($event_json->data->object->display_items[0]->currency);

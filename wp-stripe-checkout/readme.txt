@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 4.6
 Tested up to: 5.2
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,6 +187,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.0 =
+* Fixed an issue where the product name was not getting captured with the order.
 
 = 1.0.9 =
 * Added a new checkout method that supports strong customer authentication.
