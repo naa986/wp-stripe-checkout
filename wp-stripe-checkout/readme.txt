@@ -1,4 +1,4 @@
-=== WordPress Stripe Checkout Plugin ===
+=== WordPress Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
