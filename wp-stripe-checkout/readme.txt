@@ -2,9 +2,9 @@
 Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
-Requires at least: 4.6
+Requires at least: 5.3
 Tested up to: 5.3
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,6 +187,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.2 =
+* Fixed a warning notice in the orders menu.
 
 = 1.1.1 =
 * Added a new check to make sure that a return URL page is configured in the settings.

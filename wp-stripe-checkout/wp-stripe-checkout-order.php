@@ -31,7 +31,7 @@ function wp_stripe_checkout_register_order_type() {
         'has_archive' => true,
         'hierarchical' => false,
         'menu_position' => null,
-        'supports' => 'editor'
+        'supports' => array('editor')
     );
 
     register_post_type('wpstripeco_order', $args);
