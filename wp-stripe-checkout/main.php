@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.1.3
+  Version: 1.1.4
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.1.3';
+    var $plugin_version = '1.1.4';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -659,8 +659,18 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(isset($atts['button_text']) && !empty($atts['button_text'])){
         $button_text = $atts['button_text'];
     }
-    if(!isset($atts['sku']) || empty($atts['sku'])){
-        return __('You need to provide the product sku in the shortcode', 'wp-stripe-checkout');
+    $identifier = '';
+    if(!isset($atts['price']) || empty($atts['price'])){  //new API
+        //check for existing items that may still use sku
+        if(!isset($atts['sku']) || empty($atts['sku'])){
+            return __('You need to provide a price ID or sku in the shortcode', 'wp-stripe-checkout');
+        }
+        else{
+            $identifier = $atts['sku'];
+        }
+    }
+    else{
+        $identifier = $atts['price'];
     }
     $options = wp_stripe_checkout_get_option();
     $success_url = $options['return_url'];
@@ -685,22 +695,32 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
     $button_code = <<<EOT
-    <button id="wpsc$id">$button_text</button>        
-    <script>        
-    var stripe_$id = Stripe('$key');
-    var checkoutButton_$id = document.querySelector('#wpsc$id');
-    checkoutButton_$id.addEventListener('click', function () {
-      stripe_$id.redirectToCheckout({
-        items: [{
-          sku: '{$atts['sku']}',
-          quantity: 1
-        }],
-        successUrl: '{$success_url}',
-        cancelUrl: '{$cancel_url}',
-        clientReferenceId: '$client_reference_id',
-        billingAddressCollection: 'required'
-      });
-    });
+    <button id="wpsc$id">$button_text</button>
+    <div id="error-wpsc$id"></div>
+    <script>
+    (function() {
+        var stripe_$id = Stripe('$key');
+        var checkoutButton_$id = document.querySelector('#wpsc$id');
+        checkoutButton_$id.addEventListener('click', function () {
+          stripe_$id.redirectToCheckout({
+            lineItems: [{
+              price: '{$identifier}',
+              quantity: 1
+            }],
+            mode: 'payment',  
+            successUrl: '{$success_url}',
+            cancelUrl: '{$cancel_url}',
+            clientReferenceId: '$client_reference_id',
+            billingAddressCollection: 'required'
+          })
+          .then(function (result) {
+              if (result.error) {
+                var displayError = document.getElementById('error-wpsc$id');
+                displayError.textContent = result.error.message;
+              }
+          });          
+        });
+    })();
     </script>        
 EOT;
     return $button_code;
@@ -781,8 +801,8 @@ function wp_stripe_checkout_get_empty_email_options_array(){
 
 function wp_stripe_checkout_set_default_email_options(){
     $options = wp_stripe_checkout_get_email_option();
-    $options['purchase_email_subject'] = __("Purchase Receipt", "wp-stripe-checkout");
     $options['purchase_email_type'] = 'plain';
+    $options['purchase_email_subject'] = __("Purchase Receipt", "wp-stripe-checkout");
     $purchage_email_body = __("Dear", "wp-stripe-checkout")." {first_name},\n\n";
     $purchage_email_body .= __("Thank you for your purchase. Your purchase details are shown below for your reference:", "wp-stripe-checkout")."\n\n";
     $purchage_email_body .= __("Transaction ID:", "wp-stripe-checkout")." {txn_id}\n";

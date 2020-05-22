@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, stripe payments, stripe checkout, credit card, payments
 Requires at least: 5.3
 Tested up to: 5.4
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,7 +84,7 @@ To begin using Checkout, log into the Stripe Dashboard and navigate to the Check
 
 **Step 2: Create a Product**
 
-Navigate to the "Products" section in the Dashboard and create a new product (New > One-time purchase products). When you create a product in the Dashboard, Stripe creates a SKU ID for it. You will need to use this SKU ID in shortcode to create a button.
+Navigate to the "Products" section in the Dashboard and create a new product (New > One-time purchase products). When you create a product in the Dashboard, Stripe creates a Price ID for it. You will need to use this Price ID in shortcode to create a button.
 
 **Step 3: Add a Webhook Endpoint**
 
@@ -94,9 +94,9 @@ Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plu
 
 In order to create a Stripe checkout button you can add the following shortcode to a post/page:
 
-`[wp_stripe_checkout_v3 sku="sku_EmRwzU81QKnkaq"]`
+`[wp_stripe_checkout_v3 price="price_UY9NozbEy7T3PUlk"]`
 
-**sku** - SKU of the product created in your Stripe account.
+**price** - Price ID of the product created in your Stripe account.
 
 === Shortcode Parameters ===
 
@@ -187,6 +187,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.4 =
+* Replaced sku with the price parameter in the shortcode.
 
 = 1.1.3 =
 * Made some improvements to the orders menu.

@@ -39,20 +39,14 @@ function wp_stripe_checkout_process_webhook(){
         return;
     }
     $payment_data = array();
-    $item_type = sanitize_text_field($event_json->data->object->display_items[0]->type);
-    $payment_data['product_name'] = '';
-    if($item_type=="sku"){
-        $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->sku->attributes->name);
-    }
-    else if($item_type=="custom"){
-        $payment_data['product_name'] = sanitize_text_field($event_json->data->object->display_items[0]->custom->name);
-    }
-    $amount = sanitize_text_field($event_json->data->object->display_items[0]->amount);
-    $payment_data['price'] = $amount/100;
-    $currency = sanitize_text_field($event_json->data->object->display_items[0]->currency);
-    $payment_data['currency_code'] = strtoupper($currency);
-    
+   
     $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
+    
+    $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
+    $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
+    $payment_data['price'] = $amount/100;
+    $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
+    $payment_data['currency_code'] = strtoupper($currency);
     
     $billing_name = $payment_intent->charges->data[0]->billing_details->name;
     $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
