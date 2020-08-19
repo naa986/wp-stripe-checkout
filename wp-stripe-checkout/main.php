@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.1.4
+  Version: 1.1.5
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.1.4';
+    var $plugin_version = '1.1.5';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -588,7 +588,7 @@ class WP_STRIPE_CHECKOUT {
 $GLOBALS['wp_stripe_checkout'] = new WP_STRIPE_CHECKOUT();
 
 function wp_stripe_checkout_button_handler($atts) {
-    
+    $atts = array_map('sanitize_text_field', $atts);
     if(!isset($atts['item_name']) || empty($atts['item_name'])){
         return __('item_name cannot be left empty', 'wp-stripe-checkout');
     }
@@ -655,6 +655,7 @@ function wp_stripe_checkout_button_handler($atts) {
 }
 
 function wp_stripe_checkout_v3_button_handler($atts) {
+    $atts = array_map('sanitize_text_field', $atts);
     $button_text = 'Buy Now';
     if(isset($atts['button_text']) && !empty($atts['button_text'])){
         $button_text = $atts['button_text'];
