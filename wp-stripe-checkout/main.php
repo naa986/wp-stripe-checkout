@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.1.5
+  Version: 1.1.6
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.1.5';
+    var $plugin_version = '1.1.6';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -683,8 +683,8 @@ function wp_stripe_checkout_v3_button_handler($atts) {
         return __('You need to provide a return URL page in the settings', 'wp-stripe-checkout');
     }
     $cancel_url = home_url();
-    if(isset($atts['cancel_url ']) && !empty($atts['cancel_url '])){
-        $cancel_url = $atts['cancel_url '];
+    if(isset($atts['cancel_url']) && !empty($atts['cancel_url'])){
+        $cancel_url = $atts['cancel_url'];
     }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){

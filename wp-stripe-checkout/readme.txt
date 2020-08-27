@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.5
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,6 +187,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.6 =
+* Fixed a bug in the cancel_url parameter
 
 = 1.1.5 =
 * Made some security related improvements in the plugin
