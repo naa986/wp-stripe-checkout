@@ -695,8 +695,16 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
+    $quantity = (isset($atts['qty']) && (int)$atts['qty'] > 0) ? (int)$atts['qty'] : 1;
+    $shipping_address = '';
+    if (isset($atts['shipping-countries']) && !empty($atts['shipping-countries'])) {
+        $countries = preg_replace('/[^,a-zA-Z]/', '', $atts['shipping-countries']);
+        $countries = "'" . implode("','", explode(',', $countries)) . "'";
+        $shipping_address = 'shippingAddressCollection: { allowedCountries: [' . $countries . '] }';
+    }
+
     $button_code = <<<EOT
-    <button id="wpsc$id">$button_text</button>
+    <button id="wpsc$id" class="stripe" data-qty="{$quantity}">$button_text</button>
     <div id="error-wpsc$id"></div>
     <script>
     (function() {
@@ -706,13 +714,14 @@ function wp_stripe_checkout_v3_button_handler($atts) {
           stripe_$id.redirectToCheckout({
             lineItems: [{
               price: '{$identifier}',
-              quantity: 1
+              quantity: parseInt(this.dataset.qty, 10)
             }],
             mode: 'payment',  
             successUrl: '{$success_url}',
             cancelUrl: '{$cancel_url}',
             clientReferenceId: '$client_reference_id',
-            billingAddressCollection: 'required'
+            billingAddressCollection: 'required',
+            ${shipping_address}
           })
           .then(function (result) {
               if (result.error) {
