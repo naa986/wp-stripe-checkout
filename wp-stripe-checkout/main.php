@@ -710,25 +710,32 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     (function() {
         var stripe_$id = Stripe('$key');
         var checkoutButton_$id = document.querySelector('#wpsc$id');
-        checkoutButton_$id.addEventListener('click', function () {
-          stripe_$id.redirectToCheckout({
-            lineItems: [{
-              price: '{$identifier}',
-              quantity: parseInt(this.dataset.qty, 10)
-            }],
-            mode: 'payment',  
-            successUrl: '{$success_url}',
-            cancelUrl: '{$cancel_url}',
-            clientReferenceId: '$client_reference_id',
-            billingAddressCollection: 'required',
-            ${shipping_address}
-          })
-          .then(function (result) {
-              if (result.error) {
-                var displayError = document.getElementById('error-wpsc$id');
-                displayError.textContent = result.error.message;
-              }
-          });          
+        checkoutButton_$id.addEventListener('click', function() {
+            try {
+                stripe_$id.redirectToCheckout({
+                        lineItems: [{
+                            price: '{$identifier}',
+                            quantity: parseInt(this.dataset.qty, 10)
+                        }],
+                        mode: 'payment',
+                        successUrl: '{$success_url}',
+                        cancelUrl: '{$cancel_url}',
+                        clientReferenceId: '$client_reference_id',
+                        billingAddressCollection: 'required',
+                        ${shipping_address}
+                    })
+                    .then(function(result) {
+                        if (result.error) {
+                            var displayError = document.getElementById('error-wpsc$id');
+                            displayError.textContent = result.error.message;
+                        }
+                    });
+            } catch (error) {
+                if (error) {
+                    var displayError = document.getElementById('error-wpsc$id');
+                    displayError.textContent = error;
+                }
+            }
         });
     })();
     </script>        
