@@ -28,54 +28,105 @@ function wp_stripe_checkout_process_webhook(){
         wp_stripe_checkout_debug_log("This payment was not initiated by the Stripe checkout plugin.", false);
         return;
     }
+    $payment_data = array();
     $subscription_id = sanitize_text_field($event_json->data->object->subscription);
     if(isset($subscription_id) && !empty($subscription_id)){
-        wp_stripe_checkout_debug_log("Subscription notification cannot be processed at the moment.", false);
-        return;
+        $payment_data['txn_id'] = $subscription_id;
+        wp_stripe_checkout_debug_log("This notification is for a subscription payment.", true);
+        $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
+        if(!isset($payment_data['stripe_customer_id']) || empty($payment_data['stripe_customer_id'])){
+            wp_stripe_checkout_debug_log("Customer ID could not be found. This notification cannot be processed.", false);
+            return;
+        }
+        $customers = WP_SC_Stripe_API::retrieve('customers/'.$payment_data['stripe_customer_id']);
+        $payment_data['customer_email'] = sanitize_text_field($customers->email);
+        if(!isset($payment_data['customer_email']) || empty($payment_data['customer_email'])){
+            wp_stripe_checkout_debug_log("Customer email could not be found. This notification cannot be processed.", false);
+            return;
+        }
+        $subscriptions = WP_SC_Stripe_API::retrieve('subscriptions/'.$subscription_id);
+        $product_id = sanitize_text_field($subscriptions->plan->product);
+        if(!isset($product_id) || empty($product_id)){
+            wp_stripe_checkout_debug_log("Product ID could not be found. This notification cannot be processed.", false);
+            return;
+        }
+        $products = WP_SC_Stripe_API::retrieve('products/'.$product_id);
+        $payment_data['product_name'] = sanitize_text_field($products->name);
+        $amount = sanitize_text_field($event_json->data->object->amount_total);
+        $payment_data['price'] = $amount/100;
+        $currency = sanitize_text_field($event_json->data->object->currency);
+        $payment_data['currency_code'] = strtoupper($currency);
+        
+        $payment_method_id = sanitize_text_field($subscriptions->default_payment_method);
+        if(!isset($payment_method_id) || empty($payment_method_id)){
+            wp_stripe_checkout_debug_log("Payment method could not be found. This notification cannot be processed.", false);
+            return;
+        }
+        $payment_methods = WP_SC_Stripe_API::retrieve('payment_methods/'.$payment_method_id);               
+        $billing_name = $payment_methods->billing_details->name;
+        $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
+        $payment_data['billing_first_name'] = '';
+        $payment_data['billing_last_name'] = '';
+        if(!empty($payment_data['billing_name'])){
+            $billing_name_parts = explode(" ", $payment_data['billing_name']);
+            $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
+            $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+        }
+        $address_line1 = $payment_methods->billing_details->address->line1;
+        $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
+        $address_zip = $payment_methods->billing_details->address->postal_code;
+        $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
+        $address_state = $payment_methods->billing_details->address->state;
+        $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
+        $address_city = $payment_methods->billing_details->address->city;
+        $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
+        $address_country = $payment_methods->billing_details->address->country;
+        $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
     }
-    $payment_intent_id = $event_json->data->object->payment_intent;
-    if(!isset($payment_intent_id) || empty($payment_intent_id)){
-        wp_stripe_checkout_debug_log("Payment Intent ID could not be found. This notification cannot be processed.", false);
-        return;
+    else{
+        $payment_intent_id = $event_json->data->object->payment_intent;
+        if(!isset($payment_intent_id) || empty($payment_intent_id)){
+            wp_stripe_checkout_debug_log("Payment Intent ID could not be found. This notification cannot be processed.", false);
+            return;
+        }
+
+        $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
+
+        $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
+        $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
+        $payment_data['price'] = $amount/100;
+        $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
+        $payment_data['currency_code'] = strtoupper($currency);
+
+        $billing_name = $payment_intent->charges->data[0]->billing_details->name;
+        $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
+        $payment_data['billing_first_name'] = '';
+        $payment_data['billing_last_name'] = '';
+        if(!empty($payment_data['billing_name'])){
+            $billing_name_parts = explode(" ", $payment_data['billing_name']);
+            $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
+            $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+        }
+        $address_line1 = $payment_intent->charges->data[0]->billing_details->address->line1;
+        $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
+        $address_zip = $payment_intent->charges->data[0]->billing_details->address->postal_code;
+        $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
+        $address_state = $payment_intent->charges->data[0]->billing_details->address->state;
+        $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
+        $address_city = $payment_intent->charges->data[0]->billing_details->address->city;
+        $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
+        $address_country = $payment_intent->charges->data[0]->billing_details->address->country;
+        $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
+        $customer_email = $payment_intent->charges->data[0]->billing_details->email;
+        $payment_data['customer_email'] = sanitize_email($customer_email);
+        $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
+        //process data
+        $txn_id = sanitize_text_field($payment_intent->charges->data[0]->id);
+        if(!isset($txn_id) || empty($txn_id)){
+            $txn_id = $payment_intent_id;
+        }
+        $payment_data['txn_id'] = $txn_id;
     }
-    $payment_data = array();
-   
-    $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
-    
-    $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
-    $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
-    $payment_data['price'] = $amount/100;
-    $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
-    $payment_data['currency_code'] = strtoupper($currency);
-    
-    $billing_name = $payment_intent->charges->data[0]->billing_details->name;
-    $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
-    $payment_data['billing_first_name'] = '';
-    $payment_data['billing_last_name'] = '';
-    if(!empty($payment_data['billing_name'])){
-        $billing_name_parts = explode(" ", $payment_data['billing_name']);
-        $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
-        $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
-    }
-    $address_line1 = $payment_intent->charges->data[0]->billing_details->address->line1;
-    $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
-    $address_zip = $payment_intent->charges->data[0]->billing_details->address->postal_code;
-    $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
-    $address_state = $payment_intent->charges->data[0]->billing_details->address->state;
-    $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
-    $address_city = $payment_intent->charges->data[0]->billing_details->address->city;
-    $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
-    $address_country = $payment_intent->charges->data[0]->billing_details->address->country;
-    $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
-    $customer_email = $payment_intent->charges->data[0]->billing_details->email;
-    $payment_data['customer_email'] = sanitize_email($customer_email);
-    $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
-    //process data
-    $txn_id = sanitize_text_field($payment_intent->charges->data[0]->id);
-    if(!isset($txn_id) || empty($txn_id)){
-        $txn_id = $payment_intent_id;
-    }
-    $payment_data['txn_id'] = $txn_id;
     $args = array(
         'post_type' => 'wpstripeco_order',
         'meta_query' => array(

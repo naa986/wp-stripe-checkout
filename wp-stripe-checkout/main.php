@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.1.6
+  Version: 1.1.7
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.1.6';
+    var $plugin_version = '1.1.7';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -693,6 +693,11 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(!isset($key) || empty($key)){
         return __('You need to provide your publishable key in the settings', 'wp-stripe-checkout');
     }
+    //mode
+    $mode = 'payment';
+    if(isset($atts['mode']) && 'subscription' == $atts['mode']){
+        $mode = 'subscription';
+    }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
     $button_code = <<<EOT
@@ -703,23 +708,28 @@ function wp_stripe_checkout_v3_button_handler($atts) {
         var stripe_$id = Stripe('$key');
         var checkoutButton_$id = document.querySelector('#wpsc$id');
         checkoutButton_$id.addEventListener('click', function () {
-          stripe_$id.redirectToCheckout({
-            lineItems: [{
-              price: '{$identifier}',
-              quantity: 1
-            }],
-            mode: 'payment',  
-            successUrl: '{$success_url}',
-            cancelUrl: '{$cancel_url}',
-            clientReferenceId: '$client_reference_id',
-            billingAddressCollection: 'required'
-          })
-          .then(function (result) {
-              if (result.error) {
+            stripe_$id.redirectToCheckout({
+              lineItems: [{
+                price: '{$identifier}',
+                quantity: 1
+              }],
+              mode: '{$mode}',  
+              successUrl: '{$success_url}',
+              cancelUrl: '{$cancel_url}',
+              clientReferenceId: '$client_reference_id',
+              billingAddressCollection: 'required'
+            })
+            .then(function (result) {
+                if (result.error) {
+                  var displayError = document.getElementById('error-wpsc$id');
+                  displayError.textContent = result.error.message;
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
                 var displayError = document.getElementById('error-wpsc$id');
-                displayError.textContent = result.error.message;
-              }
-          });          
+                displayError.textContent = error;      
+            });
         });
     })();
     </script>        

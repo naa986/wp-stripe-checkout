@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.5
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,7 @@ https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
 
 * Smooth checkout flow that automatically handles SCA (Strong Customer Authentication) requirements for you.
 * Accept credit and debit card payments.
+* Accept recurring subscription payments.
 * Accept Apple Pay payments with no additional setup.
 * Support Dynamic 3D Secure payment authentication.
 * Localized for 14 languages.
@@ -98,6 +99,12 @@ In order to create a Stripe checkout button you can add the following shortcode 
 
 **price** - Price ID of the product created in your Stripe account.
 
+To create a checkout button for accepting recurring subscription payments, you need to set the "mode" parameter to "subscription" in the shortcode:
+
+`[wp_stripe_checkout_v3 price="price_UY9NozbEy7T3PUlk" mode="subscription"]`
+
+The product in question must also be of type "Recurring" in your Stripe account.
+
 === Shortcode Parameters ===
 
 You can add additional parameters in the shortcode to customize your Stripe checkout button.
@@ -105,6 +112,7 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
 * **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
+* **mode** - The mode of the checkout (e.g. mode="subscription"). The default is "payment".
 
 For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
@@ -159,6 +167,10 @@ Yes.
 
 Yes.
 
+= Can this Stripe plugin be used to accept recurring subscription payments on my website? =
+
+Yes.
+
 = Can this Stripe plugin be used to accept donations on my website? =
 
 Yes.
@@ -187,6 +199,10 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.7 =
+* Added support for recurring payments
+* Errors are now visible when a payment button is clicked
 
 = 1.1.6 =
 * Fixed a bug in the cancel_url parameter

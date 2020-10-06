@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WP_SC_Stripe_API {
     
 	const ENDPOINT           = 'https://api.stripe.com/v1/';
-	const STRIPE_API_VERSION = '2019-08-14';
+	const STRIPE_API_VERSION = '2020-08-27';
         
 	private static $secret_key = '';
 
