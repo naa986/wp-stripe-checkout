@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.1.7
+  Version: 1.1.8
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.1.7';
+    var $plugin_version = '1.1.8';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -698,6 +698,11 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(isset($atts['mode']) && 'subscription' == $atts['mode']){
         $mode = 'subscription';
     }
+    //locale
+    $locale = '';
+    if(isset($atts['locale']) && !empty($atts['locale'])){
+        $locale = "locale: '".$atts['locale']."'";
+    }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
     $button_code = <<<EOT
@@ -717,7 +722,8 @@ function wp_stripe_checkout_v3_button_handler($atts) {
               successUrl: '{$success_url}',
               cancelUrl: '{$cancel_url}',
               clientReferenceId: '$client_reference_id',
-              billingAddressCollection: 'required'
+              billingAddressCollection: 'required',
+              $locale        
             })
             .then(function (result) {
                 if (result.error) {
