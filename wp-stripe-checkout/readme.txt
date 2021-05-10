@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.7
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,7 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
 * **mode** - The mode of the checkout (e.g. mode="subscription"). The default is "payment".
 * **locale** - The locale that will be used to localize the display of Checkout (e.g. locale="en"). The default is "auto" (Stripe detects the locale of the browser).
+* **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
 
 For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
@@ -200,6 +201,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.1.9 =
+* Added the billing_address parameter that can be used to make the billing address collection required.
 
 = 1.1.8 =
 * Added the locale parameter that can be used to localize the display of Checkout.
