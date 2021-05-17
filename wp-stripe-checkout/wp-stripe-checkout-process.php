@@ -127,6 +127,28 @@ function wp_stripe_checkout_process_webhook(){
         }
         $payment_data['txn_id'] = $txn_id;
     }
+    //process shipping address
+    if(isset($event_json->data->object->shipping)){
+        $shipping_name = $event_json->data->object->shipping->name;
+        $payment_data['shipping_name'] = isset($shipping_name) && !empty($shipping_name) ? sanitize_text_field($shipping_name) : '';
+        $payment_data['shipping_first_name'] = '';
+        $payment_data['shipping_last_name'] = '';
+        if(!empty($payment_data['shipping_name'])){
+            $shipping_name_parts = explode(" ", $payment_data['shipping_name']);
+            $payment_data['shipping_first_name'] = isset($shipping_name_parts[0]) && !empty($shipping_name_parts[0]) ? $shipping_name_parts[0] : '';
+            $payment_data['shipping_last_name'] = isset($shipping_name_parts[1]) && !empty($shipping_name_parts[1]) ? array_pop($shipping_name_parts) : '';
+        }
+        $shipping_address_line1 = $event_json->data->object->shipping->address->line1;
+        $payment_data['shipping_address_line1'] = isset($shipping_address_line1) && !empty($shipping_address_line1) ? sanitize_text_field($shipping_address_line1) : '';
+        $shipping_address_zip = $event_json->data->object->shipping->address->postal_code;
+        $payment_data['shipping_address_zip'] = isset($shipping_address_zip) && !empty($shipping_address_zip) ? sanitize_text_field($shipping_address_zip) : '';
+        $shipping_address_state = $event_json->data->object->shipping->address->state;
+        $payment_data['shipping_address_state'] = isset($shipping_address_state) && !empty($shipping_address_state) ? sanitize_text_field($shipping_address_state) : '';
+        $shipping_address_city = $event_json->data->object->shipping->address->city;
+        $payment_data['shipping_address_city'] = isset($shipping_address_city) && !empty($shipping_address_city) ? sanitize_text_field($shipping_address_city) : '';
+        $shipping_address_country = $event_json->data->object->shipping->address->country;
+        $payment_data['shipping_address_country'] = isset($shipping_address_country) && !empty($shipping_address_country) ? sanitize_text_field($shipping_address_country) : '';
+    }
     $args = array(
         'post_type' => 'wpstripeco_order',
         'meta_query' => array(
@@ -169,6 +191,25 @@ function wp_stripe_checkout_process_webhook(){
         }
         if(!empty($payment_data['billing_address_country'])){
             $content .= ', '.$payment_data['billing_address_country'];
+        }
+        $content .= '<br />';
+    }
+    if(!empty($payment_data['shipping_name'])){
+        $content .= '<strong>Shipping Name:</strong> '.$payment_data['shipping_name'].'<br />';
+    }
+    if(!empty($payment_data['shipping_address_line1'])){
+        $content .= '<strong>Shipping Address:</strong> '.$payment_data['shipping_address_line1'];
+        if(!empty($payment_data['shipping_address_city'])){
+            $content .= ', '.$payment_data['shipping_address_city'];
+        }
+        if(!empty($payment_data['shipping_address_state'])){
+            $content .= ', '.$payment_data['shipping_address_state'];
+        }
+        if(!empty($payment_data['shipping_address_zip'])){
+            $content .= ', '.$payment_data['shipping_address_zip'];
+        }
+        if(!empty($payment_data['shipping_address_country'])){
+            $content .= ', '.$payment_data['shipping_address_country'];
         }
         $content .= '<br />';
     }

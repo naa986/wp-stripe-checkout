@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.7
-Stable tag: 1.1.9
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -201,6 +201,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.0 =
+* Added the shipping_address parameter that can be used to make the shipping address collection required.
 
 = 1.1.9 =
 * Added the billing_address parameter that can be used to make the billing address collection required.
