@@ -115,6 +115,8 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **mode** - The mode of the checkout (e.g. mode="subscription"). The default is "payment".
 * **locale** - The locale that will be used to localize the display of Checkout (e.g. locale="en"). The default is "auto" (Stripe detects the locale of the browser).
 * **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
+* **shipping_address** - Specify whether Checkout should collect the customer's shipping address. (e.g. shipping_address="required").
+* **shipping_countries** - If you only wish to ship to certain countries you can specify their country codes. (e.g. shipping_countries="'US'" or shipping_countries="'US','GB','AU'").
 
 For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
