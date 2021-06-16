@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.7
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,6 +110,7 @@ The product in question must also be of type "Recurring" in your Stripe account.
 You can add additional parameters in the shortcode to customize your Stripe checkout button.
 
 * **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
+* **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
 * **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
 * **mode** - The mode of the checkout (e.g. mode="subscription"). The default is "payment".
@@ -117,6 +118,7 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
 * **shipping_address** - Specify whether Checkout should collect the customer's shipping address. (e.g. shipping_address="required").
 * **shipping_countries** - If you only wish to ship to certain countries you can specify their country codes. (e.g. shipping_countries="'US'" or shipping_countries="'US','GB','AU'").
+* **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
 For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
@@ -203,6 +205,10 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.1 =
+* Added the button_image parameter that can be included in the shortcode to use an image as the button.
+* Added the class parameter that can be included in the shortcode to apply custom CSS classes to a button. 
 
 = 1.2.0 =
 * Added the shipping_address parameter that can be used to make the shipping address collection required.

@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.0
+  Version: 1.2.1
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -717,10 +717,19 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(isset($atts['locale']) && !empty($atts['locale'])){
         $locale = "locale: '".$atts['locale']."',";
     }
+    //button class
+    $class = '';
+    if(isset($atts['class']) && !empty($atts['class'])){
+        $class = " ".$atts['class'];
+    }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
+    $button = '<button id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'">'.$button_text.'</button>';
+    if(isset($atts['button_image']) && !empty($atts['button_image'])){
+        $button = '<a href="#" onclick="event.preventDefault();" id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'"><img src="'.$atts['button_image'].'"></a>';
+    }
     $button_code = <<<EOT
-    <button id="wpsc$id">$button_text</button>
+    $button
     <div id="error-wpsc$id"></div>
     <script>
     (function() {
