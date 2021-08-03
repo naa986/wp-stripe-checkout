@@ -29,6 +29,16 @@ function wp_stripe_checkout_process_webhook(){
         return;
     }
     $payment_data = array();
+    $checkout_session_id = sanitize_text_field($event_json->data->object->id);
+    if(!isset($checkout_session_id) || empty($checkout_session_id)){
+        wp_stripe_checkout_debug_log("Checkout Session ID could not be found. This notification cannot be processed.", false);
+        return;
+    }
+    $checkout_session = WP_SC_Stripe_API::retrieve('checkout/sessions/'.$checkout_session_id.'/line_items');
+    $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
+    $payment_data['price_id'] = isset($stripe_price_id) && !empty($stripe_price_id) ? $stripe_price_id : '';
+    $stripe_product_id = sanitize_text_field($checkout_session->data[0]->price->product);
+    $payment_data['product_id'] = isset($stripe_product_id) && !empty($stripe_product_id) ? $stripe_product_id : '';
     $subscription_id = sanitize_text_field($event_json->data->object->subscription);
     if(isset($subscription_id) && !empty($subscription_id)){
         $payment_data['txn_id'] = $subscription_id;
@@ -167,6 +177,12 @@ function wp_stripe_checkout_process_webhook(){
     $content = '';
     $content .= '<strong>Transaction ID:</strong> '.$payment_data['txn_id'].'<br />';
     $content .= '<strong>Product name:</strong> '.$payment_data['product_name'].'<br />';
+    if(!empty($payment_data['product_id'])){
+        $content .= '<strong>Product ID:</strong> '.$payment_data['product_id'].'<br />'; 
+    }
+    if(!empty($payment_data['price_id'])){
+        $content .= '<strong>Price ID:</strong> '.$payment_data['price_id'].'<br />'; 
+    }
     $content .= '<strong>Amount:</strong> '.$payment_data['price'].'<br />';
     $content .= '<strong>Currency:</strong> '.$payment_data['currency_code'].'<br />';
     if(!empty($payment_data['billing_name'])){
@@ -296,7 +312,7 @@ function wp_stripe_checkout_process_webhook(){
         wp_stripe_checkout_debug_log("Order information could not be updated", false);
         return;
     }
-    wp_stripe_checkout_debug_log("Oder processing completed", true, true);
+    wp_stripe_checkout_debug_log("Order processing completed", true, true);
     do_action('wpstripecheckout_payment_completed', $payment_data);
 }
 
@@ -589,7 +605,9 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         '{product_name}',
         '{currency_code}',
         '{price}',
-        '{customer_email}'
+        '{customer_email}',
+        '{product_id}',
+        '{price_id}'
     );
     $replace = array(
         $payment_data['billing_first_name'], 
@@ -599,7 +617,9 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         $payment_data['product_name'],
         $payment_data['currency_code'],
         $payment_data['price'],
-        $payment_data['customer_email']
+        $payment_data['customer_email'],
+        $payment_data['product_id'],
+        $payment_data['price_id']
     );
     $content = str_replace($search, $replace, $content);
     return $content;
