@@ -19,15 +19,18 @@ function wp_stripe_checkout_process_webhook(){
     }
     wp_stripe_checkout_debug_log("Received event notification from Stripe. Event type: ".$event_json->type, true);
     wp_stripe_checkout_debug_log_array($event_json, true);
-    $client_reference_id = sanitize_text_field($event_json->data->object->client_reference_id);
-    if(!isset($client_reference_id) || empty($client_reference_id)){
-        wp_stripe_checkout_debug_log("Client Reference ID could not be found. This notification cannot be processed.", false);
-        return;
-    }
-    if(strpos($client_reference_id, 'wpsc') === false){
-        wp_stripe_checkout_debug_log("This payment was not initiated by the Stripe checkout plugin.", false);
-        return;
-    }
+
+    // Deleting Client Reference ID Section
+    
+    // $client_reference_id = sanitize_text_field($event_json->data->object->client_reference_id);
+    // if(!isset($client_reference_id) || empty($client_reference_id)){
+    //     wp_stripe_checkout_debug_log("Client Reference ID could not be found. This notification cannot be processed.", false);
+    //     return;
+    // }
+    // if(strpos($client_reference_id, 'wpsc') === false){
+    //     wp_stripe_checkout_debug_log("This payment was not initiated by the Stripe checkout plugin.", false);
+    //     return;
+    // }
     $payment_data = array();
     $checkout_session_id = sanitize_text_field($event_json->data->object->id);
     if(!isset($checkout_session_id) || empty($checkout_session_id)){
@@ -41,6 +44,7 @@ function wp_stripe_checkout_process_webhook(){
     $payment_data['product_id'] = isset($stripe_product_id) && !empty($stripe_product_id) ? $stripe_product_id : '';
     $subscription_id = sanitize_text_field($event_json->data->object->subscription);
     if(isset($subscription_id) && !empty($subscription_id)){
+		wp_stripe_checkout_debug_log("==== Doing subscription processing", false);
         $payment_data['txn_id'] = $subscription_id;
         wp_stripe_checkout_debug_log("This notification is for a subscription payment.", true);
         $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
@@ -94,6 +98,7 @@ function wp_stripe_checkout_process_webhook(){
         $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
     }
     else{
+		wp_stripe_checkout_debug_log("==== Doing payment intent processing", false);
         $payment_intent_id = $event_json->data->object->payment_intent;
         if(!isset($payment_intent_id) || empty($payment_intent_id)){
             wp_stripe_checkout_debug_log("Payment Intent ID could not be found. This notification cannot be processed.", false);
@@ -102,7 +107,13 @@ function wp_stripe_checkout_process_webhook(){
 
         $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
 
-        $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
+        $product_name = sanitize_text_field($payment_intent->charges->data[0]->description);
+		if (!isset($product_name) || empty($product_name)) {
+			wp_stripe_checkout_debug_log("==== Pulling product name from checkout session instead", false);
+			$product_name = sanitize_text_field($checkout_session->data[0]->description);
+		}
+		$payment_data['product_name'] = $product_name;
+		
         $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
         $payment_data['price'] = $amount/100;
         $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
@@ -607,7 +618,8 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         '{price}',
         '{customer_email}',
         '{product_id}',
-        '{price_id}'
+        '{price_id}',
+		'{date}'
     );
     $replace = array(
         $payment_data['billing_first_name'], 
@@ -619,7 +631,8 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         $payment_data['price'],
         $payment_data['customer_email'],
         $payment_data['product_id'],
-        $payment_data['price_id']
+        $payment_data['price_id'],
+		date('m/d/Y')
     );
     $content = str_replace($search, $replace, $content);
     return $content;

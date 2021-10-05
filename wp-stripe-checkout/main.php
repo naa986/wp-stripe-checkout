@@ -1,12 +1,11 @@
 <?php
 /*
-  Plugin Name: WP Stripe Checkout
-  Version: 1.2.2
-  Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
+  Plugin Name: WP Stripe Checkout - Custom
+  Version: 1.0
   Author: naa986
   Author URI: https://noorsplugin.com/
   Description: Accept payments with the Stripe payment gateway in WordPress
-  Text Domain: wp-stripe-checkout
+  Text Domain: wp-stripe-checkout-custom
   Domain Path: /languages
  */
 
