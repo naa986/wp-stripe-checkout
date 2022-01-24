@@ -35,6 +35,8 @@ function wp_stripe_checkout_process_webhook(){
         return;
     }
     $checkout_session = WP_SC_Stripe_API::retrieve('checkout/sessions/'.$checkout_session_id.'/line_items');
+    $product_name = sanitize_text_field($checkout_session->data[0]->description);
+    $payment_data['product_name'] = isset($product_name) && !empty($product_name) ? $product_name : '';
     $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
     $payment_data['price_id'] = isset($stripe_price_id) && !empty($stripe_price_id) ? $stripe_price_id : '';
     $stripe_product_id = sanitize_text_field($checkout_session->data[0]->price->product);
@@ -101,8 +103,9 @@ function wp_stripe_checkout_process_webhook(){
         }
 
         $payment_intent = WP_SC_Stripe_API::retrieve('payment_intents/'.$payment_intent_id);
-
-        $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
+        if(empty($payment_data['product_name'])){
+            $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
+        }
         $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
         $payment_data['price'] = $amount/100;
         $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
@@ -425,8 +428,6 @@ function wp_stripe_checkout_process_order() {
         );
         wp_stripe_checkout_debug_log("Creating a Stripe customer", true);
         $response = WP_SC_Stripe_API::request($customer_args, 'customers');
-        wp_stripe_checkout_debug_log("Response Data", true);
-        wp_stripe_checkout_debug_log(print_r($response, true), true);
         $post_data['customer'] = $response->id;
     }
     //only specify a source if no customber is created
@@ -438,8 +439,6 @@ function wp_stripe_checkout_process_order() {
     // Make the request
     wp_stripe_checkout_debug_log("Creating a charge request", true);
     $response = WP_SC_Stripe_API::request($post_data);
-    wp_stripe_checkout_debug_log("Response Data", true);
-    wp_stripe_checkout_debug_log(print_r($response, true), true);
     //process data
     $payment_data['txn_id'] = $response->id;
     $args = array(
@@ -593,6 +592,86 @@ function wp_stripe_checkout_process_order() {
     else if(isset($stripe_options['return_url']) && !empty($stripe_options['return_url'])){
         wp_safe_redirect($stripe_options['return_url']);
         exit;
+    }
+}
+
+function wp_stripe_checkout_process_session_button() {
+    if (!isset($_POST['wp_stripe_checkout_session'])) {
+        return;
+    }
+    $nonce = $_REQUEST['_wpnonce'];
+    if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_session_nonce')){
+        $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $_POST = stripslashes_deep($_POST);
+    if (!isset($_POST['client_reference_id']) || empty($_POST['client_reference_id'])) {
+        $error_msg = __('Client Reference ID could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $client_reference_id = sanitize_text_field($_POST['client_reference_id']);
+    if (!isset($_POST['item_name']) || empty($_POST['item_name'])) {
+        $error_msg = __('Item name could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $post_data = array();
+    $post_data['item_name'] = sanitize_text_field($_POST['item_name']);
+    if(isset($_POST['item_price']) && is_numeric($_POST['item_price']) && $_POST['item_price'] > 0) {
+        $post_data['price'] = sanitize_text_field($_POST['item_price']);
+    }
+    else{
+        $error_msg = __('Item price could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    
+    if (!isset($_POST['item_currency']) || empty($_POST['item_currency'])) {
+        $error_msg = __('Currency could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $post_data['currency_code'] = sanitize_text_field($_POST['item_currency']);
+    $success_url = '';
+    if (isset($_POST['success_url']) && !empty($_POST['success_url'])) {
+        $success_url = esc_url_raw($_POST['success_url']);
+    }
+    else{
+        $error_msg = __('Success URL could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    $cancel_url = '';
+    if (isset($_POST['cancel_url']) && !empty($_POST['cancel_url'])) {
+        $cancel_url = esc_url_raw($_POST['cancel_url']);
+    }
+    else{
+        $error_msg = __('Cancel URL could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
+    }
+    wp_stripe_checkout_debug_log("Post Data", true);
+    wp_stripe_checkout_debug_log_array($_POST, true);
+    $session_args = array();
+    $line_items = array();
+    $price_data = array();
+    $price_data['currency'] = strtolower($post_data['currency_code']);
+    $price_data['product_data'] = array('name' => $post_data['item_name']);
+    $price_data['unit_amount'] = $post_data['price'] * 100;
+    $line_items['price_data'] = $price_data;
+    $line_items['quantity'] = 1;
+    $session_args['line_items'] = array($line_items);
+    $session_args['mode'] = 'payment';
+    $session_args['success_url'] = $success_url;
+    $session_args['cancel_url'] = $cancel_url;
+    $session_args['client_reference_id'] = $client_reference_id;
+    
+    wp_stripe_checkout_debug_log("Creating a session", true);
+    $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
+    $session_url = $response->url;
+        
+    if(isset($session_url) && !empty($session_url)){
+        wp_redirect($session_url);
+        exit;
+    }
+    else{
+        $error_msg = __('Session URL could not be found.', 'wp-stripe-checkout');
+        wp_die($error_msg);
     }
 }
 

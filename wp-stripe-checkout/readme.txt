@@ -3,8 +3,8 @@ Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
-Tested up to: 5.8
-Stable tag: 1.2.2
+Tested up to: 5.9
+Stable tag: 1.2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,8 +15,6 @@ Sell anything from your website with WordPress Stripe plugin. Accept Stripe paym
 [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
 Stripe Checkout comes with a smart payment page that works seamlessly across devices and is designed to increase your conversion.
-
-https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
 
 === Benefits of Stripe Checkout Payments ===
 
@@ -77,7 +75,33 @@ When this feature is enabled an email is sent to your chosen recipient after com
 
 You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
-=== How to use Stripe Checkout ===
+=== How to use Stripe Checkout (Option 1) ===
+
+The easiest way to start accepting Stripe payments is to add the following shortcode to a post/page:
+
+`[wp_stripe_checkout_session name="My Product" price="2.99"]`
+
+Replace the value of "name" with your product name and "price" with the actual product price.
+
+==== Shortcode Parameters ====
+
+You can add additional parameters in the shortcode to customize your Stripe payment button.
+
+* **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
+* **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
+* **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
+* **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
+* **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
+
+==== Webhook Endpoint ====
+
+Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
+
+For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
+=== How to use Stripe Checkout (Option 2) ===
+
+https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
 
 **Step 1: Enable Checkout in the Dashboard**
 
@@ -105,7 +129,7 @@ To create a checkout button for accepting recurring subscription payments, you n
 
 The product in question must also be of type "Recurring" in your Stripe account.
 
-=== Shortcode Parameters ===
+==== Shortcode Parameters ====
 
 You can add additional parameters in the shortcode to customize your Stripe checkout button.
 
@@ -205,6 +229,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.1 =
+* Added a new shortcode that can be used to accept Stripe payments with the checkout session API.
 
 = 1.2.2 =
 * Added Product ID and Price ID to order data.

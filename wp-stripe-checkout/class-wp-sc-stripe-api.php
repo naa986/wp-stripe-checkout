@@ -81,6 +81,7 @@ class WP_SC_Stripe_API {
             }
 
             $parsed_response = json_decode($response['body']);
+            wp_stripe_checkout_debug_log('Parsed response: ', true);
             wp_stripe_checkout_debug_log_array($parsed_response, true);
             // Handle response
             if (!empty($parsed_response->error)) {
