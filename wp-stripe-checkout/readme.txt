@@ -83,7 +83,7 @@ The easiest way to start accepting Stripe payments is to add the following short
 
 Replace the value of "name" with your product name and "price" with the actual product price.
 
-==== Shortcode Parameters ====
+= Shortcode Parameters =
 
 You can add additional parameters in the shortcode to customize your Stripe payment button.
 
@@ -93,7 +93,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
-==== Webhook Endpoint ====
+= Webhook Endpoint =
 
 Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
 
@@ -129,7 +129,7 @@ To create a checkout button for accepting recurring subscription payments, you n
 
 The product in question must also be of type "Recurring" in your Stripe account.
 
-==== Shortcode Parameters ====
+= Shortcode Parameters =
 
 You can add additional parameters in the shortcode to customize your Stripe checkout button.
 
