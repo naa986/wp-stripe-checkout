@@ -645,6 +645,10 @@ function wp_stripe_checkout_process_session_button() {
         $error_msg = __('Cancel URL could not be found.', 'wp-stripe-checkout');
         wp_die($error_msg);
     }
+    $billing_address = '';
+    if(isset($_POST['billing_address']) && !empty($_POST['billing_address'])){
+        $billing_address = sanitize_text_field($_POST['billing_address']);
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -660,7 +664,9 @@ function wp_stripe_checkout_process_session_button() {
     $session_args['success_url'] = $success_url;
     $session_args['cancel_url'] = $cancel_url;
     $session_args['client_reference_id'] = $client_reference_id;
-    
+    if(!empty($billing_address)){
+        $session_args['billing_address_collection'] = $billing_address;
+    }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
     $session_url = $response->url;

@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.1
+  Version: 1.2.2.2
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.1';
+    var $plugin_version = '1.2.2.2';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -47,6 +47,9 @@ class WP_STRIPE_CHECKOUT {
         include_once('wp-stripe-checkout-order.php');
         include_once('wp-stripe-checkout-process.php');
         include_once('class-wp-sc-stripe-api.php');
+        if(is_admin()){
+            include_once('extensions/wp-stripe-checkout-extensions-menu.php');
+        }
     }
 
     function loader_operations() {
@@ -149,6 +152,7 @@ class WP_STRIPE_CHECKOUT {
         if (is_admin()) {
             add_submenu_page('edit.php?post_type=wpstripeco_order', __('Settings', 'wp-stripe-checkout'), __('Settings', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-settings', array($this, 'options_page'));
             add_submenu_page('edit.php?post_type=wpstripeco_order', __('Debug', 'wp-stripe-checkout'), __('Debug', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-debug', array($this, 'debug_page'));
+            add_submenu_page('edit.php?post_type=wpstripeco_order', __('Extensions', 'wp-stripe-checkout'), __('Extensions', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-extensions', 'wp_stripe_checkout_display_extensions_menu');
         }
     }
 
@@ -797,6 +801,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['cancel_url']) && !empty($atts['cancel_url'])){
         $cancel_url = $atts['cancel_url'];
     }
+    $billing_address = '';
+    if(isset($atts['billing_address']) && !empty($atts['billing_address'])){
+        $billing_address = sanitize_text_field($atts['billing_address']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -834,6 +842,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($cancel_url)){
         $button_code .= '<input type="hidden" name="cancel_url" value="'.esc_url($cancel_url).'" />';
+    }
+    if(!empty($billing_address)){
+        $button_code .= '<input type="hidden" name="billing_address" value="'.esc_attr($billing_address).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){

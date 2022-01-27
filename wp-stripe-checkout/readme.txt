@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.1
+Stable tag: 1.2.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,6 +21,7 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Smooth checkout flow that automatically handles SCA (Strong Customer Authentication) requirements for you.
 * Accept credit and debit card payments.
 * Accept recurring subscription payments.
+* Accept donation payments.
 * Accept Apple Pay payments with no additional setup.
 * Support Dynamic 3D Secure payment authentication.
 * Localized for 14 languages.
@@ -35,6 +36,10 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Display a logo of your brand or product on the payment page.
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
+
+=== WP Stripe Checkout Extensions ===
+
+* [Pay What You Want](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -91,6 +96,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
 * **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
+* **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
 = Webhook Endpoint =
@@ -229,6 +235,10 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.2 =
+* Added support for billing address collection in the checkout session shortcode.
+* Added support for the Pay What You Want extension that allows buyers to donate or pay their desired amount for a product.
 
 = 1.2.2.1 =
 * Added a new shortcode that can be used to accept Stripe payments with the checkout session API.
