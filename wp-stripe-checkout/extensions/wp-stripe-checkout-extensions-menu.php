@@ -9,9 +9,9 @@ function wp_stripe_checkout_display_extensions_menu()
     $extensions_data = array();
 
     $extension_1 = array(
-        'name' => 'Pay What You Want',
-        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/extensions/images/wp-stripe-checkout-pay-what-you-want.png',
-        'description' => 'Allow buyers to pay their desired amount for your products',
+        'name' => 'Variable Price',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/extensions/images/wp-stripe-checkout-variable-price.png',
+        'description' => 'Let buyers set the amount they will pay',
         'page_url' => 'https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/',
     );
     array_push($extensions_data, $extension_1);

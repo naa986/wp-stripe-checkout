@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.2
+Stable tag: 1.2.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,7 +39,7 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 
 === WP Stripe Checkout Extensions ===
 
-* [Pay What You Want](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
+* [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -78,7 +78,7 @@ When this feature is enabled an email is sent to your chosen recipient after com
 * The content type of the sale notification email. The default is "text/plain". But you can also set it to "text/html"
 * The body of the sale notification email.
 
-You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 === How to use Stripe Checkout (Option 1) ===
 
@@ -235,6 +235,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.3 =
+* Made some changes to the settings area.
 
 = 1.2.2.2 =
 * Added support for billing address collection in the checkout session shortcode.
