@@ -649,6 +649,10 @@ function wp_stripe_checkout_process_session_button() {
     if(isset($_POST['billing_address']) && !empty($_POST['billing_address'])){
         $billing_address = sanitize_text_field($_POST['billing_address']);
     }
+    $phone_number_collection = '';
+    if(isset($_POST['phone_number_collection']) && !empty($_POST['phone_number_collection'])){
+        $phone_number_collection = sanitize_text_field($_POST['phone_number_collection']);
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -664,8 +668,11 @@ function wp_stripe_checkout_process_session_button() {
     $session_args['success_url'] = $success_url;
     $session_args['cancel_url'] = $cancel_url;
     $session_args['client_reference_id'] = $client_reference_id;
-    if(!empty($billing_address)){
-        $session_args['billing_address_collection'] = $billing_address;
+    if($billing_address == 'required'){
+        $session_args['billing_address_collection'] = 'required';
+    }
+    if($phone_number_collection == 'true'){
+        $session_args['phone_number_collection'] = array('enabled' => 'true');
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
