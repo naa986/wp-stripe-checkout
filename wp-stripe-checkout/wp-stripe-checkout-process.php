@@ -623,7 +623,10 @@ function wp_stripe_checkout_process_session_button() {
         $error_msg = __('Item price could not be found.', 'wp-stripe-checkout');
         wp_die($error_msg);
     }
-    
+    $quantity = '1';
+    if(isset($_POST['item_quantity']) && is_numeric($_POST['item_quantity']) && $_POST['item_quantity'] > 0) {
+        $quantity = sanitize_text_field($_POST['item_quantity']);
+    }
     if (!isset($_POST['item_currency']) || empty($_POST['item_currency'])) {
         $error_msg = __('Currency could not be found.', 'wp-stripe-checkout');
         wp_die($error_msg);
@@ -662,7 +665,7 @@ function wp_stripe_checkout_process_session_button() {
     $price_data['product_data'] = array('name' => $post_data['item_name']);
     $price_data['unit_amount'] = $post_data['price'] * 100;
     $line_items['price_data'] = $price_data;
-    $line_items['quantity'] = 1;
+    $line_items['quantity'] = $quantity;
     $session_args['line_items'] = array($line_items);
     $session_args['mode'] = 'payment';
     $session_args['success_url'] = $success_url;

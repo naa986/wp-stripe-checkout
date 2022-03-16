@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.4
+  Version: 1.2.2.5
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.4';
+    var $plugin_version = '1.2.2.5';
     var $db_version = '1.0.8';
     var $plugin_url;
     var $plugin_path;
@@ -838,6 +838,16 @@ function wp_stripe_checkout_session_button_handler($atts) {
         }
         else{
             return __('You need to provide a valid price for your item', 'wp-stripe-checkout');
+        }
+    }
+    $quantity_input_code = '';
+    $quantity_input_code = apply_filters('wp_stripe_checkout_session_quantity', $quantity_input_code, $button_code, $atts);
+    if(!empty($quantity_input_code)){
+        $button_code .= $quantity_input_code;
+    }
+    else{
+        if(isset($atts['quantity']) && is_numeric($atts['quantity']) && $atts['quantity'] > 0) {
+            $button_code .= '<input type="hidden" name="item_quantity" value="'.esc_attr($atts['quantity']).'" />';
         }
     }
     $button_code .= '<input type="hidden" name="item_currency" value="'.esc_attr($currency).'" />';

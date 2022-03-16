@@ -16,6 +16,14 @@ function wp_stripe_checkout_display_extensions_menu()
     );
     array_push($extensions_data, $extension_1);
     
+    $extension_2 = array(
+        'name' => 'Variable Quantity',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/extensions/images/wp-stripe-checkout-variable-quantity.png',
+        'description' => 'Let buyers set the quantity they will purchase',
+        'page_url' => 'https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/',
+    );
+    array_push($extensions_data, $extension_2);
+    
     //Display the list
     $output = '';
     foreach ($extensions_data as $extension) {
