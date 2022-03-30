@@ -16,7 +16,7 @@ if (!defined('ABSPATH'))
 class WP_STRIPE_CHECKOUT {
     
     var $plugin_version = '1.2.2.5';
-    var $db_version = '1.0.8';
+    var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
     
@@ -45,7 +45,9 @@ class WP_STRIPE_CHECKOUT {
 
     function plugin_includes() {
         include_once('wp-stripe-checkout-order.php');
+        include_once('wp-stripe-checkout-product.php');
         include_once('wp-stripe-checkout-process.php');
+        include_once('wp-stripe-checkout-process-webhook.php');
         include_once('class-wp-sc-stripe-api.php');
         if(is_admin()){
             include_once('extensions/wp-stripe-checkout-extensions-menu.php');
@@ -65,6 +67,9 @@ class WP_STRIPE_CHECKOUT {
         add_action('init', array($this, 'plugin_init'));
         add_filter('manage_wpstripeco_order_posts_columns', 'wp_stripe_checkout_order_columns');
         add_action('manage_wpstripeco_order_posts_custom_column', 'wp_stripe_checkout_custom_column', 10, 2);
+        add_filter('manage_wpstripeco_product_posts_columns', 'wp_stripe_checkout_product_columns');
+        add_action('manage_wpstripeco_product_posts_custom_column', 'wp_stripe_checkout_product_custom_column', 10, 2);
+        add_action('add_meta_boxes_wpstripeco_product', 'wpstripeco_product_meta_boxes');
         add_shortcode('wp_stripe_checkout', 'wp_stripe_checkout_button_handler');
         add_shortcode('wp_stripe_checkout_v3', 'wp_stripe_checkout_v3_button_handler');
         add_shortcode('wp_stripe_checkout_session', 'wp_stripe_checkout_session_button_handler');
@@ -83,9 +88,14 @@ class WP_STRIPE_CHECKOUT {
     function check_upgrade() {
         if (is_admin()) {
             $db_version = get_option('wp_stripe_checkout_db_version');
-            if (!isset($db_version) || $db_version != $this->plugin_version) {
+            if (!isset($db_version) || $db_version != $this->db_version) {
+                $options = wp_stripe_checkout_get_option();
+                if(isset($options['return_url']) && !empty($options['return_url'])){
+                    $options['success_url'] = $options['return_url'];
+                    wp_stripe_checkout_update_option($options);
+                }
                 wp_stripe_checkout_set_default_email_options();
-                update_option('wp_stripe_checkout_db_version', $this->plugin_version);
+                update_option('wp_stripe_checkout_db_version', $this->db_version);
             }
         }
     }
@@ -102,10 +112,14 @@ class WP_STRIPE_CHECKOUT {
     function plugin_init() {
         //register order type
         wp_stripe_checkout_register_order_type();
+        //register product type
+        wp_stripe_checkout_register_product_type();
         //process order
         wp_stripe_checkout_process_order();
         //process session button
         wp_stripe_checkout_process_session_button();
+        //process button
+        wp_stripe_checkout_process_button();
         //process webhook
         wp_stripe_checkout_process_webhook();
     }
@@ -153,6 +167,8 @@ class WP_STRIPE_CHECKOUT {
             add_submenu_page('edit.php?post_type=wpstripeco_order', __('Settings', 'wp-stripe-checkout'), __('Settings', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-settings', array($this, 'options_page'));
             add_submenu_page('edit.php?post_type=wpstripeco_order', __('Debug', 'wp-stripe-checkout'), __('Debug', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-debug', array($this, 'debug_page'));
             add_submenu_page('edit.php?post_type=wpstripeco_order', __('Extensions', 'wp-stripe-checkout'), __('Extensions', 'wp-stripe-checkout'), 'manage_options', 'wp-stripe-checkout-extensions', 'wp_stripe_checkout_display_extensions_menu');
+            global $submenu;
+            unset($submenu['edit.php?post_type=wpstripeco_order'][10]);
         }
     }
 
@@ -232,9 +248,13 @@ class WP_STRIPE_CHECKOUT {
             if(isset($_POST['stripe_currency_code']) && !empty($_POST['stripe_currency_code'])){
                 $stripe_currency_code = sanitize_text_field($_POST['stripe_currency_code']);
             }
-            $return_url = '';
-            if(isset($_POST['return_url']) && !empty($_POST['return_url'])){
-                $return_url = sanitize_text_field($_POST['return_url']);
+            $success_url = '';
+            if(isset($_POST['success_url']) && !empty($_POST['success_url'])){
+                $success_url = esc_url_raw($_POST['success_url']);
+            }
+            $cancel_url = '';
+            if(isset($_POST['cancel_url']) && !empty($_POST['cancel_url'])){
+                $cancel_url = esc_url_raw($_POST['cancel_url']);
             }
             $stripe_options = array();
             $stripe_options['stripe_testmode'] = $stripe_testmode;
@@ -243,7 +263,8 @@ class WP_STRIPE_CHECKOUT {
             $stripe_options['stripe_secret_key'] = $stripe_secret_key;
             $stripe_options['stripe_publishable_key'] = $stripe_publishable_key;
             $stripe_options['stripe_currency_code'] = $stripe_currency_code;
-            $stripe_options['return_url'] = $return_url;
+            $stripe_options['success_url'] = $success_url;
+            $stripe_options['cancel_url'] = $cancel_url;
             wp_stripe_checkout_update_option($stripe_options);
             echo '<div id="message" class="updated fade"><p><strong>';
             echo __('Settings Saved', 'wp-stripe-checkout').'!';
@@ -308,15 +329,21 @@ class WP_STRIPE_CHECKOUT {
                                         <td><input name="stripe_currency_code" type="text" id="stripe_currency_code" value="<?php echo $stripe_options['stripe_currency_code']; ?>" class="regular-text">
                                             <p class="description"><?Php echo __('The currency of the payment.', 'wp-stripe-checkout').' '.$currency_check_link;?></p></td>
                                     </tr>
-
+                                    
                                     <tr valign="top">
-                                        <th scope="row"><label for="return_url"><?Php _e('Return URL', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="return_url" type="text" id="return_url" value="<?php echo $stripe_options['return_url']; ?>" class="regular-text">
+                                        <th scope="row"><label for="success_url"><?Php _e('Success URL', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="success_url" type="text" id="success_url" value="<?php echo $stripe_options['success_url']; ?>" class="regular-text">
                                             <p class="description"><?Php echo __('The page URL to which the customer will be redirected after a successful payment.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     
                                     <tr valign="top">
-                                        <th scope="row"><label for="return_url"><?Php _e('Stripe Webhook URL', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="cancel_url"><?Php _e('Cancel URL', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="cancel_url" type="text" id="cancel_url" value="<?php echo $stripe_options['cancel_url']; ?>" class="regular-text">
+                                            <p class="description"><?Php echo __('The page URL to which the customer will be redirected if they decide to cancel payment and return to your website.', 'wp-stripe-checkout');?></p></td>
+                                    </tr>
+                                    
+                                    <tr valign="top">
+                                        <th scope="row"><label><?Php _e('Stripe Webhook URL', 'wp-stripe-checkout');?></label></th>
                                         <td><code><?php echo esc_url(home_url('/')."?wp_stripe_co_webhook=1"); ?></code>
                                             <p class="description"><?Php echo __('The URL of your site where Stripe will send notification of an event.', 'wp-stripe-checkout').' '.$webhook_doc_url;?></p></td>
                                     </tr>
@@ -596,6 +623,55 @@ $GLOBALS['wp_stripe_checkout'] = new WP_STRIPE_CHECKOUT();
 
 function wp_stripe_checkout_button_handler($atts) {
     $atts = array_map('sanitize_text_field', $atts);
+    if(!isset($atts['id']) || !is_numeric($atts['id'])){
+        return wp_stripe_checkout_legacy_checkout_button_handler($atts);
+    }
+    $post = get_post($atts['id']);
+    if(!$post){
+        return __('Invalid product ID', 'wp-stripe-checkout');
+    }
+    if('wpstripeco_product' != $post->post_type){
+        return __('Invalid product type', 'wp-stripe-checkout');
+    }
+    $options = wp_stripe_checkout_get_option();
+    $success_url = $options['success_url'];
+    if(!isset($success_url) || empty($success_url)){
+        return __('You need to provide a success URL page in the settings', 'wp-stripe-checkout');
+    }
+    $cancel_url = $options['cancel_url'];
+    if(!isset($cancel_url) || empty($cancel_url)){
+        return __('You need to provide a cancel URL page in the settings', 'wp-stripe-checkout');
+    }
+    $button_code = '<form action="" method="post">';
+    $button_code .= wp_nonce_field('wp_stripe_checkout_button', '_wp_stripe_checkout_button_nonce', true, false);
+    $button_code .= '<input type="hidden" name="wpsc_product_id" value="'.esc_attr($atts['id']).'" />';
+    $price_input_code = '';
+    $price_input_code = apply_filters('wp_stripe_checkout_button_price', $price_input_code, $button_code, $atts);
+    if(!empty($price_input_code)){
+        $button_code .= $price_input_code;
+    }
+    $quantity_input_code = '';
+    $quantity_input_code = apply_filters('wp_stripe_checkout_button_quantity', $quantity_input_code, $button_code, $atts);
+    if(!empty($quantity_input_code)){
+        $button_code .= $quantity_input_code;
+    }
+    $button_code .= '<input type="hidden" name="wp_stripe_checkout_button_input" value="1" />';
+    $button_image = get_post_meta($atts['id'], '_wpstripeco_product_button_image', true);
+    if(!isset($button_image) || empty($button_image)){
+        $button_text = get_post_meta($atts['id'], '_wpstripeco_product_button_text', true);
+        if(!isset($button_text) || empty($button_text)){
+            $button_text = 'Buy Now';
+        }
+        $button_code .= '<input type="submit" value="'.esc_attr($button_text).'" />';
+    } 
+    else{
+        $button_code .= '<input type="image" src="'.esc_url($button_image).'" alt="Submit" />';    
+    }
+    $button_code .= '</form>';
+    return $button_code;
+}
+
+function wp_stripe_checkout_legacy_checkout_button_handler($atts) {
     if(!isset($atts['item_name']) || empty($atts['item_name'])){
         return __('item_name cannot be left empty', 'wp-stripe-checkout');
     }
@@ -681,17 +757,19 @@ function wp_stripe_checkout_v3_button_handler($atts) {
         $identifier = $atts['price'];
     }
     $options = wp_stripe_checkout_get_option();
-    $success_url = $options['return_url'];
+    $success_url = $options['success_url'];
     if(isset($atts['success_url']) && !empty($atts['success_url'])){
         $success_url = $atts['success_url'];
     }
-    //check to make sure that the success_url is set
     if(!isset($success_url) || empty($success_url)){
-        return __('You need to provide a return URL page in the settings', 'wp-stripe-checkout');
+        return __('You need to provide a success URL page in the settings', 'wp-stripe-checkout');
     }
-    $cancel_url = home_url();
+    $cancel_url = $options['cancel_url'];
     if(isset($atts['cancel_url']) && !empty($atts['cancel_url'])){
         $cancel_url = $atts['cancel_url'];
+    }
+    if(!isset($cancel_url) || empty($cancel_url)){
+        return __('You need to provide a cancel URL page in the settings', 'wp-stripe-checkout');
     }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
@@ -789,7 +867,7 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['currency']) && !empty($atts['currency'])){
         $currency = $atts['currency'];
     }
-    $success_url = $options['return_url'];
+    $success_url = $options['success_url'];
     if(isset($atts['success_url']) && !empty($atts['success_url'])){
         $success_url = $atts['success_url'];
     }
@@ -844,11 +922,6 @@ function wp_stripe_checkout_session_button_handler($atts) {
     $quantity_input_code = apply_filters('wp_stripe_checkout_session_quantity', $quantity_input_code, $button_code, $atts);
     if(!empty($quantity_input_code)){
         $button_code .= $quantity_input_code;
-    }
-    else{
-        if(isset($atts['quantity']) && is_numeric($atts['quantity']) && $atts['quantity'] > 0) {
-            $button_code .= '<input type="hidden" name="item_quantity" value="'.esc_attr($atts['quantity']).'" />';
-        }
     }
     $button_code .= '<input type="hidden" name="item_currency" value="'.esc_attr($currency).'" />';
     if(!empty($success_url)){
@@ -914,7 +987,8 @@ function wp_stripe_checkout_get_empty_options_array(){
     $options['stripe_secret_key'] = '';
     $options['stripe_publishable_key'] = '';
     $options['stripe_currency_code'] = '';
-    $options['return_url'] = '';
+    $options['success_url'] = '';
+    $options['cancel_url'] = '';
     $options['enable_debug'] = '';
     return $options;
 }

@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.5
+Stable tag: 1.2.2.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Sell anything from your website with WordPress Stripe plugin. Accept Stripe paym
 
 == Description ==
 
-[Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
+[Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
 Stripe Checkout comes with a smart payment page that works seamlessly across devices and is designed to increase your conversion.
 
@@ -90,7 +90,23 @@ You can use various template tags in the body of an email to dynamically change 
 
 === How to use Stripe Checkout (Option 1) ===
 
-The easiest way to start accepting Stripe payments is to add the following shortcode to a post/page:
+The easiest way to start accepting Stripe payments is to create a product in the plugin interface (Stripe Checkout > All Products > Add New).
+
+Once you have created a product, add the shortcode for it to a post/page.
+
+`[wp_stripe_checkout id="1"]`
+
+Replace the value of "id" with your product ID.
+
+= Webhook Endpoint =
+
+Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
+
+For detailed setup instructions please visit the [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
+=== How to use Stripe Checkout (Option 2) ===
+
+If you do not wish to create a product you can get started by adding the following shortcode to a post/page:
 
 `[wp_stripe_checkout_session name="My Product" price="2.99"]`
 
@@ -105,7 +121,6 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
 * **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
-* **quantity** - Specify the quantity of an item. (e.g. quantity="3"). The default is "1".
 * **phone_number_collection** - Specify whether Checkout should collect the customer's phone number. (e.g. phone_number_collection="true").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
@@ -113,9 +128,9 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 
 Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
 
-For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+For detailed setup instructions please visit the [Stripe integration](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
-=== How to use Stripe Checkout (Option 2) ===
+=== How to use Stripe Checkout (Option 3) ===
 
 https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
 
@@ -160,7 +175,7 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **shipping_countries** - If you only wish to ship to certain countries you can specify their country codes. (e.g. shipping_countries="'US'" or shipping_countries="'US','GB','AU'").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
-For detailed setup instructions please visit the [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+For detailed setup instructions please visit the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 === Legacy Stripe Checkout ===
 
@@ -194,7 +209,7 @@ You can add additional parameters in the shortcode to customize your stripe paym
 * **bitcoin** - Specify whether Checkout form should accept Bitcoin (e.g. bitcoin="true"). The default is false.
 * **success_url** - Specify whether Checkout form should redirect the customer to a different url upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 
-For detailed setup instructions please visit the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 == Installation ==
 
@@ -259,8 +274,11 @@ none
 
 == Changelog ==
 
+= 1.2.2.6 =
+* Added a new interface for creating products.
+
 = 1.2.2.5 =
-* Added the quantity shortcode parameter that can be used to specify the quantity of an item.
+* Added support for variable quantity.
 
 = 1.2.2.4 =
 * Added support for phone number collection at checkout.
