@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.6
+Stable tag: 1.2.2.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -273,6 +273,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.7 =
+* Added variable quantity support to wp_stripe_checkout_v3 shortcode.
 
 = 1.2.2.6 =
 * Added a new interface for creating products.

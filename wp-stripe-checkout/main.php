@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.6
+  Version: 1.2.2.7
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.6';
+    var $plugin_version = '1.2.2.7';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -809,22 +809,35 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
+    $qty_input_class_id = 'wpsc'.$id.'_qty_input';
+    $atts['qty_input_class_id'] = $qty_input_class_id;
+    $button_code = '<div class="wpsc-v3-button-container"';
+    $quantity_input_code = '';
+    $quantity_input_code = apply_filters('wp_stripe_checkout_v3_quantity', $quantity_input_code, $button_code, $atts);
+    if(!empty($quantity_input_code)){
+        $button_code .= $quantity_input_code;
+    }
+    else{
+        $button_code .= '<input class="wpstripeco_variable_quantity_input '.$qty_input_class_id.'" type="hidden" name="item_quantity" value="1" required>';
+    }
     $button = '<button id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'">'.$button_text.'</button>';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){
         $button = '<a href="#" onclick="event.preventDefault();" id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'"><img src="'.$atts['button_image'].'"></a>';
     }
-    $button_code = <<<EOT
-    $button
+    $button_code .= $button;
+    $button_code .= '</div>';
+    $button_code .= <<<EOT
     <div id="error-wpsc$id"></div>
     <script>
     (function() {
         var stripe_$id = Stripe('$key');
         var checkoutButton_$id = document.querySelector('#wpsc$id');
+        var btnqty_$id = document.querySelector('.{$qty_input_class_id}');
         checkoutButton_$id.addEventListener('click', function () {
             stripe_$id.redirectToCheckout({
               lineItems: [{
                 price: '{$identifier}',
-                quantity: 1
+                quantity: Number(btnqty_$id.value)
               }],
               mode: '{$mode}',  
               successUrl: '{$success_url}',
@@ -843,7 +856,7 @@ function wp_stripe_checkout_v3_button_handler($atts) {
             .catch(function(error) {
                 console.error('Error:', error);
                 var displayError = document.getElementById('error-wpsc$id');
-                displayError.textContent = error;      
+                displayError.textContent = error;
             });
         });
     })();
