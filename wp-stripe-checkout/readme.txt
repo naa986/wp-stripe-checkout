@@ -1,10 +1,10 @@
 === WordPress Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay
+Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, checkout, payments
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.7
+Stable tag: 1.2.2.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -273,6 +273,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.8 =
+* Fixed a bug that was causing the checkout button to not function correctly.
 
 = 1.2.2.7 =
 * Added variable quantity support to wp_stripe_checkout_v3 shortcode.
