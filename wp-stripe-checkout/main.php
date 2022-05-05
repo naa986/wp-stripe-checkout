@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.8
+  Version: 1.2.2.9
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.8';
+    var $plugin_version = '1.2.2.9';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -48,6 +48,7 @@ class WP_STRIPE_CHECKOUT {
         include_once('wp-stripe-checkout-product.php');
         include_once('wp-stripe-checkout-process.php');
         include_once('wp-stripe-checkout-process-webhook.php');
+        include_once('templates/product-display.php');
         include_once('class-wp-sc-stripe-api.php');
         if(is_admin()){
             include_once('extensions/wp-stripe-checkout-extensions-menu.php');
@@ -126,7 +127,8 @@ class WP_STRIPE_CHECKOUT {
 
     function plugin_scripts() {
         if (!is_admin()) {
-            
+            wp_register_style('wp-stripe-checkout', WP_STRIPE_CHECKOUT_URL.'/css/style.css');
+            wp_enqueue_style('wp-stripe-checkout');
         }
     }
     
@@ -668,6 +670,10 @@ function wp_stripe_checkout_button_handler($atts) {
         $button_code .= '<input type="image" src="'.esc_url($button_image).'" alt="Submit" />';    
     }
     $button_code .= '</form>';
+    //template
+    if(isset($atts['template']) && $atts['template'] == '1'){
+        $button_code = wp_stripe_checkout_button_get_display_template1($button_code, $atts);
+    }
     return $button_code;
 }
 

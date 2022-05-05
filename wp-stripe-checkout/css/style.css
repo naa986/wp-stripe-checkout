@@ -1,0 +1,19 @@
+/* template 1 CSS */
+.wpsc_template1_product_thumbnail img{
+max-width: none !important;
+}
+.wpsc_template1_product_name{
+font-weight: bold;
+padding: 0px 0px 0.5em;
+font-size: 1.5em;
+}
+.wpsc_template1_product_price{
+padding: 0 0 0.5em;
+color: #77a464;
+}
+.wpsc_template1_product_description{
+padding: 0 0 0.5em;    
+}
+.wpsc_template1_product_button{
+
+}

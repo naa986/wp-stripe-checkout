@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, checkout, payments
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.8
+Stable tag: 1.2.2.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,14 @@ Once you have created a product, add the shortcode for it to a post/page.
 `[wp_stripe_checkout id="1"]`
 
 Replace the value of "id" with your product ID.
+
+= Product Display Template =
+
+The template parameter in the shortcode allows you to use a pre-designed display template to showcase your product.
+
+`[wp_stripe_checkout id="1" template="1"]`
+
+Replace the value of "template" with your preferred display template id.
 
 = Webhook Endpoint =
 
@@ -273,6 +281,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.9 =
+* Added a new product display template.
 
 = 1.2.2.8 =
 * Fixed a bug that was causing the checkout button to not function correctly.
