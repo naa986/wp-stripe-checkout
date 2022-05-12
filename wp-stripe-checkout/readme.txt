@@ -1,4 +1,4 @@
-=== WordPress Stripe Checkout ===
+=== WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, checkout, payments
