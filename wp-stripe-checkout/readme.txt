@@ -4,11 +4,11 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, checkout, payments
 Requires at least: 5.3
 Tested up to: 5.9
-Stable tag: 1.2.2.9
+Stable tag: 1.2.2.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Sell anything from your website with WordPress Stripe plugin. Accept Stripe payments in WordPress via streamlined checkout and mobile-ready payment form.
+Accept Stripe payments in WordPress with WordPress Stripe Checkout plugin. Sell anything in WordPress with Stripe one-time and recurring payments.
 
 == Description ==
 
@@ -281,6 +281,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.10 =
+* WordPress 6.0 compatibility update.
 
 = 1.2.2.9 =
 * Added a new product display template.

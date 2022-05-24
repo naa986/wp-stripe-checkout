@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.9
+  Version: 1.2.2.10
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.9';
+    var $plugin_version = '1.2.2.10';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -62,7 +62,8 @@ class WP_STRIPE_CHECKOUT {
             add_filter('plugin_action_links', array($this, 'add_plugin_action_links'), 10, 2);
         }
         add_action('admin_notices', array($this, 'admin_notice'));
-        add_action('wp_head', array($this, 'wp_head'));
+        //add_action('wp_head', array($this, 'wp_head'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_enqueue_scripts', array($this, 'plugin_scripts'));
         add_action('admin_menu', array($this, 'add_options_menu'));
         add_action('init', array($this, 'plugin_init'));
@@ -124,21 +125,29 @@ class WP_STRIPE_CHECKOUT {
         //process webhook
         wp_stripe_checkout_process_webhook();
     }
+    
+    function enqueue_admin_scripts($hook) {
+        if('wpstripeco_order_page_wp-stripe-checkout-extensions' != $hook) {
+            return;
+        }
+        wp_register_style('wp-stripe-checkout-extension-menu', WP_STRIPE_CHECKOUT_URL.'/extensions/wp-stripe-checkout-extensions-menu.css');
+        wp_enqueue_style('wp-stripe-checkout-extension-menu');
+    }
 
     function plugin_scripts() {
         if (!is_admin()) {
-            wp_register_style('wp-stripe-checkout', WP_STRIPE_CHECKOUT_URL.'/css/style.css');
-            wp_enqueue_style('wp-stripe-checkout');
+            global $post;
+            if(is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'wp_stripe_checkout_v3')){
+                wp_register_style('wp-stripe-checkout', WP_STRIPE_CHECKOUT_URL.'/css/style.css');
+                wp_enqueue_style('wp-stripe-checkout');
+                wp_register_script('wp-stripe-checkout', 'https://js.stripe.com/v3', array(), null);
+                wp_enqueue_script('wp-stripe-checkout');
+            }
         }
     }
     
     function wp_head(){
-        $output = '';
-        global $post;
-	if(is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'wp_stripe_checkout_v3')){
-            $output .= '<script src="https://js.stripe.com/v3"></script>';
-        }
-        echo $output;
+
     }
     
     function plugin_url() {
@@ -181,13 +190,21 @@ class WP_STRIPE_CHECKOUT {
         );
         echo '<div class="wrap"><h2>'.__('WP Stripe Checkout', 'wp-stripe-checkout').' v' . WP_STRIPE_CHECKOUT_VERSION . '</h2>';
         $url = 'https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/';
-        $link_msg = sprintf( wp_kses( __( 'Please visit the <a target="_blank" href="%s">Stripe Checkout</a> documentation page for setup instructions.', 'wp-stripe-checkout' ), array(  'a' => array( 'href' => array(), 'target' => array() ) ) ), esc_url( $url ) );
-        echo '<div class="update-nag">'.$link_msg.'</div>';
-        
+        $link_msg = sprintf(__( 'Please visit the <a target="_blank" href="%s">Stripe Checkout</a> documentation page for setup instructions.', 'wp-stripe-checkout' ), esc_url($url));
+        $allowed_html_tags = array(
+            'a' => array(
+                'href' => array(),
+                'title' => array()
+            )
+        );
+        echo '<div class="update-nag">'.wp_kses($link_msg, $allowed_html_tags).'</div>';
+        $current = '';
+        $tab = '';
         if (isset($_GET['page'])) {
-            $current = $_GET['page'];
+            $current = sanitize_text_field($_GET['page']);
             if (isset($_GET['tab'])) {
-                $current .= "&tab=" . $_GET['tab'];
+                $tab = sanitize_text_field($_GET['tab']);
+                $current .= "&tab=" . $tab;
             }
         }
         $content = '';
@@ -201,13 +218,21 @@ class WP_STRIPE_CHECKOUT {
             $content .= '<a class="nav-tab' . $class . '" href="?post_type=wpstripeco_order&page=' . $location . '">' . $tabname . '</a>';
         }
         $content .= '</h2>';
-        echo $content;
+        $allowed_html_tags = array(
+            'a' => array(
+                'href' => array(),
+                'class' => array()
+            ),
+            'h2' => array(
+                'href' => array(),
+                'class' => array()
+            )
+        );
+        echo wp_kses($content, $allowed_html_tags);
         
-        //echo '<div id="poststuff"><div id="post-body">';
-        
-        if(isset($_GET['tab']))
+        if(!empty($tab))
         { 
-            switch ($_GET['tab'])
+            switch($tab)
             {
                case 'emails':
                    $this->email_settings();
@@ -219,7 +244,6 @@ class WP_STRIPE_CHECKOUT {
             $this->general_settings();
         }
 
-        //echo '</div></div>';
         echo '</div>';
     }
 
@@ -275,19 +299,26 @@ class WP_STRIPE_CHECKOUT {
         
         $stripe_options = wp_stripe_checkout_get_option();
         $api_keys_url = "https://dashboard.stripe.com/account/apikeys";
-        $api_keys_link = sprintf(wp_kses(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), array('a' => array('href' => array(), 'target' => array()))), esc_url($api_keys_url));
+        $api_keys_link = sprintf(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), esc_url($api_keys_url));
         
         $currency_check_url = "https://support.stripe.com/questions/which-currencies-does-stripe-support";
-        $currency_check_link = sprintf(wp_kses(__('See <a target="_blank" href="%s">which currencies are supported by stripe</a> for details.', 'wp-stripe-checkout'), array('a' => array('href' => array(), 'target' => array()))), esc_url($currency_check_url));
+        $currency_check_link = sprintf(__('See <a target="_blank" href="%s">which currencies are supported by stripe</a> for details.', 'wp-stripe-checkout'), esc_url($currency_check_url));
         
         $webhook_doc_url = "https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/";
-        $webhook_doc_url = sprintf(wp_kses(__('Learn how to configure it <a target="_blank" href="%s">here</a>.', 'wp-stripe-checkout'), array('a' => array('href' => array(), 'target' => array()))), esc_url($webhook_doc_url));
+        $webhook_doc_url = sprintf(__('Learn how to configure it <a target="_blank" href="%s">here</a>.', 'wp-stripe-checkout'), esc_url($webhook_doc_url));
+        
+        $allowed_html_tags = array(
+            'a' => array(
+                'href' => array(),
+                'target' => array()
+            )
+        );
         ?>
         <table class="wpsc-general-settings-table">
             <tbody>
                 <tr>
                     <td valign="top">
-                        <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                        <form method="post" action="">
                             <?php wp_nonce_field('wp_stripe_checkout_general_settings'); ?>
 
                             <table class="form-table">
@@ -295,66 +326,66 @@ class WP_STRIPE_CHECKOUT {
                                 <tbody>
 
                                     <tr valign="top">
-                                        <th scope="row"><?Php _e('Test Mode', 'wp-stripe-checkout');?></th>
+                                        <th scope="row"><?php _e('Test Mode', 'wp-stripe-checkout');?></th>
                                         <td> <fieldset><legend class="screen-reader-text"><span>Test Mode</span></legend><label for="stripe_testmode">
                                                     <input name="stripe_testmode" type="checkbox" id="stripe_testmode" <?php if ($stripe_options['stripe_testmode'] == '1') echo ' checked="checked"'; ?> value="1">
-                                                    <?Php _e('Check this option if you want to place the Stripe payment gateway in test mode using test API keys.', 'wp-stripe-checkout');?></label>
+                                                    <?php _e('Check this option if you want to place the Stripe payment gateway in test mode using test API keys.', 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><label for="stripe_test_secret_key"><?Php _e('Test Secret Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_test_secret_key" type="text" id="stripe_test_secret_key" value="<?php echo $stripe_options['stripe_test_secret_key']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('Your Test Secret Key.', 'wp-stripe-checkout').' '.$api_keys_link;?></p></td>
+                                        <th scope="row"><label for="stripe_test_secret_key"><?php _e('Test Secret Key', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_test_secret_key" type="text" id="stripe_test_secret_key" value="<?php echo esc_attr($stripe_options['stripe_test_secret_key']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('Your Test Secret Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><label for="stripe_test_publishable_key"><?Php _e('Test Publishable Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_test_publishable_key" type="text" id="stripe_test_publishable_key" value="<?php echo $stripe_options['stripe_test_publishable_key']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('Your Test Publishable Key.', 'wp-stripe-checkout').' '.$api_keys_link;?></p></td>
+                                        <th scope="row"><label for="stripe_test_publishable_key"><?php _e('Test Publishable Key', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_test_publishable_key" type="text" id="stripe_test_publishable_key" value="<?php echo esc_attr($stripe_options['stripe_test_publishable_key']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('Your Test Publishable Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><label for="stripe_secret_key"><?Php _e('Live Secret Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_secret_key" type="text" id="stripe_secret_key" value="<?php echo $stripe_options['stripe_secret_key']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('Your Secret Key.', 'wp-stripe-checkout').' '.$api_keys_link;?></p></td>
+                                        <th scope="row"><label for="stripe_secret_key"><?php _e('Live Secret Key', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_secret_key" type="text" id="stripe_secret_key" value="<?php echo esc_attr($stripe_options['stripe_secret_key']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('Your Secret Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><label for="stripe_publishable_key"><?Php _e('Live Publishable Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_publishable_key" type="text" id="stripe_publishable_key" value="<?php echo $stripe_options['stripe_publishable_key']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('Your Live Publishable Key.', 'wp-stripe-checkout').' '.$api_keys_link;?></p></td>
+                                        <th scope="row"><label for="stripe_publishable_key"><?php _e('Live Publishable Key', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_publishable_key" type="text" id="stripe_publishable_key" value="<?php echo esc_attr($stripe_options['stripe_publishable_key']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('Your Live Publishable Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><label for="stripe_currency_code"><?Php _e('Currency Code', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_currency_code" type="text" id="stripe_currency_code" value="<?php echo $stripe_options['stripe_currency_code']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('The currency of the payment.', 'wp-stripe-checkout').' '.$currency_check_link;?></p></td>
+                                        <th scope="row"><label for="stripe_currency_code"><?php _e('Currency Code', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_currency_code" type="text" id="stripe_currency_code" value="<?php echo esc_attr($stripe_options['stripe_currency_code']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('The currency of the payment.', 'wp-stripe-checkout').' '.wp_kses($currency_check_link, $allowed_html_tags);?></p></td>
                                     </tr>
                                     
                                     <tr valign="top">
-                                        <th scope="row"><label for="success_url"><?Php _e('Success URL', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="success_url" type="text" id="success_url" value="<?php echo $stripe_options['success_url']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('The page URL to which the customer will be redirected after a successful payment.', 'wp-stripe-checkout');?></p></td>
+                                        <th scope="row"><label for="success_url"><?php _e('Success URL', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="success_url" type="text" id="success_url" value="<?php echo esc_url($stripe_options['success_url']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('The page URL to which the customer will be redirected after a successful payment.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     
                                     <tr valign="top">
-                                        <th scope="row"><label for="cancel_url"><?Php _e('Cancel URL', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="cancel_url" type="text" id="cancel_url" value="<?php echo $stripe_options['cancel_url']; ?>" class="regular-text">
-                                            <p class="description"><?Php echo __('The page URL to which the customer will be redirected if they decide to cancel payment and return to your website.', 'wp-stripe-checkout');?></p></td>
+                                        <th scope="row"><label for="cancel_url"><?php _e('Cancel URL', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="cancel_url" type="text" id="cancel_url" value="<?php echo esc_url($stripe_options['cancel_url']); ?>" class="regular-text">
+                                            <p class="description"><?php echo __('The page URL to which the customer will be redirected if they decide to cancel payment and return to your website.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     
                                     <tr valign="top">
-                                        <th scope="row"><label><?Php _e('Stripe Webhook URL', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label><?php _e('Stripe Webhook URL', 'wp-stripe-checkout');?></label></th>
                                         <td><code><?php echo esc_url(home_url('/')."?wp_stripe_co_webhook=1"); ?></code>
-                                            <p class="description"><?Php echo __('The URL of your site where Stripe will send notification of an event.', 'wp-stripe-checkout').' '.$webhook_doc_url;?></p></td>
+                                            <p class="description"><?php echo __('The URL of your site where Stripe will send notification of an event.', 'wp-stripe-checkout').' '.wp_kses($webhook_doc_url, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                 </tbody>
 
                             </table>
 
-                            <p class="submit"><input type="submit" name="wp_stripe_checkout_update_settings" id="wp_stripe_checkout_update_settings" class="button button-primary" value="<?Php _e('Save Changes', 'wp-stripe-checkout');?>"></p></form>
+                            <p class="submit"><input type="submit" name="wp_stripe_checkout_update_settings" id="wp_stripe_checkout_update_settings" class="button button-primary" value="<?php _e('Save Changes', 'wp-stripe-checkout');?>"></p></form>
                     </td>
                     <td valign="top" style="width: 300px">
                         <div style="background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px">
@@ -387,7 +418,7 @@ class WP_STRIPE_CHECKOUT {
             }
             $email_from_address= '';
             if(isset($_POST['email_from_address']) && !empty($_POST['email_from_address'])){
-                $email_from_address = sanitize_text_field($_POST['email_from_address']);
+                $email_from_address = sanitize_email($_POST['email_from_address']);
             }
             $purchase_email_enabled = (isset($_POST["purchase_email_enabled"]) && $_POST["purchase_email_enabled"] == '1') ? '1' : '';
             $purchase_email_subject = '';
@@ -400,7 +431,7 @@ class WP_STRIPE_CHECKOUT {
             }
             $purchase_email_body = '';
             if(isset($_POST['purchase_email_body']) && !empty($_POST['purchase_email_body'])){
-                $purchase_email_body = trim($_POST['purchase_email_body']);
+                $purchase_email_body = wp_kses_post($_POST['purchase_email_body']);
             }
             $sale_notification_email_enabled = (isset($_POST["sale_notification_email_enabled"]) && $_POST["sale_notification_email_enabled"] == '1') ? '1' : '';
             $sale_notification_email_recipient = '';
@@ -417,7 +448,7 @@ class WP_STRIPE_CHECKOUT {
             }
             $sale_notification_email_body = '';
             if(isset($_POST['sale_notification_email_body']) && !empty($_POST['sale_notification_email_body'])){
-                $sale_notification_email_body = trim($_POST['sale_notification_email_body']);
+                $sale_notification_email_body = wp_kses_post($_POST['sale_notification_email_body']);
             }
             $stripe_options = array();
             $stripe_options['email_from_name'] = $email_from_name;
@@ -438,49 +469,52 @@ class WP_STRIPE_CHECKOUT {
         }
         
         $stripe_options = wp_stripe_checkout_get_email_option();
-        $api_keys_url = "https://dashboard.stripe.com/account/apikeys";
-        $api_keys_link = sprintf(wp_kses(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), array('a' => array('href' => array(), 'target' => array()))), esc_url($api_keys_url));
-        
         $email_tags_url = "https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/";
-        $email_tags_link = sprintf(wp_kses(__('You can find the full list of available email tags <a target="_blank" href="%s">here</a>.', 'wp-stripe-checkout'), array('a' => array('href' => array(), 'target' => array()))), esc_url($email_tags_url));
+        $email_tags_link = sprintf(__('You can find the full list of available email tags <a target="_blank" href="%s">here</a>.', 'wp-stripe-checkout'), esc_url($email_tags_url));
+        $allowed_html_tags = array(
+            'a' => array(
+                'href' => array(),
+                'target' => array()
+            )
+        );
         ?>
         <table class="wpsc-email-settings-table">
             <tbody>
                 <tr>
                     <td valign="top">
-                        <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                        <form method="post" action="">
                             <?php wp_nonce_field('wp_stripe_checkout_email_settings'); ?>
 
-                            <h2><?Php _e('Email Sender Options', 'wp-stripe-checkout');?></h2>
+                            <h2><?php _e('Email Sender Options', 'wp-stripe-checkout');?></h2>
                             <table class="form-table">
                                 <tbody>                   
                                     <tr valign="top">
-                                        <th scope="row"><label for="email_from_name"><?Php _e('From Name', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="email_from_name"><?php _e('From Name', 'wp-stripe-checkout');?></label></th>
                                         <td><input name="email_from_name" type="text" id="email_from_name" value="<?php echo esc_attr($stripe_options['email_from_name']); ?>" class="regular-text">
-                                            <p class="description"><?Php _e('The sender name that appears in outgoing emails. Leave empty to use the default.', 'wp-stripe-checkout');?></p></td>
+                                            <p class="description"><?php _e('The sender name that appears in outgoing emails. Leave empty to use the default.', 'wp-stripe-checkout');?></p></td>
                                     </tr>                
                                     <tr valign="top">
-                                        <th scope="row"><label for="email_from_address"><?Php _e('From Email Address', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="email_from_address"><?php _e('From Email Address', 'wp-stripe-checkout');?></label></th>
                                         <td><input name="email_from_address" type="text" id="email_from_address" value="<?php echo esc_attr($stripe_options['email_from_address']); ?>" class="regular-text">
-                                            <p class="description"><?Php _e('The sender email that appears in outgoing emails. Leave empty to use the default.', 'wp-stripe-checkout');?></p></td>
+                                            <p class="description"><?php _e('The sender email that appears in outgoing emails. Leave empty to use the default.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2><?Php _e('Purchase Receipt Email', 'wp-stripe-checkout');?></h2>
-                            <p><?Php _e('A purchase receipt email is sent to the customer after completion of a successful purchase', 'wp-stripe-checkout');?></p>
+                            <h2><?php _e('Purchase Receipt Email', 'wp-stripe-checkout');?></h2>
+                            <p><?php _e('A purchase receipt email is sent to the customer after completion of a successful purchase', 'wp-stripe-checkout');?></p>
                             <table class="form-table">
                                 <tbody>
                                     <tr valign="top">
-                                        <th scope="row"><?Php _e('Enable/Disable', 'wp-stripe-checkout');?></th>
+                                        <th scope="row"><?php _e('Enable/Disable', 'wp-stripe-checkout');?></th>
                                         <td> <fieldset><legend class="screen-reader-text"><span>Enable/Disable</span></legend><label for="purchase_email_enabled">
                                                     <input name="purchase_email_enabled" type="checkbox" id="purchase_email_enabled" <?php if ($stripe_options['purchase_email_enabled'] == '1') echo ' checked="checked"'; ?> value="1">
-                                                    <?Php _e('Enable this email notification', 'wp-stripe-checkout');?></label>
+                                                    <?php _e('Enable this email notification', 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>                   
                                     <tr valign="top">
-                                        <th scope="row"><label for="purchase_email_subject"><?Php _e('Subject', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="purchase_email_subject"><?php _e('Subject', 'wp-stripe-checkout');?></label></th>
                                         <td><input name="purchase_email_subject" type="text" id="purchase_email_subject" value="<?php echo esc_attr($stripe_options['purchase_email_subject']); ?>" class="regular-text">
-                                            <p class="description"><?Php _e('The subject line for the purchase receipt email.', 'wp-stripe-checkout');?></p></td>
+                                            <p class="description"><?php _e('The subject line for the purchase receipt email.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     <tr valign="top">
                                         <th scope="row"><label for="purchase_email_type"><?php _e('Email Type', 'wp-stripe-checkout');?></label></th>
@@ -493,32 +527,32 @@ class WP_STRIPE_CHECKOUT {
                                         </td>
                                     </tr>
                                     <tr valign="top">
-                                        <th scope="row"><label for="purchase_email_body"><?Php _e('Email Body', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="purchase_email_body"><?php _e('Email Body', 'wp-stripe-checkout');?></label></th>
                                         <td><?php wp_editor($stripe_options['purchase_email_body'], 'purchase_email_body', array('textarea_name' => 'purchase_email_body'));?>
-                                            <p class="description"><?Php echo __('The main content of the purchase receipt email.', 'wp-stripe-checkout').' '.$email_tags_link;?></p></td>
+                                            <p class="description"><?php echo __('The main content of the purchase receipt email.', 'wp-stripe-checkout').' '.wp_kses($email_tags_link, $allowed_html_tags);?></p></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2><?Php _e('Sale Notification Email', 'wp-stripe-checkout');?></h2>
-                            <p><?Php _e('A sale notification email is sent to the chosen recipient after completion of a successful purchase', 'wp-stripe-checkout');?></p>
+                            <h2><?php _e('Sale Notification Email', 'wp-stripe-checkout');?></h2>
+                            <p><?php _e('A sale notification email is sent to the chosen recipient after completion of a successful purchase', 'wp-stripe-checkout');?></p>
                             <table class="form-table">
                                 <tbody>
                                     <tr valign="top">
-                                        <th scope="row"><?Php _e('Enable/Disable', 'wp-stripe-checkout');?></th>
+                                        <th scope="row"><?php _e('Enable/Disable', 'wp-stripe-checkout');?></th>
                                         <td> <fieldset><legend class="screen-reader-text"><span>Enable/Disable</span></legend><label for="sale_notification_email_enabled">
                                                     <input name="sale_notification_email_enabled" type="checkbox" id="sale_notification_email_enabled" <?php if ($stripe_options['sale_notification_email_enabled'] == '1') echo ' checked="checked"'; ?> value="1">
-                                                    <?Php _e('Enable this email notification', 'wp-stripe-checkout');?></label>
+                                                    <?php _e('Enable this email notification', 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
                                     <tr valign="top">
-                                        <th scope="row"><label for="sale_notification_email_recipient"><?Php _e('Recipient', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="sale_notification_email_recipient"><?php _e('Recipient', 'wp-stripe-checkout');?></label></th>
                                         <td><input name="sale_notification_email_recipient" type="text" id="sale_notification_email_recipient" value="<?php echo esc_attr($stripe_options['sale_notification_email_recipient']); ?>" class="regular-text">
-                                            <p class="description"><?Php _e('The email address that should receive a notification anytime a sale is made.', 'wp-stripe-checkout');?></p></td>
+                                            <p class="description"><?php _e('The email address that should receive a notification anytime a sale is made.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     <tr valign="top">
-                                        <th scope="row"><label for="sale_notification_email_subject"><?Php _e('Subject', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="sale_notification_email_subject"><?php _e('Subject', 'wp-stripe-checkout');?></label></th>
                                         <td><input name="sale_notification_email_subject" type="text" id="sale_notification_email_subject" value="<?php echo esc_attr($stripe_options['sale_notification_email_subject']); ?>" class="regular-text">
-                                            <p class="description"><?Php _e('The subject line for the sale notification email.', 'wp-stripe-checkout');?></p></td>
+                                            <p class="description"><?php _e('The subject line for the sale notification email.', 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     <tr valign="top">
                                         <th scope="row"><label for="sale_notification_email_type"><?php _e('Email Type', 'wp-stripe-checkout');?></label></th>
@@ -531,14 +565,14 @@ class WP_STRIPE_CHECKOUT {
                                         </td>
                                     </tr>
                                     <tr valign="top">
-                                        <th scope="row"><label for="sale_notification_email_body"><?Php _e('Email Body', 'wp-stripe-checkout');?></label></th>
+                                        <th scope="row"><label for="sale_notification_email_body"><?php _e('Email Body', 'wp-stripe-checkout');?></label></th>
                                         <td><?php wp_editor($stripe_options['sale_notification_email_body'], 'sale_notification_email_body', array('textarea_name' => 'sale_notification_email_body'));?>
-                                            <p class="description"><?Php echo __('The main content of the sale notification email.', 'wp-stripe-checkout').' '.$email_tags_link;?></p></td>
+                                            <p class="description"><?php echo __('The main content of the sale notification email.', 'wp-stripe-checkout').' '.wp_kses($email_tags_link, $allowed_html_tags);?></p></td>
                                     </tr>
                                 </tbody>
                             </table>
                             
-                            <p class="submit"><input type="submit" name="wp_stripe_checkout_update_email_settings" id="wp_stripe_checkout_update_email_settings" class="button button-primary" value="<?Php _e('Save Changes', 'wp-stripe-checkout');?>"></p></form>
+                            <p class="submit"><input type="submit" name="wp_stripe_checkout_update_email_settings" id="wp_stripe_checkout_update_email_settings" class="button button-primary" value="<?php _e('Save Changes', 'wp-stripe-checkout');?>"></p></form>
                     </td>
                     <td valign="top" style="width: 300px">
                         <div style="background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px">
@@ -561,7 +595,7 @@ class WP_STRIPE_CHECKOUT {
     function debug_page() {
         ?>
         <div class="wrap">
-            <h2><?Php _e('WP Stripe Checkout Debug Log', 'wp-stripe-checkout');?></h2>
+            <h2><?php _e('WP Stripe Checkout Debug Log', 'wp-stripe-checkout');?></h2>
             <div id="poststuff">
                 <div id="post-body">
                     <?php
@@ -588,30 +622,29 @@ class WP_STRIPE_CHECKOUT {
                     }
                     $real_file = WP_STRIPE_CHECKOUT_DEBUG_LOG_PATH;
                     $content = file_get_contents($real_file);
-                    $content = esc_textarea($content);
                     $options = wp_stripe_checkout_get_option();
                     ?>
-                    <div id="template"><textarea cols="70" rows="25" name="wp_stripe_checkout_log" id="wp_stripe_checkout_log"><?php echo $content; ?></textarea></div>                     
-                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                    <div id="template"><textarea cols="70" rows="25" name="wp_stripe_checkout_log" id="wp_stripe_checkout_log"><?php echo esc_textarea($content); ?></textarea></div>                     
+                    <form method="post" action="">
                         <?php wp_nonce_field('wp_stripe_checkout_debug_log_settings'); ?>
                         <table class="form-table">
                             <tbody>
                                 <tr valign="top">
-                                    <th scope="row"><?Php _e('Enable Debug', 'wp-stripe-checkout');?></th>
+                                    <th scope="row"><?php _e('Enable Debug', 'wp-stripe-checkout');?></th>
                                     <td> <fieldset><legend class="screen-reader-text"><span>Enable Debug</span></legend><label for="enable_debug">
                                                 <input name="enable_debug" type="checkbox" id="enable_debug" <?php if ($options['enable_debug'] == '1') echo ' checked="checked"'; ?> value="1">
-                                                <?Php _e('Check this option if you want to enable debug', 'wp-stripe-checkout');?></label>
+                                                <?php _e('Check this option if you want to enable debug', 'wp-stripe-checkout');?></label>
                                         </fieldset></td>
                                 </tr>
 
                             </tbody>
 
                         </table>
-                        <p class="submit"><input type="submit" name="wp_stripe_checkout_update_log_settings" id="wp_stripe_checkout_update_log_settings" class="button button-primary" value="<?Php _e('Save Changes', 'wp-stripe-checkout');?>"></p>
+                        <p class="submit"><input type="submit" name="wp_stripe_checkout_update_log_settings" id="wp_stripe_checkout_update_log_settings" class="button button-primary" value="<?php _e('Save Changes', 'wp-stripe-checkout');?>"></p>
                     </form>
-                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                    <form method="post" action="">
                         <?php wp_nonce_field('wp_stripe_checkout_reset_log_settings'); ?>                            
-                        <p class="submit"><input type="submit" name="wp_stripe_checkout_reset_log" id="wp_stripe_checkout_reset_log" class="button" value="<?Php _e('Reset Log', 'wp-stripe-checkout');?>"></p>
+                        <p class="submit"><input type="submit" name="wp_stripe_checkout_reset_log" id="wp_stripe_checkout_reset_log" class="button" value="<?php _e('Reset Log', 'wp-stripe-checkout');?>"></p>
                     </form>
                 </div>         
             </div>
@@ -678,6 +711,7 @@ function wp_stripe_checkout_button_handler($atts) {
 }
 
 function wp_stripe_checkout_legacy_checkout_button_handler($atts) {
+    $atts = array_map('sanitize_text_field', $atts);
     if(!isset($atts['item_name']) || empty($atts['item_name'])){
         return __('item_name cannot be left empty', 'wp-stripe-checkout');
     }
@@ -730,13 +764,13 @@ function wp_stripe_checkout_legacy_checkout_button_handler($atts) {
     }
     $button_code .= '></script>';
     $button_code .= wp_nonce_field('wp_stripe_checkout_legacy', '_wpnonce', true, false);
-    $button_code .= '<input type="hidden" value="'.$item_name.'" name="item_name" />';
-    $button_code .= '<input type="hidden" value="'.$price.'" name="item_price" />';
-    $button_code .= '<input type="hidden" value="'.$atts['amount'].'" name="item_amount" />';
-    $button_code .= '<input type="hidden" value="'.$atts['currency'].'" name="item_currency" />';
-    $button_code .= '<input type="hidden" value="'.$description.'" name="item_description" />';
+    $button_code .= '<input type="hidden" value="'.esc_attr($item_name).'" name="item_name" />';
+    $button_code .= '<input type="hidden" value="'.esc_attr($price).'" name="item_price" />';
+    $button_code .= '<input type="hidden" value="'.esc_attr($atts['amount']).'" name="item_amount" />';
+    $button_code .= '<input type="hidden" value="'.esc_attr($atts['currency']).'" name="item_currency" />';
+    $button_code .= '<input type="hidden" value="'.esc_attr($description).'" name="item_description" />';
     if(!empty($success_url)){
-        $button_code .= '<input type="hidden" value="'.$success_url.'" name="success_url" />';
+        $button_code .= '<input type="hidden" value="'.esc_url($success_url).'" name="success_url" />';
     }
     $button_code .= '<input type="hidden" value="1" name="wp_stripe_checkout_legacy" />';
     $button_code .= '</form>';
@@ -922,7 +956,7 @@ function wp_stripe_checkout_session_button_handler($atts) {
     $client_reference_id = 'wpsc'.$id;
     $button_code = '<form class="'.esc_attr($class).'" action="" method="post">';
     $button_code .= wp_nonce_field('wp_stripe_checkout_session_nonce', '_wpnonce', true, false);
-    $button_code .= '<input type="hidden" name="client_reference_id" value="'.$client_reference_id.'" />';
+    $button_code .= '<input type="hidden" name="client_reference_id" value="'.esc_attr($client_reference_id).'" />';
     $button_code .= '<input type="hidden" name="item_name" value="'.esc_attr($item_name).'" />';
     $price_input_code = '';
     $price_input_code = apply_filters('wp_stripe_checkout_session_price', $price_input_code, $button_code, $atts);

@@ -65,7 +65,7 @@ function wp_stripe_checkout_process_webhook(){
             return;
         }
         $customers = WP_SC_Stripe_API::retrieve('customers/'.$payment_data['stripe_customer_id']);
-        $payment_data['customer_email'] = sanitize_text_field($customers->email);
+        $payment_data['customer_email'] = sanitize_email($customers->email);
         if(!isset($payment_data['customer_email']) || empty($payment_data['customer_email'])){
             wp_stripe_checkout_debug_log("Customer email could not be found. This notification cannot be processed.", false);
             return;
@@ -382,7 +382,7 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
             return;
         }
         $customers = WP_SC_Stripe_API::retrieve('customers/'.$payment_data['stripe_customer_id']);
-        $payment_data['customer_email'] = sanitize_text_field($customers->email);
+        $payment_data['customer_email'] = sanitize_email($customers->email);
         if(!isset($payment_data['customer_email']) || empty($payment_data['customer_email'])){
             wp_stripe_checkout_debug_log("Customer email could not be found. This notification cannot be processed.", false);
             return;
