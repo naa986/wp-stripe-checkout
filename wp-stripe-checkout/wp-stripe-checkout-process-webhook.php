@@ -12,13 +12,22 @@ function wp_stripe_checkout_process_webhook(){
     // grab the event information
     $event_json = json_decode($body);
 
-    $allowed_events = array("checkout.session.completed"); //add event types that we want to handle
+    $allowed_events = array("checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed"); //add event types that we want to handle
     if (!in_array($event_json->type, $allowed_events))   
     {
         return;
     }
     wp_stripe_checkout_debug_log("Received event notification from Stripe. Event type: ".$event_json->type, true);
     wp_stripe_checkout_debug_log_array($event_json, true);
+    wp_stripe_checkout_debug_log("Payment status: ".$event_json->data->object->payment_status, true);
+    if($event_json->type == "checkout.session.async_payment_failed"){
+        wp_stripe_checkout_debug_log("This payment was declined, or failed for some other reason. The notification cannot be processed.", false);
+        return;
+    }
+    if($event_json->type == "checkout.session.completed" && $event_json->data->object->payment_status == "unpaid"){
+        wp_stripe_checkout_debug_log("This notification cannot be processed as the funds are still not available in your account", false);
+        return;
+    }
     $client_reference_id = sanitize_text_field($event_json->data->object->client_reference_id);
     if(!isset($client_reference_id) || empty($client_reference_id)){
         wp_stripe_checkout_debug_log("Client Reference ID could not be found. This notification cannot be processed.", false);

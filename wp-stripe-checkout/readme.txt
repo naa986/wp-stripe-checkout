@@ -1,10 +1,10 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, checkout, payments
+Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 1.2.2.10
+Stable tag: 1.2.2.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,22 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Accept donation payments.
 * Accept Apple Pay payments.
 * Accept Google Pay payments.
+* Accept Alipay payments.
+* Accept WeChat Pay payments.
+* Accept Bancontact payments.
+* Accept EPS payments.
+* Accept giropay payments.
+* Accept iDEAL payments.
+* Accept Przelewy24 payments.
+* Accept Sofort payments.
+* Accept Afterpay/Clearpay payments.
+* Accept Boleto payments.
+* Accept OXXO payments.
+* Accept ACH Direct Debit payments.
+* Accept Bacs Direct Debit payments.
+* Accept BECS Debit payments.
+* Accept Canadian pre-authorised debit (PAD) payments.
+* Accept SEPA Direct Debit payments.
 * Support Dynamic 3D Secure payment authentication.
 * Support payment processing with Stripe test cards.
 * Support phone number collection at checkout.
@@ -88,6 +104,22 @@ When this feature is enabled an email is sent to your chosen recipient after com
 
 You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
+=== Webhook Endpoint ===
+
+Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
+
+You will also need to add the "checkout.session.async_payment_succeeded" and "checkout.session.async_payment_failed" events if you plan to use a payment method where there can be a delay in payment confirmation. For example:
+
+* Bacs Direct Debit
+* Boleto
+* Canadian pre-authorised debits
+* OXXO
+* SEPA Direct Debit
+* SOFORT
+* ACH Direct Debit
+
+For detailed setup instructions please visit the [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
 === How to use Stripe Checkout (Option 1) ===
 
 The easiest way to start accepting Stripe payments is to create a product in the plugin interface (Stripe Checkout > All Products > Add New).
@@ -105,12 +137,6 @@ The template parameter in the shortcode allows you to use a pre-designed display
 `[wp_stripe_checkout id="1" template="1"]`
 
 Replace the value of "template" with your preferred display template id.
-
-= Webhook Endpoint =
-
-Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
-
-For detailed setup instructions please visit the [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 === How to use Stripe Checkout (Option 2) ===
 
@@ -131,12 +157,6 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
 * **phone_number_collection** - Specify whether Checkout should collect the customer's phone number. (e.g. phone_number_collection="true").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
-
-= Webhook Endpoint =
-
-Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
-
-For detailed setup instructions please visit the [Stripe integration](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
 === How to use Stripe Checkout (Option 3) ===
 
@@ -260,6 +280,70 @@ Yes.
 
 Yes.
 
+= Can I use this Stripe plugin to accept Alipay payments in WordPress? =
+
+Yes
+
+= Can I use this Stripe plugin to accept WeChat Pay payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Bancontact payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept EPS payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept giropay payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept iDEAL payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Przelewy24 payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Sofort payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Afterpay/Clearpay payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Boleto payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept OXXO payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept ACH Direct Debit payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Bacs Direct Debit payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept BECS Debit payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept Canadian pre-authorised debit payments in WordPress? =
+
+Yes.
+
+= Can I use this Stripe plugin to accept SEPA Direct Debit payments in WordPress? =
+
+Yes.
+
 = Can I use a Stripe credit card for simulating purchases? =
 
 Yes.
@@ -281,6 +365,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.11 =
+* Added support for various payment methods.
 
 = 1.2.2.10 =
 * WordPress 6.0 compatibility update.
