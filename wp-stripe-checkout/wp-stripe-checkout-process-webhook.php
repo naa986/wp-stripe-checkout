@@ -220,18 +220,24 @@ function wp_stripe_checkout_process_webhook(){
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
     }
+    $payment_data['billing_address'] = '';
     if(!empty($payment_data['billing_address_line1'])){
+        $payment_data['billing_address'] .= $payment_data['billing_address_line1'];
         $content .= '<strong>Billing Address:</strong> '.$payment_data['billing_address_line1'];
         if(!empty($payment_data['billing_address_city'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_city'];
             $content .= ', '.$payment_data['billing_address_city'];
         }
         if(!empty($payment_data['billing_address_state'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_state'];
             $content .= ', '.$payment_data['billing_address_state'];
         }
         if(!empty($payment_data['billing_address_zip'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_zip'];
             $content .= ', '.$payment_data['billing_address_zip'];
         }
         if(!empty($payment_data['billing_address_country'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_country'];
             $content .= ', '.$payment_data['billing_address_country'];
         }
         $content .= '<br />';
@@ -239,18 +245,24 @@ function wp_stripe_checkout_process_webhook(){
     if(!empty($payment_data['shipping_name'])){
         $content .= '<strong>Shipping Name:</strong> '.$payment_data['shipping_name'].'<br />';
     }
+    $payment_data['shipping_address'] = '';
     if(!empty($payment_data['shipping_address_line1'])){
+        $payment_data['shipping_address'] .= $payment_data['shipping_address_line1'];
         $content .= '<strong>Shipping Address:</strong> '.$payment_data['shipping_address_line1'];
         if(!empty($payment_data['shipping_address_city'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_city'];
             $content .= ', '.$payment_data['shipping_address_city'];
         }
         if(!empty($payment_data['shipping_address_state'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_state'];
             $content .= ', '.$payment_data['shipping_address_state'];
         }
         if(!empty($payment_data['shipping_address_zip'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_zip'];
             $content .= ', '.$payment_data['shipping_address_zip'];
         }
         if(!empty($payment_data['shipping_address_country'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_country'];
             $content .= ', '.$payment_data['shipping_address_country'];
         }
         $content .= '<br />';
@@ -556,18 +568,24 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
     }
+    $payment_data['billing_address'] = '';
     if(!empty($payment_data['billing_address_line1'])){
+        $payment_data['billing_address'] .= $payment_data['billing_address_line1'];
         $content .= '<strong>Billing Address:</strong> '.$payment_data['billing_address_line1'];
         if(!empty($payment_data['billing_address_city'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_city'];
             $content .= ', '.$payment_data['billing_address_city'];
         }
         if(!empty($payment_data['billing_address_state'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_state'];
             $content .= ', '.$payment_data['billing_address_state'];
         }
         if(!empty($payment_data['billing_address_zip'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_zip'];
             $content .= ', '.$payment_data['billing_address_zip'];
         }
         if(!empty($payment_data['billing_address_country'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_country'];
             $content .= ', '.$payment_data['billing_address_country'];
         }
         $content .= '<br />';
@@ -575,18 +593,24 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     if(!empty($payment_data['shipping_name'])){
         $content .= '<strong>Shipping Name:</strong> '.$payment_data['shipping_name'].'<br />';
     }
+    $payment_data['shipping_address'] = '';
     if(!empty($payment_data['shipping_address_line1'])){
+        $payment_data['shipping_address'] .= $payment_data['shipping_address_line1'];
         $content .= '<strong>Shipping Address:</strong> '.$payment_data['shipping_address_line1'];
         if(!empty($payment_data['shipping_address_city'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_city'];
             $content .= ', '.$payment_data['shipping_address_city'];
         }
         if(!empty($payment_data['shipping_address_state'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_state'];
             $content .= ', '.$payment_data['shipping_address_state'];
         }
         if(!empty($payment_data['shipping_address_zip'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_zip'];
             $content .= ', '.$payment_data['shipping_address_zip'];
         }
         if(!empty($payment_data['shipping_address_country'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_country'];
             $content .= ', '.$payment_data['shipping_address_country'];
         }
         $content .= '<br />';

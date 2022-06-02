@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 1.2.2.11
+Stable tag: 1.2.2.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -365,6 +365,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.12 =
+* Added email tags for the billing and shipping addresses.
 
 = 1.2.2.11 =
 * Added support for various payment methods.

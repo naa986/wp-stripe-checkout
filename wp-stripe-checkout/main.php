@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.11
+  Version: 1.2.2.12
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.11';
+    var $plugin_version = '1.2.2.12';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -194,7 +194,7 @@ class WP_STRIPE_CHECKOUT {
         $allowed_html_tags = array(
             'a' => array(
                 'href' => array(),
-                'title' => array()
+                'target' => array()
             )
         );
         echo '<div class="update-nag">'.wp_kses($link_msg, $allowed_html_tags).'</div>';
