@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.12
+  Version: 1.2.2.13
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.12';
+    var $plugin_version = '1.2.2.13';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -940,6 +940,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['phone_number_collection']) && !empty($atts['phone_number_collection'])){
         $phone_number_collection = sanitize_text_field($atts['phone_number_collection']);
     }
+    $allow_promotion_codes = '';
+    if(isset($atts['allow_promotion_codes']) && !empty($atts['allow_promotion_codes'])){
+        $allow_promotion_codes = sanitize_text_field($atts['allow_promotion_codes']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -988,6 +992,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($phone_number_collection)){
         $button_code .= '<input type="hidden" name="phone_number_collection" value="'.esc_attr($phone_number_collection).'" />';
+    }
+    if(!empty($allow_promotion_codes)){
+        $button_code .= '<input type="hidden" name="allow_promotion_codes" value="'.esc_attr($allow_promotion_codes).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){

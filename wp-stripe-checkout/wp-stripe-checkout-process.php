@@ -337,6 +337,10 @@ function wp_stripe_checkout_process_session_button() {
     if(isset($_POST['phone_number_collection']) && !empty($_POST['phone_number_collection'])){
         $phone_number_collection = sanitize_text_field($_POST['phone_number_collection']);
     }
+    $allow_promotion_codes = '';
+    if(isset($_POST['allow_promotion_codes']) && !empty($_POST['allow_promotion_codes'])){
+        $allow_promotion_codes = sanitize_text_field($_POST['allow_promotion_codes']);
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -357,6 +361,9 @@ function wp_stripe_checkout_process_session_button() {
     }
     if($phone_number_collection == 'true'){
         $session_args['phone_number_collection'] = array('enabled' => 'true');
+    }
+    if($allow_promotion_codes == 'true'){
+        $session_args['allow_promotion_codes'] = 'true';
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
@@ -479,6 +486,7 @@ function wp_stripe_checkout_process_button() {
     $phone_number_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_phone_number_collection', true));
     $shipping_address_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_shipping_address_collection', true));
     $stripe_shipping_rate_id = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_stripe_shipping_rate_id', true));
+    $allow_promotion_codes = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', true));
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -513,6 +521,9 @@ function wp_stripe_checkout_process_button() {
         $shipping_options = array();
         $shipping_options[] = array('shipping_rate' => $stripe_shipping_rate_id);
         $session_args['shipping_options'] = $shipping_options;
+    }
+    if(isset($allow_promotion_codes) && $allow_promotion_codes == '1'){
+        $session_args['allow_promotion_codes'] = 'true';
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');

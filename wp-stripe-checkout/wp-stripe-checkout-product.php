@@ -136,6 +136,10 @@ function wpstripeco_render_product_data_meta_box($post){
     if(!isset($stripe_shipping_rate_id) || empty($stripe_shipping_rate_id)){
         $stripe_shipping_rate_id = '';
     }
+    $allow_promotion_codes = get_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', true);
+    if(!isset($allow_promotion_codes) || empty($allow_promotion_codes)){
+        $allow_promotion_codes = '';
+    }
     /*
     $output = '<label for="_wpstripeco_product_price">'.__('Price', 'wp-stripe-checkout').'</label>';
     $output .= '<input type="text" name="_wpstripeco_product_price" id="_wpstripeco_product_price" value="'.esc_attr($product_price).'" class="regular-text">';
@@ -215,6 +219,18 @@ function wpstripeco_render_product_data_meta_box($post){
                                 <td><input name="_wpstripeco_product_stripe_shipping_rate_id" type="text" id="_wpstripeco_product_stripe_shipping_rate_id" value="<?php echo esc_attr($stripe_shipping_rate_id); ?>" class="regular-text">
                                     <p class="description"><?php printf(__('The ID of the shipping rate configured in your Stripe account. e.g. %s.', 'wp-stripe-checkout'), 'shr_1MuqbvCW3vOdLdEXy3Bh7Lts');?></p></td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php _e('Allow Promotion Codes', 'wp-stripe-checkout');?></th>
+                                <td> 
+                                    <fieldset>
+                                        <legend class="screen-reader-text"><span>Allow Promotion Codes</span></legend>
+                                        <label for="_wpstripeco_product_allow_promotion_codes">
+                                            <input name="_wpstripeco_product_allow_promotion_codes" type="checkbox" id="_wpstripeco_product_allow_promotion_codes" <?php if ($allow_promotion_codes == '1') echo ' checked="checked"'; ?> value="1">
+                                            <?php _e('Allow user redeemable promotion codes at checkout', 'wp-stripe-checkout');?>
+                                        </label>
+                                    </fieldset>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </td>
@@ -273,7 +289,8 @@ function wpstripeco_product_data_meta_box_save($post_id, $post){
         $stripe_shipping_rate_id = sanitize_text_field($_POST['_wpstripeco_product_stripe_shipping_rate_id']);
         update_post_meta($post_id, '_wpstripeco_product_stripe_shipping_rate_id', $stripe_shipping_rate_id);
     }
-
+    $allow_promotion_codes = (isset($_POST['_wpstripeco_product_allow_promotion_codes']) && $_POST['_wpstripeco_product_allow_promotion_codes'] == '1') ? '1' : '';
+    update_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', $allow_promotion_codes);
 }
 
 add_action('save_post_wpstripeco_product', 'wpstripeco_product_data_meta_box_save', 10, 2 );

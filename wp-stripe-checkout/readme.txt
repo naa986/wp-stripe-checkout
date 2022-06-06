@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 1.2.2.12
+Stable tag: 1.2.2.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,6 +45,7 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Support Dynamic 3D Secure payment authentication.
 * Support payment processing with Stripe test cards.
 * Support phone number collection at checkout.
+* Support user redeemable promotion codes at checkout.
 * Localized for 34 languages.
 * Automatically email Stripe receipts to your customers.
 * Build conversion-optimized payment forms, hosted on Stripe.
@@ -365,6 +366,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.13 =
+* Added an option to allow user redeemable promotion codes at checkout.
 
 = 1.2.2.12 =
 * Added email tags for the billing and shipping addresses.
