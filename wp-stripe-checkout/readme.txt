@@ -65,6 +65,7 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 
 * [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
 * [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
+* [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
 
 === WordPress Stripe Plugin Configuration ===
 
