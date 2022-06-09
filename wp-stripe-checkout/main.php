@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.13
+  Version: 1.2.2.14
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.13';
+    var $plugin_version = '1.2.2.14';
     var $db_version = '1.0.9';
     var $plugin_url;
     var $plugin_path;
@@ -796,6 +796,9 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     else{
         $identifier = $atts['price'];
     }
+    $data_arr = array();
+    $line_items_arr = array();
+    $line_items_arr['price'] = $identifier;
     $options = wp_stripe_checkout_get_option();
     $success_url = $options['success_url'];
     if(isset($atts['success_url']) && !empty($atts['success_url'])){
@@ -804,6 +807,7 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(!isset($success_url) || empty($success_url)){
         return __('You need to provide a success URL page in the settings', 'wp-stripe-checkout');
     }
+    $data_arr['successUrl'] = $success_url;
     $cancel_url = $options['cancel_url'];
     if(isset($atts['cancel_url']) && !empty($atts['cancel_url'])){
         $cancel_url = $atts['cancel_url'];
@@ -811,6 +815,7 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(!isset($cancel_url) || empty($cancel_url)){
         return __('You need to provide a cancel URL page in the settings', 'wp-stripe-checkout');
     }
+    $data_arr['cancelUrl'] = $cancel_url;
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -823,34 +828,52 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(isset($atts['mode']) && 'subscription' == $atts['mode']){
         $mode = 'subscription';
     }
+    $data_arr['mode'] = $mode;
     //billingAddressCollection
     $billingAddressCollection = '';
     if(isset($atts['billing_address']) && !empty($atts['billing_address'])){
-        $billingAddressCollection = "billingAddressCollection: '".$atts['billing_address']."',";
+        //$billingAddressCollection = "billingAddressCollection: '".$atts['billing_address']."',";
+        $data_arr['billingAddressCollection'] = $atts['billing_address'];
     }
     //shippingAddressCollection
     $shippingAddressCollection = '';
     if(isset($atts['shipping_address']) && !empty($atts['shipping_address'])){
-        $allowed_countries = wp_stripe_checkout_get_shipping_countries_string();       
+        $allowed_countries = wp_stripe_checkout_get_shipping_countries_array();       
         if(isset($atts['shipping_countries']) && !empty($atts['shipping_countries'])){
-            $allowed_countries = $atts['shipping_countries'];
+            $allowed_countries_str = $atts['shipping_countries'];
+            $allowed_countries_str = str_replace("'", '', $allowed_countries_str);  //backwards compatibility
+            $allowed_countries = array_map('trim', explode(',', $allowed_countries_str));
         }
-        $shippingAddressCollection = "shippingAddressCollection: {allowedCountries: [".$allowed_countries."]},";
+        //$shippingAddressCollection = "shippingAddressCollection: {allowedCountries: [".$allowed_countries."]},";
+        $data_arr['shippingAddressCollection'] = array('allowedCountries' => $allowed_countries);
     }
     //locale
     $locale = '';
     if(isset($atts['locale']) && !empty($atts['locale'])){
-        $locale = "locale: '".$atts['locale']."',";
+        $data_arr['locale'] = $atts['locale'];
     }
     //button class
     $class = '';
     if(isset($atts['class']) && !empty($atts['class'])){
         $class = " ".$atts['class'];
     }
+    //submit type
+    $submit_type = '';
+    if(isset($atts['submit_type']) && !empty($atts['submit_type'])){
+        $submit_type = apply_filters('wp_stripe_checkout_v3_submit_type', $submit_type, $atts);
+        if(!empty($submit_type)){
+            $data_arr['submitType'] = $submit_type;
+        }
+    }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
     $qty_input_class_id = 'wpsc'.$id.'_qty_input';
     $atts['qty_input_class_id'] = $qty_input_class_id;
+    $line_items_arr['quantity'] = ' Number(btnqty_'.$id.'.value) ';
+    $data_arr['lineItems'] = array($line_items_arr);
+    $data_arr_json = json_encode($data_arr);
+    $data_arr_json = str_replace('" ', '', $data_arr_json);
+    $data_arr_json = str_replace(' "', '', $data_arr_json);
     $button_code = '<div class="wpsc-v3-button-container">';
     $quantity_input_code = '';
     $quantity_input_code = apply_filters('wp_stripe_checkout_v3_quantity', $quantity_input_code, $button_code, $atts);
@@ -873,20 +896,10 @@ function wp_stripe_checkout_v3_button_handler($atts) {
         var stripe_$id = Stripe('$key');
         var checkoutButton_$id = document.querySelector('#wpsc$id');
         var btnqty_$id = document.querySelector('.{$qty_input_class_id}');
+        var data_arr_$id = $data_arr_json;
+        //console.log(data_arr_$id);
         checkoutButton_$id.addEventListener('click', function () {
-            stripe_$id.redirectToCheckout({
-              lineItems: [{
-                price: '{$identifier}',
-                quantity: Number(btnqty_$id.value)
-              }],
-              mode: '{$mode}',  
-              successUrl: '{$success_url}',
-              cancelUrl: '{$cancel_url}',
-              clientReferenceId: '$client_reference_id',
-              $billingAddressCollection
-              $shippingAddressCollection        
-              $locale        
-            })
+            stripe_$id.redirectToCheckout(data_arr_$id)
             .then(function (result) {
                 if (result.error) {
                   var displayError = document.getElementById('error-wpsc$id');
@@ -944,6 +957,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['allow_promotion_codes']) && !empty($atts['allow_promotion_codes'])){
         $allow_promotion_codes = sanitize_text_field($atts['allow_promotion_codes']);
     }
+    $submit_type = '';
+    if(isset($atts['submit_type']) && !empty($atts['submit_type'])){
+        $submit_type = sanitize_text_field($atts['submit_type']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -995,6 +1012,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($allow_promotion_codes)){
         $button_code .= '<input type="hidden" name="allow_promotion_codes" value="'.esc_attr($allow_promotion_codes).'" />';
+    }
+    if(!empty($submit_type)){
+        $button_code .= '<input type="hidden" name="submit_type" value="'.esc_attr($submit_type).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){

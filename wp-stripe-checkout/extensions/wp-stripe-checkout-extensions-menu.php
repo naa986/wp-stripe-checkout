@@ -23,6 +23,14 @@ function wp_stripe_checkout_display_extensions_menu()
     );
     array_push($extensions_data, $extension_2);
     
+    $extension_3 = array(
+        'name' => 'Submit Type',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/extensions/images/wp-stripe-checkout-submit-type.png',
+        'description' => 'Customize the type of the submit button that appears on the Stripe payment page',
+        'page_url' => 'https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/',
+    );
+    array_push($extensions_data, $extension_3);
+    
     //Display the list
     foreach ($extensions_data as $extension) {
         ?>
