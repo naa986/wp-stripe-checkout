@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 1.2.2.15
+Stable tag: 1.2.2.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,7 +61,7 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
 
-=== WP Stripe Checkout Extensions ===
+=== WP Stripe Checkout Add-ons ===
 
 * [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
 * [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
@@ -368,11 +368,14 @@ none
 
 == Changelog ==
 
+= 1.2.2.16 =
+* Fixed an issue where the correct styling was not getting applied to template 1 on a standalone page.
+
 = 1.2.2.15 =
 * Fixed a minor bug where the client reference id was not getting set.
 
 = 1.2.2.14 =
-* Added support for the Submit Type extension. It can be used to customize the submit button that appears on the Stripe payment page.
+* Added support for the Submit Type add-on. It can be used to customize the submit button that appears on the Stripe payment page.
 
 = 1.2.2.13 =
 * Added an option to allow user redeemable promotion codes at checkout.
@@ -409,7 +412,7 @@ none
 
 = 1.2.2.2 =
 * Added support for billing address collection in the checkout session shortcode.
-* Added support for the Pay What You Want extension that allows buyers to donate or pay their desired amount for a product.
+* Added support for the Variable Price add-on that allows buyers to donate or pay their desired amount for a product.
 
 = 1.2.2.1 =
 * Added a new shortcode that can be used to accept Stripe payments with the checkout session API.
