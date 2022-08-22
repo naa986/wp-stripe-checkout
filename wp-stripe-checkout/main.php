@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.16
+  Version: 1.2.2.17
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,8 +15,8 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.16';
-    var $db_version = '1.0.9';
+    var $plugin_version = '1.2.2.17';
+    var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
     
@@ -83,6 +83,7 @@ class WP_STRIPE_CHECKOUT {
     }
     
     function activate_handler() {
+        add_option('wp_stripe_checkout_verify_front_end_nonces', '1');
         wp_stripe_checkout_set_default_email_options();
         add_option('wp_stripe_checkout_db_version', $this->db_version);
     }
@@ -96,6 +97,7 @@ class WP_STRIPE_CHECKOUT {
                     $options['success_url'] = $options['return_url'];
                     wp_stripe_checkout_update_option($options);
                 }
+                add_option('wp_stripe_checkout_verify_front_end_nonces', '1');
                 wp_stripe_checkout_set_default_email_options();
                 update_option('wp_stripe_checkout_db_version', $this->db_version);
             }
@@ -296,6 +298,8 @@ class WP_STRIPE_CHECKOUT {
             if(isset($_POST['cancel_url']) && !empty($_POST['cancel_url'])){
                 $cancel_url = esc_url_raw($_POST['cancel_url']);
             }
+            $verify_front_end_nonces = (isset($_POST['verify_front_end_nonces']) && $_POST['verify_front_end_nonces'] == '1') ? '1' : '';
+            update_option('wp_stripe_checkout_verify_front_end_nonces', $verify_front_end_nonces);
             $stripe_options = array();
             $stripe_options['stripe_testmode'] = $stripe_testmode;
             $stripe_options['stripe_test_secret_key'] = $stripe_test_secret_key;
@@ -312,6 +316,10 @@ class WP_STRIPE_CHECKOUT {
         }
         
         $stripe_options = wp_stripe_checkout_get_option();
+        $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
+        if(!isset($verify_front_end_nonces) || empty($verify_front_end_nonces)){
+            $verify_front_end_nonces = '';
+        }
         $api_keys_url = "https://dashboard.stripe.com/account/apikeys";
         $api_keys_link = sprintf(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), esc_url($api_keys_url));
         
@@ -393,6 +401,14 @@ class WP_STRIPE_CHECKOUT {
                                         <th scope="row"><label><?php _e('Stripe Webhook URL', 'wp-stripe-checkout');?></label></th>
                                         <td><code><?php echo esc_url(home_url('/')."?wp_stripe_co_webhook=1"); ?></code>
                                             <p class="description"><?php echo __('The URL of your site where Stripe will send notification of an event.', 'wp-stripe-checkout').' '.wp_kses($webhook_doc_url, $allowed_html_tags);?></p></td>
+                                    </tr>
+                                    
+                                    <tr valign="top">
+                                        <th scope="row"><?php _e('Verify Front-end Nonces', 'wp-stripe-checkout');?></th>
+                                        <td> <fieldset><legend class="screen-reader-text"><span>Verify Front-end Nonces</span></legend><label for="verify_front_end_nonces">
+                                                    <input name="verify_front_end_nonces" type="checkbox" id="verify_front_end_nonces" <?php if ($verify_front_end_nonces == '1') echo ' checked="checked"'; ?> value="1">
+                                                    <?php _e("Check this option if you want to verify nonces on the front end. Nonces are WordPress's security tokens that can help protect buttons from certain types of misuse.", 'wp-stripe-checkout');?></label>
+                                            </fieldset></td>
                                     </tr>
 
                                 </tbody>

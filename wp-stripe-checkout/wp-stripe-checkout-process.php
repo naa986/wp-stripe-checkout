@@ -7,10 +7,13 @@ function wp_stripe_checkout_process_order() {
     if (!isset($_POST['stripeToken']) && !isset($_POST['stripeTokenType'])) {
         return;
     }
-    $nonce = $_REQUEST['_wpnonce'];
-    if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_legacy')){
-        $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
-        wp_die($error_msg);
+    $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field($_REQUEST['_wpnonce']) : '';
+    $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
+    if(isset($verify_front_end_nonces) && !empty($verify_front_end_nonces)){
+        if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_legacy')){
+            $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
+            wp_die($error_msg);
+        }
     }
     $_POST = stripslashes_deep($_POST);
     $stripeToken = sanitize_text_field($_POST['stripeToken']);
@@ -280,10 +283,13 @@ function wp_stripe_checkout_process_session_button() {
     if (!isset($_POST['wp_stripe_checkout_session'])) {
         return;
     }
-    $nonce = $_REQUEST['_wpnonce'];
-    if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_session_nonce')){
-        $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
-        wp_die($error_msg);
+    $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field($_REQUEST['_wpnonce']) : '';
+    $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
+    if(isset($verify_front_end_nonces) && !empty($verify_front_end_nonces)){
+        if ( !wp_verify_nonce($nonce, 'wp_stripe_checkout_session_nonce')){
+            $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
+            wp_die($error_msg);
+        }
     }
     $_POST = stripslashes_deep($_POST);
     if (!isset($_POST['client_reference_id']) || empty($_POST['client_reference_id'])) {
@@ -390,13 +396,13 @@ function wp_stripe_checkout_process_button() {
     if(!isset($_POST['wp_stripe_checkout_button_input'])) {
         return;
     }
-    if(!isset($_REQUEST['_wp_stripe_checkout_button_nonce'])) {
-        return;
-    }
-    $nonce = $_REQUEST['_wp_stripe_checkout_button_nonce'];
-    if(!wp_verify_nonce($nonce, 'wp_stripe_checkout_button')){
-        $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
-        wp_die($error_msg);
+    $nonce = isset($_REQUEST['_wp_stripe_checkout_button_nonce']) ? sanitize_text_field($_REQUEST['_wp_stripe_checkout_button_nonce']) : '';
+    $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
+    if(isset($verify_front_end_nonces) && !empty($verify_front_end_nonces)){
+        if(!wp_verify_nonce($nonce, 'wp_stripe_checkout_button')){
+            $error_msg = __('Error! Nonce Security Check Failed!', 'wp-stripe-checkout');
+            wp_die($error_msg);
+        }
     }
     $_POST = stripslashes_deep($_POST);
     if (!isset($_POST['wpsc_product_id']) || empty($_POST['wpsc_product_id'])) {
