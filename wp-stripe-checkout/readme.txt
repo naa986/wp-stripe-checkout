@@ -8,18 +8,14 @@ Stable tag: 1.2.2.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Accept Stripe payments in WordPress with WordPress Stripe Checkout plugin. Sell anything in WordPress with Stripe one-time and recurring payments.
+Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything in WordPress with Stripe one-time and recurring payments.
 
 == Description ==
 
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
-Stripe Checkout comes with a smart payment page that works seamlessly across devices and is designed to increase your conversion.
+=== Benefits of Stripe Payments ===
 
-=== Benefits of Stripe Checkout Payments ===
-
-* Connect Stripe to WordPress and use Stripe for payments.
-* Smooth checkout flow that automatically handles SCA (Strong Customer Authentication) requirements for you.
 * Easy Stripe payment integration.
 * Accept credit and debit card payments.
 * Accept recurring subscription payments.
@@ -50,9 +46,9 @@ Stripe Checkout comes with a smart payment page that works seamlessly across dev
 * Automatically email Stripe receipts to your customers.
 * Build conversion-optimized payment forms, hosted on Stripe.
 * Simplified mobile-ready experience for customers.
-* It works on its own. There is no complex setup like a membership/e-commerce plugin.
-* No setup fees, monthly fees or hidden costs. You are charged on a percentage basis for each payment (2.9% + 30 cents per successful card charge).
-* Seamless transfer to your bank account. Once everything is set up, transfers arrive in your bank account on a 2-day rolling basis.
+* It works on its own, there is no complex setup like a membership/e-commerce plugin.
+* No setup fees, monthly fees or hidden costs.
+* Seamless transfer to your bank account.
 * Easily Switch between live and sandbox mode for testing.
 * Real-time fee reporting in your Stripe account.
 * Display a logo of your brand or product on the Stripe payment page.
@@ -209,8 +205,6 @@ For detailed setup instructions please visit the [Stripe payments](https://noors
 
 === Legacy Stripe Checkout ===
 
-https://www.youtube.com/watch?v=0C_gqAMCSpo&rel=0
-
 Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
 
 All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
@@ -239,7 +233,7 @@ You can add additional parameters in the shortcode to customize your stripe paym
 * **bitcoin** - Specify whether Checkout form should accept Bitcoin (e.g. bitcoin="true"). The default is false.
 * **success_url** - Specify whether Checkout form should redirect the customer to a different url upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
 
-For detailed setup instructions please visit the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+For detailed setup instructions please visit the [Stripe plugin documentation](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) page.
 
 == Installation ==
 
@@ -271,78 +265,6 @@ Yes.
 Yes.
 
 = Can I use this plugin to accept Stripe donations in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Google Pay payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Apple Pay payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Alipay payments in WordPress? =
-
-Yes
-
-= Can I use this Stripe plugin to accept WeChat Pay payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Bancontact payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept EPS payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept giropay payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept iDEAL payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Przelewy24 payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Sofort payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Afterpay/Clearpay payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Boleto payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept OXXO payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept ACH Direct Debit payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Bacs Direct Debit payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept BECS Debit payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept Canadian pre-authorised debit payments in WordPress? =
-
-Yes.
-
-= Can I use this Stripe plugin to accept SEPA Direct Debit payments in WordPress? =
 
 Yes.
 
