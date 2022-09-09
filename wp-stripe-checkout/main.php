@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.17
+  Version: 1.2.2.18
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.17';
+    var $plugin_version = '1.2.2.18';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -928,6 +928,9 @@ function wp_stripe_checkout_v3_button_handler($atts) {
         var checkoutButton_$id = document.querySelector('#wpsc$id');
         var btnqty_$id = document.querySelector('.{$qty_input_class_id}');
         var data_arr_$id = $data_arr_json;
+        btnqty_$id.addEventListener('change', function () {
+            data_arr_$id = $data_arr_json;
+        });
         //console.log(data_arr_$id);
         checkoutButton_$id.addEventListener('click', function () {
             stripe_$id.redirectToCheckout(data_arr_$id)
