@@ -51,16 +51,22 @@ function wp_stripe_checkout_process_webhook(){
     $product_name = sanitize_text_field($checkout_session->data[0]->description);
     $payment_data['product_name'] = isset($product_name) && !empty($product_name) ? $product_name : '';
     $temp_product_price = sanitize_text_field($checkout_session->data[0]->price->unit_amount);
-    $product_price = $temp_product_price/100;
-    $payment_data['price'] = number_format($product_price, 2, '.', '');
+    $currency = sanitize_text_field($event_json->data->object->currency);
+    $payment_data['currency_code'] = strtoupper($currency);
+    if(wp_stripe_checkout_is_zero_decimal_currency($currency)){
+        $product_price = $temp_product_price;
+        $payment_data['price'] = $product_price;
+    }
+    else{
+        $product_price = $temp_product_price/100;
+        $payment_data['price'] = number_format($product_price, 2, '.', '');
+    }
     $product_quantity = sanitize_text_field($checkout_session->data[0]->quantity);
     $payment_data['quantity'] = $product_quantity;
     $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
     $payment_data['price_id'] = isset($stripe_price_id) && !empty($stripe_price_id) ? $stripe_price_id : '';
     $stripe_product_id = sanitize_text_field($checkout_session->data[0]->price->product);
     $payment_data['product_id'] = isset($stripe_product_id) && !empty($stripe_product_id) ? $stripe_product_id : '';
-    $currency = sanitize_text_field($event_json->data->object->currency);
-    $payment_data['currency_code'] = strtoupper($currency);
     $temp_amount_total = sanitize_text_field($event_json->data->object->amount_total);
     $amount_total = $temp_amount_total/100;
     $payment_data['amount_total'] = number_format($amount_total, 2, '.', '');
@@ -124,11 +130,15 @@ function wp_stripe_checkout_process_webhook(){
         if(empty($payment_data['product_name'])){
             $payment_data['product_name'] = sanitize_text_field($payment_intent->charges->data[0]->description);
         }
-        $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
-        $payment_data['price'] = $amount/100;
         $currency = sanitize_text_field($payment_intent->charges->data[0]->currency);
         $payment_data['currency_code'] = strtoupper($currency);
-
+        $amount = sanitize_text_field($payment_intent->charges->data[0]->amount);
+        if(wp_stripe_checkout_is_zero_decimal_currency($currency)){
+            $payment_data['price'] = $amount;
+        }
+        else{
+            $payment_data['price'] = $amount/100;
+        }
         $billing_name = $payment_intent->charges->data[0]->billing_details->name;
         $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
         $payment_data['billing_first_name'] = '';
@@ -382,11 +392,17 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     $checkout_session = WP_SC_Stripe_API::retrieve('checkout/sessions/'.$checkout_session_id.'/line_items');
     $product_name = sanitize_text_field($post->post_title); //sanitize_text_field($checkout_session->data[0]->description);
     $temp_product_price = sanitize_text_field($checkout_session->data[0]->price->unit_amount); //sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_price', true));
-    $product_price = $temp_product_price/100;
     $product_quantity = sanitize_text_field($checkout_session->data[0]->quantity);
     $currency_code = sanitize_text_field($options['stripe_currency_code']);
     $payment_data['product_name'] = isset($product_name) && !empty($product_name) ? $product_name : '';
-    $payment_data['price'] = number_format($product_price, 2, '.', '');
+    if(wp_stripe_checkout_is_zero_decimal_currency($currency_code)){
+        $product_price = $temp_product_price;
+        $payment_data['price'] = $product_price;
+    }
+    else{
+        $product_price = $temp_product_price/100;
+        $payment_data['price'] = number_format($product_price, 2, '.', '');
+    }
     $payment_data['quantity'] = $product_quantity;
     $payment_data['product_id'] = $post_id;
     $payment_data['currency_code'] = $currency_code;
