@@ -351,6 +351,10 @@ function wp_stripe_checkout_process_session_button() {
     if(isset($_POST['submit_type']) && !empty($_POST['submit_type'])){
         $submit_type = apply_filters('wp_stripe_checkout_session_submit_type', $submit_type, $_POST);
     }
+    $terms_of_service = '';
+    if(isset($_POST['terms_of_service']) && !empty($_POST['terms_of_service'])){
+        $terms_of_service = apply_filters('wp_stripe_checkout_session_terms_of_service', $terms_of_service, $_POST);
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -382,6 +386,9 @@ function wp_stripe_checkout_process_session_button() {
     } 
     if(!empty($submit_type)){
         $session_args['submit_type'] = $submit_type;
+    }
+    if(!empty($terms_of_service)){
+        $session_args['consent_collection'] = array('terms_of_service' => $terms_of_service);
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
@@ -507,6 +514,8 @@ function wp_stripe_checkout_process_button() {
     $allow_promotion_codes = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', true));
     $submit_type = '';
     $submit_type = apply_filters('wp_stripe_checkout_button_submit_type', $submit_type, $post_id);
+    $terms_of_service = '';
+    $terms_of_service = apply_filters('wp_stripe_checkout_button_terms_of_service', $terms_of_service, $post_id);
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -552,6 +561,9 @@ function wp_stripe_checkout_process_button() {
     }
     if(isset($submit_type) && !empty($submit_type)){
         $session_args['submit_type'] = $submit_type;
+    }
+    if(isset($terms_of_service) && !empty($terms_of_service)){
+        $session_args['consent_collection'] = array('terms_of_service' => $terms_of_service);
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');

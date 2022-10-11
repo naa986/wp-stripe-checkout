@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 1.2.2.19
+Stable tag: 1.2.2.20
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,7 @@ Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything i
 * [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
 * [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
 * [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
+* [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -289,6 +290,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.20 =
+* Added support for the Terms of Service add-on. It can be used to show a terms of service checkbox on the Stripe payment page.
 
 = 1.2.2.19 =
 * Fixed a price formatting issue with the JPY currency.

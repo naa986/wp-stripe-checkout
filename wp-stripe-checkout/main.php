@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.19
+  Version: 1.2.2.20
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.19';
+    var $plugin_version = '1.2.2.20';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -995,6 +995,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['submit_type']) && !empty($atts['submit_type'])){
         $submit_type = sanitize_text_field($atts['submit_type']);
     }
+    $terms_of_service = '';
+    if(isset($atts['terms_of_service']) && !empty($atts['terms_of_service'])){
+        $terms_of_service = sanitize_text_field($atts['terms_of_service']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -1049,6 +1053,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($submit_type)){
         $button_code .= '<input type="hidden" name="submit_type" value="'.esc_attr($submit_type).'" />';
+    }
+    if(!empty($terms_of_service)){
+        $button_code .= '<input type="hidden" name="terms_of_service" value="'.esc_attr($terms_of_service).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){

@@ -31,6 +31,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_3);
     
+    $addon_4 = array(
+        'name' => 'Terms of Service',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-terms-of-service.png',
+        'description' => 'Show a terms of service checkbox on the Stripe payment page',
+        'page_url' => 'https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/',
+    );
+    array_push($addons_data, $addon_4);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>
