@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.20
+  Version: 1.2.2.21
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.20';
+    var $plugin_version = '1.2.2.21';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -790,7 +790,7 @@ function wp_stripe_checkout_legacy_checkout_button_handler($atts) {
     $button_code = '<form action="" method="POST">';
     $button_code .= '<script src="https://checkout.stripe.com/checkout.js" class="stripe-button"';
     foreach ($atts as $key => $value) {
-        $button_code .= 'data-' . $key . '="' . $value . '"';
+        $button_code .= 'data-'.$key.'="'.esc_js($value).'"';
     }
     $button_code .= '></script>';
     $button_code .= wp_nonce_field('wp_stripe_checkout_legacy', '_wpnonce', true, false);
