@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.23
+  Version: 1.2.2.24
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.23';
+    var $plugin_version = '1.2.2.24';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;

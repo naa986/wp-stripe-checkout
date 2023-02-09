@@ -313,6 +313,7 @@ function wp_stripe_checkout_process_webhook(){
         add_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name');
         if(isset($email_options['purchase_email_enabled']) && !empty($email_options['purchase_email_enabled']) && !empty($payment_data['customer_email'])){
             $subject = $email_options['purchase_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
             $type = $email_options['purchase_email_type'];
             $body = $email_options['purchase_email_body'];
             $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
@@ -334,6 +335,7 @@ function wp_stripe_checkout_process_webhook(){
         }
         if(isset($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_recipient'])){
             $subject = $email_options['sale_notification_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
             $type = $email_options['sale_notification_email_type'];
             $body = $email_options['sale_notification_email_body'];
             $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
@@ -667,6 +669,7 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
         add_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name');
         if(isset($email_options['purchase_email_enabled']) && !empty($email_options['purchase_email_enabled']) && !empty($payment_data['customer_email'])){
             $subject = $email_options['purchase_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
             $type = $email_options['purchase_email_type'];
             $body = $email_options['purchase_email_body'];
             $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
@@ -688,6 +691,7 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
         }
         if(isset($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_recipient'])){
             $subject = $email_options['sale_notification_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
             $type = $email_options['sale_notification_email_type'];
             $body = $email_options['sale_notification_email_body'];
             $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
