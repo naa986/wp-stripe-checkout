@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.24
+  Version: 1.2.2.25
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.24';
+    var $plugin_version = '1.2.2.25';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -75,6 +75,7 @@ class WP_STRIPE_CHECKOUT {
         add_shortcode('wp_stripe_checkout', 'wp_stripe_checkout_button_handler');
         add_shortcode('wp_stripe_checkout_v3', 'wp_stripe_checkout_v3_button_handler');
         add_shortcode('wp_stripe_checkout_session', 'wp_stripe_checkout_session_button_handler');
+        add_shortcode('wp_stripe_checkout_payment_link', 'wp_stripe_checkout_payment_link_button_handler');
     }
 
     function plugins_loaded_handler() {  //Runs when plugins_loaded action gets fired
@@ -737,6 +738,28 @@ function wp_stripe_checkout_button_handler($atts) {
     if(isset($atts['template']) && $atts['template'] == '1'){
         $button_code = wp_stripe_checkout_button_get_display_template1($button_code, $atts);
     }
+    return $button_code;
+}
+
+function wp_stripe_checkout_payment_link_button_handler($atts) {
+    $atts = array_map('sanitize_text_field', $atts);
+    if(!isset($atts['url']) || empty($atts['url'])){
+        return __('You need to provide a payment link URL in the shortcode', 'wp-stripe-checkout');
+    }
+    $button_code = '<form action="'.esc_url($atts['url']).'" method="get">';
+    $button_code .= '<input type="hidden" name="client_reference_id" value="wpsc_payment_link" />';
+    $button_text = 'Buy Now';
+    if(isset($atts['button_text']) && !empty($atts['button_text'])){
+        $button_text = $atts['button_text'];
+    }
+    //
+    if(isset($atts['button_image']) && !empty($atts['button_image'])){
+        $button_code .= '<input type="image" src="'.esc_url($atts['button_image']).'" alt="Submit" />';    
+    }
+    else{
+        $button_code .= '<input type="submit" value="'.esc_attr($button_text).'" />';
+    }
+    $button_code .= '</form>';
     return $button_code;
 }
 

@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: 1.2.2.24
+Stable tag: 1.2.2.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,7 @@ Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything i
 === Benefits of Stripe Payments ===
 
 * Easy Stripe payment integration.
+* Stripe payment links integration.
 * Accept credit and debit card payments.
 * Accept recurring subscription payments.
 * Accept donation payments.
@@ -169,11 +170,7 @@ To begin using Checkout, log into the Stripe Dashboard and navigate to the Check
 
 Navigate to the "Products" section in the Dashboard and create a new product (New > One-time purchase products). When you create a product in the Dashboard, Stripe creates a Price ID for it. You will need to use this Price ID in shortcode to create a button.
 
-**Step 3: Add a Webhook Endpoint**
-
-Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send notification after a checkout payment is successful.
-
-**Step 4: Add a Checkout Shortcode**
+**Step 3: Add a Checkout Shortcode**
 
 In order to create a Stripe checkout button you can add the following shortcode to a post/page:
 
@@ -201,6 +198,30 @@ You can add additional parameters in the shortcode to customize your Stripe chec
 * **shipping_address** - Specify whether Checkout should collect the customer's shipping address. (e.g. shipping_address="required").
 * **shipping_countries** - If you only wish to ship to certain countries you can specify their country codes. (e.g. shipping_countries="'US'" or shipping_countries="'US','GB','AU'").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
+
+=== How to use Stripe Payment Links ===
+
+This method allows you to integrate Stripe payment links with the plugin.
+
+**Step 1: Create a Payment Link**
+
+Log in to your Stripe account dashboard and navigate to the "Payment links" page (Payments > Payment links). Select an existing product or add a new one to create a payment link.
+
+**Step 2: Use the Payment Link in a Shortcode**
+
+In order to create a button with the payment link you can add the following shortcode to a post/page:
+
+`[wp_stripe_checkout_payment_link url="https://buy.stripe.com/live_6gPE4jw7dMbUKdd3345"]`
+
+**url** - URL of the payment link created in your Stripe account.
+
+= Shortcode Parameters =
+
+You can add additional parameters in the shortcode to customize your Stripe payment link button.
+
+* **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
+* **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
+
 
 For detailed setup instructions please visit the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
@@ -290,6 +311,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.25 =
+* Added support for Stripe payment links.
 
 = 1.2.2.24 =
 * Added support for email tags in the subject.
