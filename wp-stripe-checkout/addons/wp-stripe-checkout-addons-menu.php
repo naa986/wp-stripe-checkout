@@ -39,6 +39,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_4);
     
+    $addon_5 = array(
+        'name' => 'Payment Link Email',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-payment-link-email.png',
+        'description' => 'Collect email addresses for payment link buttons and prefill on the Stripe payment page',
+        'page_url' => 'https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/',
+    );
+    array_push($addons_data, $addon_5);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>
