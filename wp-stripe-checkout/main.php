@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.26
+  Version: 1.2.2.27
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.26';
+    var $plugin_version = '1.2.2.27';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -708,6 +708,10 @@ function wp_stripe_checkout_button_handler($atts) {
     if(!isset($cancel_url) || empty($cancel_url)){
         return __('You need to provide a cancel URL page in the settings', 'wp-stripe-checkout');
     }
+    $payment_method_types = '';
+    if(isset($atts['payment_method_types']) && !empty($atts['payment_method_types'])){
+        $payment_method_types = sanitize_text_field($atts['payment_method_types']);
+    }
     $button_code = '<form action="" method="post">';
     $button_code .= wp_nonce_field('wp_stripe_checkout_button', '_wp_stripe_checkout_button_nonce', true, false);
     $button_code .= '<input type="hidden" name="wpsc_product_id" value="'.esc_attr($atts['id']).'" />';
@@ -720,6 +724,9 @@ function wp_stripe_checkout_button_handler($atts) {
     $quantity_input_code = apply_filters('wp_stripe_checkout_button_quantity', $quantity_input_code, $button_code, $atts);
     if(!empty($quantity_input_code)){
         $button_code .= $quantity_input_code;
+    }
+    if(!empty($payment_method_types)){
+        $button_code .= '<input type="hidden" name="payment_method_types" value="'.esc_attr($payment_method_types).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_button_input" value="1" />';
     $button_image = get_post_meta($atts['id'], '_wpstripeco_product_button_image', true);
@@ -1027,6 +1034,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['terms_of_service']) && !empty($atts['terms_of_service'])){
         $terms_of_service = sanitize_text_field($atts['terms_of_service']);
     }
+    $payment_method_types = '';
+    if(isset($atts['payment_method_types']) && !empty($atts['payment_method_types'])){
+        $payment_method_types = sanitize_text_field($atts['payment_method_types']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -1084,6 +1095,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($terms_of_service)){
         $button_code .= '<input type="hidden" name="terms_of_service" value="'.esc_attr($terms_of_service).'" />';
+    }
+    if(!empty($payment_method_types)){
+        $button_code .= '<input type="hidden" name="payment_method_types" value="'.esc_attr($payment_method_types).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){

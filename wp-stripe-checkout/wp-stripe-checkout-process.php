@@ -355,6 +355,11 @@ function wp_stripe_checkout_process_session_button() {
     if(isset($_POST['terms_of_service']) && !empty($_POST['terms_of_service'])){
         $terms_of_service = apply_filters('wp_stripe_checkout_session_terms_of_service', $terms_of_service, $_POST);
     }
+    $payment_method_types = '';
+    if(isset($_POST['payment_method_types']) && !empty($_POST['payment_method_types'])){
+        $temp_payment_method_types = sanitize_text_field($_POST['payment_method_types']);
+        $payment_method_types = array_map('trim', explode(',', $temp_payment_method_types));
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -370,6 +375,9 @@ function wp_stripe_checkout_process_session_button() {
     }
     $line_items['price_data'] = $price_data;
     $line_items['quantity'] = $quantity;
+    if(!empty($payment_method_types)){
+        $session_args['payment_method_types'] = $payment_method_types;
+    }
     $session_args['line_items'] = array($line_items);
     $session_args['mode'] = 'payment';
     $session_args['success_url'] = $success_url;
@@ -506,6 +514,11 @@ function wp_stripe_checkout_process_button() {
         $error_msg = __('Cancel URL could not be found.', 'wp-stripe-checkout');
         wp_die($error_msg);
     }
+    $payment_method_types = '';
+    if(isset($_POST['payment_method_types']) && !empty($_POST['payment_method_types'])){
+        $temp_payment_method_types = sanitize_text_field($_POST['payment_method_types']);
+        $payment_method_types = array_map('trim', explode(',', $temp_payment_method_types));
+    }
     $client_reference_id = 'wpscprod-'.$post_id;
     $billing_address_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_billing_address_collection', true));
     $phone_number_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_phone_number_collection', true));
@@ -531,6 +544,9 @@ function wp_stripe_checkout_process_button() {
     }
     $line_items['price_data'] = $price_data;
     $line_items['quantity'] = $quantity;
+    if(!empty($payment_method_types)){
+        $session_args['payment_method_types'] = $payment_method_types;
+    }
     $session_args['line_items'] = array($line_items);
     $session_args['mode'] = 'payment';
     $session_args['success_url'] = $success_url;
