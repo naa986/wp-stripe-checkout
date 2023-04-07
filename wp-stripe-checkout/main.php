@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.27
+  Version: 1.2.2.28
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.27';
+    var $plugin_version = '1.2.2.28';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -139,6 +139,14 @@ class WP_STRIPE_CHECKOUT {
 
     function plugin_scripts() {
         if (!is_admin()) {
+            $load_scripts_globally = get_option('wp_stripe_checkout_load_scripts_globally');
+            if(isset($load_scripts_globally) && !empty($load_scripts_globally)){
+                wp_register_style('wp-stripe-checkout', WP_STRIPE_CHECKOUT_URL.'/css/style.css');
+                wp_enqueue_style('wp-stripe-checkout');
+                wp_register_script('wp-stripe-checkout', 'https://js.stripe.com/v3', array(), null);
+                wp_enqueue_script('wp-stripe-checkout');
+                return;
+            }
             global $post;
             if(!is_a($post, 'WP_Post')){
                 return;
@@ -301,6 +309,8 @@ class WP_STRIPE_CHECKOUT {
             }
             $verify_front_end_nonces = (isset($_POST['verify_front_end_nonces']) && $_POST['verify_front_end_nonces'] == '1') ? '1' : '';
             update_option('wp_stripe_checkout_verify_front_end_nonces', $verify_front_end_nonces);
+            $load_scripts_globally = (isset($_POST['load_scripts_globally']) && $_POST['load_scripts_globally'] == '1') ? '1' : '';
+            update_option('wp_stripe_checkout_load_scripts_globally', $load_scripts_globally);
             $stripe_options = array();
             $stripe_options['stripe_testmode'] = $stripe_testmode;
             $stripe_options['stripe_test_secret_key'] = $stripe_test_secret_key;
@@ -320,6 +330,10 @@ class WP_STRIPE_CHECKOUT {
         $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
         if(!isset($verify_front_end_nonces) || empty($verify_front_end_nonces)){
             $verify_front_end_nonces = '';
+        }
+        $load_scripts_globally = get_option('wp_stripe_checkout_load_scripts_globally');
+        if(!isset($load_scripts_globally) || empty($load_scripts_globally)){
+            $load_scripts_globally = '';
         }
         $api_keys_url = "https://dashboard.stripe.com/account/apikeys";
         $api_keys_link = sprintf(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), esc_url($api_keys_url));
@@ -409,6 +423,14 @@ class WP_STRIPE_CHECKOUT {
                                         <td> <fieldset><legend class="screen-reader-text"><span>Verify Front-end Nonces</span></legend><label for="verify_front_end_nonces">
                                                     <input name="verify_front_end_nonces" type="checkbox" id="verify_front_end_nonces" <?php if ($verify_front_end_nonces == '1') echo ' checked="checked"'; ?> value="1">
                                                     <?php _e("Check this option if you want to verify nonces on the front end. Nonces are WordPress's security tokens that can help protect buttons from certain types of misuse.", 'wp-stripe-checkout');?></label>
+                                            </fieldset></td>
+                                    </tr>
+                                    
+                                    <tr valign="top">
+                                        <th scope="row"><?php _e('Load Scripts Globally', 'wp-stripe-checkout');?></th>
+                                        <td> <fieldset><legend class="screen-reader-text"><span>Load Scripts Globally</span></legend><label for="load_scripts_globally">
+                                                    <input name="load_scripts_globally" type="checkbox" id="load_scripts_globally" <?php if ($load_scripts_globally == '1') echo ' checked="checked"'; ?> value="1">
+                                                    <?php _e("Check this option if you want to load Stripe scripts on every page. By default, the scripts are loaded only when a shortcode is present.", 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
 
