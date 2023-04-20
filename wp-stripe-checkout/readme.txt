@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
 Requires at least: 5.3
 Tested up to: 6.2
-Stable tag: 1.2.2.28
+Stable tag: 1.2.2.29
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,7 @@ Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything i
 * Enable Stripe invoicing after the payment.
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
+* Automatic VAT/tax ID collection at checkout
 
 === WP Stripe Checkout Add-ons ===
 
@@ -157,6 +158,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
 * **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
 * **phone_number_collection** - Specify whether Checkout should collect the customer's phone number. (e.g. phone_number_collection="true").
+* **tax_id_collection** - Specify whether Checkout should automatically show the tax ID collection form depending on your customer's location. (e.g. tax_id_collection="true").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
 === How to use Stripe Checkout (Option 3) ===
@@ -312,6 +314,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.29 =
+* Added an option to collect VAT/tax ID at checkout.
 
 = 1.2.2.28 =
 * Added an option to load Stripe scripts on every page.

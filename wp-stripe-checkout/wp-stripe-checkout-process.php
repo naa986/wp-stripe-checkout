@@ -355,6 +355,10 @@ function wp_stripe_checkout_process_session_button() {
     if(isset($_POST['terms_of_service']) && !empty($_POST['terms_of_service'])){
         $terms_of_service = apply_filters('wp_stripe_checkout_session_terms_of_service', $terms_of_service, $_POST);
     }
+    $tax_id_collection = '';
+    if(isset($_POST['tax_id_collection']) && !empty($_POST['tax_id_collection'])){
+        $tax_id_collection = sanitize_text_field($_POST['tax_id_collection']);
+    }
     $payment_method_types = '';
     if(isset($_POST['payment_method_types']) && !empty($_POST['payment_method_types'])){
         $temp_payment_method_types = sanitize_text_field($_POST['payment_method_types']);
@@ -397,6 +401,9 @@ function wp_stripe_checkout_process_session_button() {
     }
     if(!empty($terms_of_service)){
         $session_args['consent_collection'] = array('terms_of_service' => $terms_of_service);
+    }
+    if($tax_id_collection == 'true'){
+        $session_args['tax_id_collection'] = array('enabled' => 'true');
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
@@ -525,6 +532,7 @@ function wp_stripe_checkout_process_button() {
     $shipping_address_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_shipping_address_collection', true));
     $stripe_shipping_rate_id = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_stripe_shipping_rate_id', true));
     $allow_promotion_codes = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', true));
+    $tax_id_collection = sanitize_text_field(get_post_meta($post_id, '_wpstripeco_product_tax_id_collection', true));
     $submit_type = '';
     $submit_type = apply_filters('wp_stripe_checkout_button_submit_type', $submit_type, $post_id);
     $terms_of_service = '';
@@ -580,6 +588,9 @@ function wp_stripe_checkout_process_button() {
     }
     if(isset($terms_of_service) && !empty($terms_of_service)){
         $session_args['consent_collection'] = array('terms_of_service' => $terms_of_service);
+    }
+    if(isset($tax_id_collection) && $tax_id_collection == '1'){
+        $session_args['tax_id_collection'] = array('enabled' => 'true');
     }
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');

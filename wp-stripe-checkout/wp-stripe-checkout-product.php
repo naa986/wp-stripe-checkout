@@ -140,6 +140,10 @@ function wpstripeco_render_product_data_meta_box($post){
     if(!isset($allow_promotion_codes) || empty($allow_promotion_codes)){
         $allow_promotion_codes = '';
     }
+    $tax_id_collection = get_post_meta($post_id, '_wpstripeco_product_tax_id_collection', true);
+    if(!isset($tax_id_collection) || empty($tax_id_collection)){
+        $tax_id_collection = '';
+    }
     /*
     $output = '<label for="_wpstripeco_product_price">'.__('Price', 'wp-stripe-checkout').'</label>';
     $output .= '<input type="text" name="_wpstripeco_product_price" id="_wpstripeco_product_price" value="'.esc_attr($product_price).'" class="regular-text">';
@@ -231,6 +235,18 @@ function wpstripeco_render_product_data_meta_box($post){
                                     </fieldset>
                                 </td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php _e('Tax ID Collection', 'wp-stripe-checkout');?></th>
+                                <td> 
+                                    <fieldset>
+                                        <legend class="screen-reader-text"><span>Tax ID Collection</span></legend>
+                                        <label for="_wpstripeco_product_tax_id_collection">
+                                            <input name="_wpstripeco_product_tax_id_collection" type="checkbox" id="_wpstripeco_product_tax_id_collection" <?php if ($tax_id_collection == '1') echo ' checked="checked"'; ?> value="1">
+                                            <?php _e('Enable tax ID collection at checkout', 'wp-stripe-checkout');?>
+                                        </label>
+                                    </fieldset>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </td>
@@ -291,6 +307,8 @@ function wpstripeco_product_data_meta_box_save($post_id, $post){
     }
     $allow_promotion_codes = (isset($_POST['_wpstripeco_product_allow_promotion_codes']) && $_POST['_wpstripeco_product_allow_promotion_codes'] == '1') ? '1' : '';
     update_post_meta($post_id, '_wpstripeco_product_allow_promotion_codes', $allow_promotion_codes);
+    $tax_id_collection = (isset($_POST['_wpstripeco_product_tax_id_collection']) && $_POST['_wpstripeco_product_tax_id_collection'] == '1') ? '1' : '';
+    update_post_meta($post_id, '_wpstripeco_product_tax_id_collection', $tax_id_collection);
 }
 
 add_action('save_post_wpstripeco_product', 'wpstripeco_product_data_meta_box_save', 10, 2 );

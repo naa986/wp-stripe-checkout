@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.28
+  Version: 1.2.2.29
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.28';
+    var $plugin_version = '1.2.2.29';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -1056,6 +1056,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['terms_of_service']) && !empty($atts['terms_of_service'])){
         $terms_of_service = sanitize_text_field($atts['terms_of_service']);
     }
+    $tax_id_collection = '';
+    if(isset($atts['tax_id_collection']) && !empty($atts['tax_id_collection'])){
+        $tax_id_collection = sanitize_text_field($atts['tax_id_collection']);
+    }
     $payment_method_types = '';
     if(isset($atts['payment_method_types']) && !empty($atts['payment_method_types'])){
         $payment_method_types = sanitize_text_field($atts['payment_method_types']);
@@ -1117,6 +1121,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($terms_of_service)){
         $button_code .= '<input type="hidden" name="terms_of_service" value="'.esc_attr($terms_of_service).'" />';
+    }
+    if(!empty($tax_id_collection)){
+        $button_code .= '<input type="hidden" name="tax_id_collection" value="'.esc_attr($tax_id_collection).'" />';
     }
     if(!empty($payment_method_types)){
         $button_code .= '<input type="hidden" name="payment_method_types" value="'.esc_attr($payment_method_types).'" />';
