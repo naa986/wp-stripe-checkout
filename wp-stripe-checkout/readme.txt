@@ -1,10 +1,10 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, checkout, e-commerce, credit card, apple pay, google pay, store, sales, sell, shop, cart, payments
+Tags: stripe, payment, checkout, e-commerce, credit card, debit card, subscription, donation, vat, tax, shipping, apple pay, google pay, store, sales, sell, shop, cart, payments, alipay, wechat, bancontact, eps, giropay, ideal, przelewy24, sofort, afterpay, clearpay, boleto, oxxo, ach, bacs, becs, pad, sepa  
 Requires at least: 5.3
 Tested up to: 6.2
-Stable tag: 1.2.2.29
+Stable tag: 1.2.2.30
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -314,6 +314,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.30 =
+* Added support for minimum and maximum quantity for variable quantity.
 
 = 1.2.2.29 =
 * Added an option to collect VAT/tax ID at checkout.

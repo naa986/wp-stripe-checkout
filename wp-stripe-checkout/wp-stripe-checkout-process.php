@@ -484,6 +484,21 @@ function wp_stripe_checkout_process_button() {
             $error_msg = __('Invalid product quantity', 'wp-stripe-checkout');
             wp_die($error_msg);
         }
+        //
+        $minimum_quantity = get_post_meta($post_id, '_wpstripeco_product_variable_quantity_minimum', true);
+        if(isset($minimum_quantity) && is_numeric($minimum_quantity) && $minimum_quantity >= 1){
+            if($quantity < $minimum_quantity){
+                $error_msg = __('Invalid product quantity', 'wp-stripe-checkout');
+                wp_die($error_msg);
+            }
+        }
+        $maximum_quantity = get_post_meta($post_id, '_wpstripeco_product_variable_quantity_maximum', true);
+        if(isset($maximum_quantity) && is_numeric($maximum_quantity) && $maximum_quantity >= 1){
+            if($quantity > $maximum_quantity){
+                $error_msg = __('Invalid product quantity', 'wp-stripe-checkout');
+                wp_die($error_msg);
+            }
+        }
     }
     $options = wp_stripe_checkout_get_option();
     $currency_code = $options['stripe_currency_code'];
