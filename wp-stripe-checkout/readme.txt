@@ -1,7 +1,7 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, checkout, e-commerce, credit card, debit card, subscription, donation, vat, tax, shipping, apple pay, google pay, store, sales, sell, shop, cart, payments, alipay, wechat, bancontact, eps, giropay, ideal, przelewy24, sofort, afterpay, clearpay, boleto, oxxo, ach, bacs, becs, pad, sepa  
+Tags: stripe, payment, checkout, credit card, donation, apple pay, google pay, store, sell, shop, cart, invoice  
 Requires at least: 5.3
 Tested up to: 6.2
 Stable tag: 1.2.2.30
