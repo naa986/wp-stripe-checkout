@@ -122,27 +122,9 @@ You will also need to add the "checkout.session.async_payment_succeeded" and "ch
 
 For detailed setup instructions please visit the [Stripe WordPress](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
-=== How to use Stripe Checkout (Option 1) ===
+=== How to use Stripe Checkout ===
 
-The easiest way to start accepting Stripe payments is to create a product in the plugin interface (Stripe Checkout > All Products > Add New).
-
-Once you have created a product, add the shortcode for it to a post/page.
-
-`[wp_stripe_checkout id="1"]`
-
-Replace the value of "id" with your product ID.
-
-= Product Display Template =
-
-The template parameter in the shortcode allows you to use a pre-designed display template to showcase your product.
-
-`[wp_stripe_checkout id="1" template="1"]`
-
-Replace the value of "template" with your preferred display template id.
-
-=== How to use Stripe Checkout (Option 2) ===
-
-If you do not wish to create a product you can get started by adding the following shortcode to a post/page:
+The easiest way to start accepting Stripe payments is to add the following shortcode to a post/page:
 
 `[wp_stripe_checkout_session name="My Product" price="2.99"]`
 
@@ -161,48 +143,9 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **tax_id_collection** - Specify whether Checkout should automatically show the tax ID collection form depending on your customer's location. (e.g. tax_id_collection="true").
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
-=== How to use Stripe Checkout (Option 3) ===
-
-https://www.youtube.com/watch?v=x0JgyZ3l5mA&rel=0
-
-**Step 1: Enable Checkout in the Dashboard**
-
-To begin using Checkout, log into the Stripe Dashboard and navigate to the Checkout settings (Settings > Stripe apps > CHECKOUT). From here you can enable the client integration and customize the look and feel of your checkout page. 
-
-**Step 2: Create a Product**
-
-Navigate to the "Products" section in the Dashboard and create a new product (New > One-time purchase products). When you create a product in the Dashboard, Stripe creates a Price ID for it. You will need to use this Price ID in shortcode to create a button.
-
-**Step 3: Add a Checkout Shortcode**
-
-In order to create a Stripe checkout button you can add the following shortcode to a post/page:
-
-`[wp_stripe_checkout_v3 price="price_UY9NozbEy7T3PUlk"]`
-
-**price** - Price ID of the product created in your Stripe account.
-
-To create a checkout button for accepting recurring subscription payments, you need to set the "mode" parameter to "subscription" in the shortcode:
-
-`[wp_stripe_checkout_v3 price="price_UY9NozbEy7T3PUlk" mode="subscription"]`
-
-The product in question must also be of type "Recurring" in your Stripe account.
-
-= Shortcode Parameters =
-
-You can add additional parameters in the shortcode to customize your Stripe checkout button.
-
-* **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
-* **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
-* **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
-* **cancel_url** - The URL to which Stripe will redirect after a payment is canceled. (e.g. cancel_url="https://example.com/payment-canceled"). The default is the home URL for your site.
-* **mode** - The mode of the checkout (e.g. mode="subscription"). The default is "payment".
-* **locale** - The locale that will be used to localize the display of Checkout (e.g. locale="en"). The default is "auto" (Stripe detects the locale of the browser).
-* **billing_address** - Specify whether Checkout should collect the customer's billing address. (e.g. billing_address="required"). The default is "" (Checkout will only attempt to collect the billing address when necessary).
-* **shipping_address** - Specify whether Checkout should collect the customer's shipping address. (e.g. shipping_address="required").
-* **shipping_countries** - If you only wish to ship to certain countries you can specify their country codes. (e.g. shipping_countries="'US'" or shipping_countries="'US','GB','AU'").
-* **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
-
 === How to use Stripe Payment Links ===
+
+https://www.youtube.com/watch?v=M0lMMlJVw4M&rel=0
 
 This method allows you to integrate Stripe payment links with the plugin.
 
@@ -225,40 +168,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
 * **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
 
-
 For detailed setup instructions please visit the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
-
-=== Legacy Stripe Checkout ===
-
-Stripe Checkout Form is a beautiful payment form specifically designed for desktop, tablet, and mobile devices. Your customer never go to an external payment page for making the payments. They stay on your site and enter their credit card in a secure payment form to complete the payment.
-
-All payment submissions are made via a secure HTTPS connection. However, in order to fully protect sensitive customer data, you must serve the page containing the Stripe payment form over HTTPS. In short, the address of the page containing the Stripe checkout form must start with "https://" rather than just "http://".
-
-In order to create a Stripe payment button you can add the following shortcode to a post/page:
-
-`[wp_stripe_checkout item_name="Champion Men's Jersey T-Shirt" description="Short-sleeve t-shirt in athletic fit featuring ribbed crew neckline and logo at chest" amount="59.99" label="Pay Now"]`
-
-In order to accept donations for a cause you can use the shortcode like the following:
-
-`[wp_stripe_checkout item_name="Watsi's medical work" description="Donations for Watsi's medical work" amount="1.00" label="Donate to Watsi"]`
-
-You can add additional parameters in the shortcode to customize your stripe payment button.
-
-* **item_name** - The name of the item you are selling.
-* **name** - The name of your company or website.
-* **image** - A URL pointing to a image of your brand or product(128x128px recommended). The recommended image types are .gif, .jpg, and .png.
-* **locale**- Specify auto to display Checkout in the customer's preferred language, if available (English is used by default).
-* **currency** - The currency of the item (e.g. currency="USD"). If not specified it will take the default currency code from the settings.
-* **billing-address** - Specify whether Checkout form should collect the customer's billing address (e.g. billing-address="true"). The default is false.
-* **shipping-address** - Specify whether Checkout form should collect the customer's shipping address (e.g. shipping-address="true"). The default is false.
-* **panel-label** - The label of the payment button in the Checkout form (e.g. panel-label="Pay $2.00"). Checkout does not translate custom labels to the customer's preferred language.
-* **zip-code** - Specify whether Checkout form should validate the customer's billing postal code (e.g. zip-code="true"). The default is false.
-* **label** - The text that is displayed on the blue payment button (e.g. label="Buy Now"). Default is "Pay with Card". Checkout does not translate this label at the moment.
-* **allow-remember-me** - Specify whether to exclude the option to "Remember Me" for future purchases (e.g. allow-remember-me="false"). The default is true.
-* **bitcoin** - Specify whether Checkout form should accept Bitcoin (e.g. bitcoin="true"). The default is false.
-* **success_url** - Specify whether Checkout form should redirect the customer to a different url upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
-
-For detailed setup instructions please visit the [Stripe plugin documentation](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) page.
 
 == Installation ==
 
