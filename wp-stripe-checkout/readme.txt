@@ -14,6 +14,8 @@ Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything i
 
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
+https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
+
 === Benefits of Stripe Payments ===
 
 * Easy Stripe payment integration.
