@@ -368,6 +368,13 @@ function wp_stripe_checkout_process_session_button() {
         $temp_payment_method_types = sanitize_text_field($_POST['payment_method_types']);
         $payment_method_types = array_map('trim', explode(',', $temp_payment_method_types));
     }
+    $wp_email = '';
+    if(isset($_POST['prefill_wp_email']) && !empty($_POST['prefill_wp_email'])){
+        if(is_user_logged_in()){
+            $current_user = wp_get_current_user();
+            $wp_email = $current_user->user_email;
+        }
+    }
     wp_stripe_checkout_debug_log("Post Data", true);
     wp_stripe_checkout_debug_log_array($_POST, true);
     $session_args = array();
@@ -403,6 +410,9 @@ function wp_stripe_checkout_process_session_button() {
     if(!empty($submit_type)){
         $session_args['submit_type'] = $submit_type;
     }
+    if(!empty($wp_email)){
+        $session_args['customer_email'] = $wp_email;
+    }
     $consent_collection = array();
     $is_consent_collection = false;
     if(!empty($consent_collection_promotions)){
@@ -419,7 +429,7 @@ function wp_stripe_checkout_process_session_button() {
     //
     if($is_consent_collection){
         $session_args['consent_collection'] = $consent_collection;
-    }
+    }   
     //
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');

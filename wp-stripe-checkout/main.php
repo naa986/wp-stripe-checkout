@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.31
+  Version: 1.2.2.32
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.31';
+    var $plugin_version = '1.2.2.32';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -782,6 +782,15 @@ function wp_stripe_checkout_payment_link_button_handler($atts) {
     if(!empty($email_input_code)){
         $button_code .= $email_input_code;
     }
+    else{
+        if(isset($atts['prefill_wp_email']) && !empty($atts['prefill_wp_email'])){
+            if(is_user_logged_in()){
+                $current_user = wp_get_current_user();
+                $email_address = $current_user->user_email;
+                $button_code .= '<input type="hidden" name="prefilled_email" value="'.esc_attr($email_address).'" />';
+            }           
+        }
+    }
     $button_text = 'Buy Now';
     if(isset($atts['button_text']) && !empty($atts['button_text'])){
         $button_text = $atts['button_text'];
@@ -1079,6 +1088,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['payment_method_types']) && !empty($atts['payment_method_types'])){
         $payment_method_types = sanitize_text_field($atts['payment_method_types']);
     }
+    $prefill_wp_email = '';
+    if(isset($atts['prefill_wp_email']) && !empty($atts['prefill_wp_email'])){
+        $prefill_wp_email = sanitize_text_field($atts['prefill_wp_email']);
+    }
     $key = $options['stripe_publishable_key'];
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
@@ -1145,6 +1158,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     }
     if(!empty($payment_method_types)){
         $button_code .= '<input type="hidden" name="payment_method_types" value="'.esc_attr($payment_method_types).'" />';
+    }
+    if(!empty($prefill_wp_email)){
+        $button_code .= '<input type="hidden" name="prefill_wp_email" value="'.esc_attr($prefill_wp_email).'" />';
     }
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_session" value="1" />';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){
