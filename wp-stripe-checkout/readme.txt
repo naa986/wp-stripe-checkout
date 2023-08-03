@@ -136,6 +136,7 @@ Replace the value of "name" with your product name and "price" with the actual p
 
 You can add additional parameters in the shortcode to customize your Stripe payment button.
 
+* **description** - The description of the product (e.g. description="My product description"). This is optional and no description is set by default.
 * **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
 * **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
 * **success_url** - The URL to which Stripe will redirect upon completion of a successful payment (e.g. success_url="https://example.com/success"). The default is the Return URL specified in the settings.
