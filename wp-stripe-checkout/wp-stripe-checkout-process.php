@@ -303,6 +303,9 @@ function wp_stripe_checkout_process_session_button() {
     }
     $post_data = array();
     $post_data['item_name'] = sanitize_text_field($_POST['item_name']);
+    if (isset($_POST['item_description']) && !empty($_POST['item_description'])) {
+        $post_data['item_description'] = sanitize_text_field($_POST['item_description']);
+    }
     if(isset($_POST['item_price']) && is_numeric($_POST['item_price']) && $_POST['item_price'] > 0) {
         $post_data['price'] = sanitize_text_field($_POST['item_price']);
     }
@@ -380,8 +383,13 @@ function wp_stripe_checkout_process_session_button() {
     $session_args = array();
     $line_items = array();
     $price_data = array();
+    $product_data = array();
+    $product_data['name'] = $post_data['item_name'];
+    if(isset($post_data['item_description']) && !empty($post_data['item_description'])){
+        $product_data['description'] = $post_data['item_description'];
+    }
     $price_data['currency'] = strtolower($post_data['currency_code']);
-    $price_data['product_data'] = array('name' => $post_data['item_name']);
+    $price_data['product_data'] = $product_data;
     if(wp_stripe_checkout_is_zero_decimal_currency($price_data['currency'])){
         $price_data['unit_amount'] = $post_data['price'];
     }

@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.32
+  Version: 1.2.2.33
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.32';
+    var $plugin_version = '1.2.2.33';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -1035,6 +1035,10 @@ function wp_stripe_checkout_session_button_handler($atts) {
         return __('You need to provide a name for your item', 'wp-stripe-checkout');
     }
     $item_name = $atts['name'];
+    $item_description = '';
+    if(isset($atts['description']) && !empty($atts['description'])){
+        $item_description = $atts['description'];
+    }
     $button_text = 'Buy Now';
     if(isset($atts['button_text']) && !empty($atts['button_text'])){
         $button_text = $atts['button_text'];
@@ -1110,6 +1114,9 @@ function wp_stripe_checkout_session_button_handler($atts) {
     $button_code .= wp_nonce_field('wp_stripe_checkout_session_nonce', '_wpnonce', true, false);
     $button_code .= '<input type="hidden" name="client_reference_id" value="'.esc_attr($client_reference_id).'" />';
     $button_code .= '<input type="hidden" name="item_name" value="'.esc_attr($item_name).'" />';
+    if(!empty($item_description)){
+        $button_code .= '<input type="hidden" name="item_description" value="'.esc_attr($item_description).'" />';
+    }
     $price_input_code = '';
     $price_input_code = apply_filters('wp_stripe_checkout_session_price', $price_input_code, $button_code, $atts);
     if(!empty($price_input_code)){

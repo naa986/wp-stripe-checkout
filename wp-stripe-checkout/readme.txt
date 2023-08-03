@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, checkout, credit card, donation, apple pay, google pay, store, sell, shop, cart, invoice  
 Requires at least: 5.3
 Tested up to: 6.2
-Stable tag: 1.2.2.32
+Stable tag: 1.2.2.33
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -229,6 +229,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.33 =
+* Added an optional parameter to set a description of the product.
 
 = 1.2.2.32 =
 * Added an option to automatically pass the user's email address to Stripe.
