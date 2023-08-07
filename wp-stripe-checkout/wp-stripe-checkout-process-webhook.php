@@ -303,6 +303,7 @@ function wp_stripe_checkout_process_webhook(){
     //save order information
     if ($post_updated) {
         $payment_data['order_id'] = $post_id;
+        update_post_meta($post_id, '_product_name', $payment_data['product_name']);
         update_post_meta($post_id, '_txn_id', $payment_data['txn_id']);
         update_post_meta($post_id, '_name', $payment_data['billing_name']);
         update_post_meta($post_id, '_amount', $payment_data['price']);
@@ -659,6 +660,7 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     //save order information
     if ($post_updated) {
         $payment_data['order_id'] = $post_id;
+        update_post_meta($post_id, '_product_name', $payment_data['product_name']);
         update_post_meta($post_id, '_txn_id', $payment_data['txn_id']);
         update_post_meta($post_id, '_name', $payment_data['billing_name']);
         update_post_meta($post_id, '_amount', $payment_data['amount_total']);
