@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.34
+  Version: 1.2.2.35
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.34';
+    var $plugin_version = '1.2.2.35';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -69,6 +69,7 @@ class WP_STRIPE_CHECKOUT {
         add_action('init', array($this, 'plugin_init'));
         add_filter('manage_wpstripeco_order_posts_columns', 'wp_stripe_checkout_order_columns');
         add_action('manage_wpstripeco_order_posts_custom_column', 'wp_stripe_checkout_custom_column', 10, 2);
+        add_action('add_meta_boxes_wpstripeco_order', 'wpstripeco_order_meta_boxes');
         add_filter('manage_wpstripeco_product_posts_columns', 'wp_stripe_checkout_product_columns');
         add_action('manage_wpstripeco_product_posts_custom_column', 'wp_stripe_checkout_product_custom_column', 10, 2);
         add_action('add_meta_boxes_wpstripeco_product', 'wpstripeco_product_meta_boxes');

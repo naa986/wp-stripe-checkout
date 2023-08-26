@@ -91,33 +91,106 @@ function wp_stripe_checkout_custom_column($column, $post_id) {
     }
 }
 
-function wp_stripe_checkout_save_meta_box_data($post_id) {
-    /*
-     * We need to verify this came from our screen and with proper authorization,
-     * because the save_post action can be triggered at other times.
-     */
-    // Check if our nonce is set.
-    if (!isset($_POST['wpstripecheckout_meta_box_nonce'])) {
+function wpstripeco_order_meta_boxes($post){
+    $post_type = 'wpstripeco_order';
+    /** Product Data **/
+    add_meta_box('wpstripeco_order_data', __('Order Data'),  'wpstripeco_render_order_data_meta_box', $post_type, 'normal', 'high');
+}
+
+function wpstripeco_render_order_data_meta_box($post){
+    $post_id = $post->ID;
+    //echo '<p>post id: '.$post_id.'</p>';
+    $transaction_id = get_post_meta($post_id, '_txn_id', true);
+    if(!isset($transaction_id) || empty($transaction_id)){
+        $transaction_id = '';
+    }
+    $product_name = get_post_meta($post_id, '_product_name', true);
+    if(!isset($product_name) || empty($product_name)){
+        $product_name = '';
+    }
+    $customer_name = get_post_meta($post_id, '_name', true);
+    if(!isset($customer_name) || empty($customer_name)){
+        $customer_name = '';
+    }
+    $customer_email = get_post_meta($post_id, '_email', true);
+    if(!isset($customer_email) || empty($customer_email)){
+        $customer_email = '';
+    }
+    $total_amount = get_post_meta($post_id, '_amount', true);
+    if(!isset($total_amount) || !is_numeric($total_amount)){
+        $total_amount = '';
+    }
+    ?>
+    <table>
+        <tbody>
+            <tr>
+                <td valign="top">
+                    <table class="form-table">
+                        <tbody>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_order_txn_id"><?php _e('Transaction ID', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_order_txn_id" type="text" id="_wpstripeco_order_txn_id" value="<?php echo esc_attr($transaction_id); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_order_product_name"><?php _e('Product Name', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_order_product_name" type="text" id="_wpstripeco_order_product_name" value="<?php echo esc_attr($product_name); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_order_name"><?php _e('Customer Name', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_order_name" type="text" id="_wpstripeco_order_name" value="<?php echo esc_attr($customer_name); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_order_email"><?php _e('Customer Email', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_order_email" type="text" id="_wpstripeco_order_email" value="<?php echo esc_attr($customer_email); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_order_amount"><?php _e('Total Amount', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_order_amount" type="text" id="_wpstripeco_order_amount" value="<?php echo esc_attr($total_amount); ?>" class="regular-text"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody> 
+    </table>
+    <?php
+    wp_nonce_field(basename(__FILE__), 'wpstripeco_order_data_meta_box_nonce');
+}
+
+function wpstripeco_order_data_meta_box_save($post_id, $post){
+    if(!isset($_POST['wpstripeco_order_data_meta_box_nonce']) || !wp_verify_nonce($_POST['wpstripeco_order_data_meta_box_nonce'], basename(__FILE__))){
         return;
     }
-    // Verify that the nonce is valid.
-    if (!wp_verify_nonce($_POST['wpstripecheckout_meta_box_nonce'], 'wpstripecheckout_meta_box')) {
+    if((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || (defined('DOING_AJAX') && DOING_AJAX) || isset($_REQUEST['bulk_edit'])){
         return;
     }
-    // If this is an autosave, our form has not been submitted, so we don't want to do anything.
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+    if(isset($post->post_type) && 'revision' == $post->post_type){
         return;
     }
-    // Check the user's permissions.
-    if (isset($_POST['post_type']) && 'page' == $_POST['post_type']) {
-        if (!current_user_can('edit_page', $post_id)) {
-            return;
-        }
-    } else {
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
+    if(!current_user_can('manage_options')){
+        return;
+    }
+    //update the values
+    if(isset($_POST['_wpstripeco_order_txn_id'])){
+        $transaction_id = sanitize_text_field($_POST['_wpstripeco_order_txn_id']);
+        update_post_meta($post_id, '_txn_id', $transaction_id);
+    }
+    if(isset($_POST['_wpstripeco_order_product_name'])){
+        $product_name = sanitize_text_field($_POST['_wpstripeco_order_product_name']);
+        update_post_meta($post_id, '_product_name', $product_name);
+    }
+    if(isset($_POST['_wpstripeco_order_name'])){
+        $customer_name = sanitize_text_field($_POST['_wpstripeco_order_name']);
+        update_post_meta($post_id, '_name', $customer_name);
+    }
+    if(isset($_POST['_wpstripeco_order_email'])){
+        $customer_email = sanitize_text_field($_POST['_wpstripeco_order_email']);
+        update_post_meta($post_id, '_email', $customer_email);
+    }
+    if(isset($_POST['_wpstripeco_order_amount']) && is_numeric($_POST['_wpstripeco_order_amount'])){
+        $total_amount = sanitize_text_field($_POST['_wpstripeco_order_amount']);
+        update_post_meta($post_id, '_amount', $total_amount);
     }
 }
 
-add_action('save_post', 'wp_stripe_checkout_save_meta_box_data');
+add_action('save_post_wpstripeco_order', 'wpstripeco_order_data_meta_box_save', 10, 2 );
