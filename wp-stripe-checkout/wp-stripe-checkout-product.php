@@ -11,7 +11,7 @@ function wp_stripe_checkout_register_product_type() {
         'new_item' => __('New Product', 'wp-stripe-checkout'),
         'edit_item' => __('Edit Product', 'wp-stripe-checkout'),
         'view_item' => __('View Product', 'wp-stripe-checkout'),
-        'all_items' => __('All Products', 'wp-stripe-checkout'),
+        'all_items' => __('All Products (Deprecated)', 'wp-stripe-checkout'),
         'search_items' => __('Search Products', 'wp-stripe-checkout'),
         'parent_item_colon' => __('Parent Products:', 'wp-stripe-checkout'),
         'not_found' => __('No Products found.', 'wp-stripe-checkout'),
