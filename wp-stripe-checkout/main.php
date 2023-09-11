@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.36
+  Version: 1.2.2.37
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.36';
+    var $plugin_version = '1.2.2.37';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -58,9 +58,6 @@ class WP_STRIPE_CHECKOUT {
     function loader_operations() {
         register_activation_hook( __FILE__, array($this, 'activate_handler') );
         add_action('plugins_loaded', array($this, 'plugins_loaded_handler'));
-        if (is_admin()) {
-            add_filter('plugin_action_links', array($this, 'add_plugin_action_links'), 10, 2);
-        }
         add_action('admin_notices', array($this, 'admin_notice'));
         //add_action('wp_head', array($this, 'wp_head'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
@@ -80,6 +77,9 @@ class WP_STRIPE_CHECKOUT {
     }
 
     function plugins_loaded_handler() {  //Runs when plugins_loaded action gets fired
+        if(is_admin() && current_user_can('manage_options')){
+            add_filter('plugin_action_links', array($this, 'add_plugin_action_links'), 10, 2);
+        }
         load_plugin_textdomain( 'wp-stripe-checkout', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
         $this->check_upgrade();
     }
