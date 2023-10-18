@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.37
+  Version: 1.2.2.38
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.37';
+    var $plugin_version = '1.2.2.38';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -108,9 +108,12 @@ class WP_STRIPE_CHECKOUT {
 
     function admin_notice() {
         if (WP_STRIPE_CHECKOUT_DEBUG) {  //debug is enabled. Check to make sure log file is writable
-            $real_file = WP_STRIPE_CHECKOUT_DEBUG_LOG_PATH;
-            if (!is_writeable($real_file)) {
-                echo '<div class="updated"><p>' . __('WP Stripe Checkout Debug log file is not writable. Please check to make sure that it has the correct file permission (ideally 644). Otherwise the plugin will not be able to write to the log file. The log file (log.txt) can be found in the root directory of the plugin - ', 'wp-stripe-checkout') . '<code>' . WP_STRIPE_CHECKOUT_URL . '</code></p></div>';
+            $log_file = WP_STRIPE_CHECKOUT_DEBUG_LOG_PATH;
+            if(!file_exists($log_file)){
+                return;
+            }
+            if(!is_writeable($log_file)){
+                echo '<div class="updated"><p>' . __('WP Stripe Checkout Debug log file is not writable. Please check to make sure that it has the correct file permission (ideally 644). Otherwise the plugin will not be able to write to the log file. The log file can be found in the logs directory of the plugin - ', 'wp-stripe-checkout') . '<code>' . WP_STRIPE_CHECKOUT_URL . '</code></p></div>';
             }
         }
     }
@@ -189,7 +192,21 @@ class WP_STRIPE_CHECKOUT {
     }
 
     function debug_log_path() {
-        return WP_STRIPE_CHECKOUT_PATH . '/log.txt';
+        return WP_STRIPE_CHECKOUT_PATH . '/logs/'. $this->debug_log_file_name();
+    }
+    
+    function debug_log_file_name() {
+        return 'log-'.$this->debug_log_file_suffix().'.txt';
+    }
+    
+    function debug_log_file_suffix() {
+        $suffix = get_option('wpstripecheckout_logfile_suffix');
+        if(isset($suffix) && !empty($suffix)) {
+            return $suffix;
+        }
+        $suffix = uniqid();
+        update_option('wpstripecheckout_logfile_suffix', $suffix);
+        return $suffix;
     }
 
     function add_plugin_action_links($links, $file) {
@@ -674,8 +691,12 @@ class WP_STRIPE_CHECKOUT {
                             echo '<div id="message" class="error"><p>'.__('Debug log file could not be reset', 'wp-stripe-checkout').'!</p></div>';
                         }
                     }
-                    $real_file = WP_STRIPE_CHECKOUT_DEBUG_LOG_PATH;
-                    $content = file_get_contents($real_file);
+                    $log_file = WP_STRIPE_CHECKOUT_DEBUG_LOG_PATH;
+                    $content = '';
+                    if(file_exists($log_file))
+                    {
+                        $content = file_get_contents($log_file);
+                    }
                     $options = wp_stripe_checkout_get_option();
                     ?>
                     <div id="template"><textarea cols="70" rows="25" name="wp_stripe_checkout_log" id="wp_stripe_checkout_log"><?php echo esc_textarea($content); ?></textarea></div>                     

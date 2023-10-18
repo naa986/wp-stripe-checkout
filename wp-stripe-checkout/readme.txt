@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, checkout, credit card, ecommerce, payments
 Requires at least: 5.3
 Tested up to: 6.3
-Stable tag: 1.2.2.37
+Stable tag: 1.2.2.38
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -230,6 +230,9 @@ You can post your issue on the Stripe plugin page: https://noorsplugin.com/strip
 none
 
 == Changelog ==
+
+= 1.2.2.38 =
+* Better debug logging.
 
 = 1.2.2.37 =
 * Additional check for the settings link.
