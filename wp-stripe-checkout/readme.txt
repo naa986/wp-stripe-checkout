@@ -1,9 +1,9 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, checkout, credit card, ecommerce, payments
+Tags: stripe, checkout, donation, ecommerce, payments
 Requires at least: 5.3
-Tested up to: 6.3
+Tested up to: 6.4
 Stable tag: 1.2.2.38
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -21,7 +21,7 @@ https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 * Easy Stripe payment integration.
 * Stripe payment links integration.
 * Accept credit and debit card payments.
-* Accept recurring subscription payments.
+* Accept recurring subscription payments via payment links.
 * Accept donation payments.
 * Accept Apple Pay payments.
 * Accept Google Pay payments.
@@ -45,18 +45,11 @@ https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 * Support payment processing with Stripe test cards.
 * Support phone number collection at checkout.
 * Support user redeemable promotion codes at checkout.
-* Localized for 34 languages.
+* Localized for different languages.
 * Automatically email Stripe receipts to your customers.
-* Build conversion-optimized payment forms, hosted on Stripe.
 * Simplified mobile-ready experience for customers.
-* It works on its own, there is no complex setup like a membership/e-commerce plugin.
-* No setup fees, monthly fees or hidden costs.
-* Seamless transfer to your bank account.
+* No complex setup like a membership/e-commerce plugin.
 * Easily Switch between live and sandbox mode for testing.
-* Real-time fee reporting in your Stripe account.
-* Display a logo of your brand or product on the Stripe payment page.
-* Easy payouts for Stripe merchants.
-* Enable Stripe invoicing after the payment.
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
 * Automatic VAT/tax ID collection at checkout
@@ -193,10 +186,6 @@ Yes.
 
 No. This is not a WooCommerce plugin.
 
-= What payment methods are supported? =
-
-You can use payment methods that are supported by the Stripe payment gateway.
-
 = Can I use this Stripe plugin to accept credit or debit card payments in WordPress? =
 
 Yes.
@@ -205,18 +194,13 @@ Yes.
 
 Yes.
 
-= Can I use this plugin to accept Stripe donations in WordPress? =
+= Can I use this plugin to accept donations in WordPress? =
 
 Yes.
 
 = Can I use a Stripe credit card for simulating purchases? =
 
-Yes.
-
-= My Stripe pay button is not working. What can I do? =
-
-You can post your issue on the Stripe plugin page: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/. 
-
+Yes. 
 
 == Screenshots ==
 
