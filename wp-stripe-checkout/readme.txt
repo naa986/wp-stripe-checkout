@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, checkout, donation, ecommerce, payments
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 1.2.2.38
+Stable tag: 1.2.2.39
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,7 @@ https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 * [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
 * [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
 * [Payment Link Email](https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/)
+* [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -214,6 +215,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.39 =
+* Added support for variable currency.
 
 = 1.2.2.38 =
 * Better debug logging.

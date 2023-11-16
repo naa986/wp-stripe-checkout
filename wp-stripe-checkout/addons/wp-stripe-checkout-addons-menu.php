@@ -47,6 +47,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_5);
     
+    $addon_6 = array(
+        'name' => 'Variable Currency',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-variable-currency.png',
+        'description' => 'Let buyers pay in their preferred currency',
+        'page_url' => 'https://noorsplugin.com/wp-stripe-checkout-variable-currency/',
+    );
+    array_push($addons_data, $addon_6);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>
