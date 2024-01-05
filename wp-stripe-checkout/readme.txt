@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, checkout, donation, ecommerce, payments
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 1.2.2.39
+Stable tag: 1.2.2.40
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -145,6 +145,8 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 
 === How to use Stripe Payment Links ===
 
+https://www.youtube.com/watch?v=M0lMMlJVw4M&rel=0
+
 This method allows you to integrate Stripe payment links with the plugin.
 
 **Step 1: Create a Payment Link**
@@ -213,6 +215,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.40 =
+* Made changes to the code that retrieve the plugin url and path.
 
 = 1.2.2.39 =
 * Added support for variable currency.
