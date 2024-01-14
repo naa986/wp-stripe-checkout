@@ -403,6 +403,12 @@ function wp_stripe_checkout_process_session_button() {
     }
     $session_args['line_items'] = array($line_items);
     $session_args['mode'] = 'payment';
+    //
+    $success_url_args = array(
+        'session_id' => '{CHECKOUT_SESSION_ID}',                 
+    );
+    $success_url = add_query_arg($success_url_args, $success_url);
+    //
     $session_args['success_url'] = $success_url;
     $session_args['cancel_url'] = $cancel_url;
     $session_args['client_reference_id'] = $client_reference_id;
