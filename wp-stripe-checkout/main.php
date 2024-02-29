@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.41
+  Version: 1.2.2.42
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.41';
+    var $plugin_version = '1.2.2.42';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -1004,9 +1004,9 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     else{
         $button_code .= '<input class="wpstripeco_variable_quantity_input '.$qty_input_class_id.'" type="hidden" name="item_quantity" value="1" required>';
     }
-    $button = '<button id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'">'.$button_text.'</button>';
+    $button = '<button id="wpsc'.$id.'" class="wpsc-v3-button'.esc_attr($class).'">'.esc_html($button_text).'</button>';
     if(isset($atts['button_image']) && !empty($atts['button_image'])){
-        $button = '<a href="#" onclick="event.preventDefault();" id="wpsc'.$id.'" class="wpsc-v3-button'.$class.'"><img src="'.$atts['button_image'].'"></a>';
+        $button = '<a href="#" onclick="event.preventDefault();" id="wpsc'.$id.'" class="wpsc-v3-button'.esc_attr($class).'"><img src="'.esc_url($atts['button_image']).'"></a>';
     }
     $button_code .= $button;
     $button_code .= '</div>';

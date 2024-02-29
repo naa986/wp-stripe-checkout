@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, checkout, donation, ecommerce, payments
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 1.2.2.41
+Stable tag: 1.2.2.42
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -215,6 +215,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.42 =
+* Improved shortcode sanitization suggested by Patchstack.
 
 = 1.2.2.41 =
 * The session ID is passed to the success page.
