@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.42
+  Version: 1.2.2.43
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.42';
+    var $plugin_version = '1.2.2.43';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -799,7 +799,12 @@ function wp_stripe_checkout_payment_link_button_handler($atts) {
     if(!isset($atts['url']) || empty($atts['url'])){
         return __('You need to provide a payment link URL in the shortcode', 'wp-stripe-checkout');
     }
-    $button_code = '<form action="'.esc_url($atts['url']).'" method="get">';
+    //target
+    $target= '';
+    if(isset($atts['target']) && $atts['target'] == '_blank'){
+        $target = ' target="_blank"';
+    }
+    $button_code = '<form action="'.esc_url($atts['url']).'" method="get"'.$target.'>';
     $button_code .= '<input type="hidden" name="client_reference_id" value="wpsc_payment_link" />';
     $email_input_code = '';
     $email_input_code = apply_filters('wpsc_payment_link_button_email', $email_input_code, $button_code, $atts);
@@ -1132,9 +1137,14 @@ function wp_stripe_checkout_session_button_handler($atts) {
     if(isset($atts['class']) && !empty($atts['class'])){
         $class = $class." ".$atts['class'];
     }
+    //target
+    $target = '';
+    if(isset($atts['target']) && $atts['target'] == '_blank'){
+        $target = ' target="_blank"';
+    }
     $id = uniqid();
     $client_reference_id = 'wpsc'.$id;
-    $button_code = '<form class="'.esc_attr($class).'" action="" method="post">';
+    $button_code = '<form class="'.esc_attr($class).'" action="" method="post"'.$target.'>';
     $button_code .= wp_nonce_field('wp_stripe_checkout_session_nonce', '_wpnonce', true, false);
     $button_code .= '<input type="hidden" name="client_reference_id" value="'.esc_attr($client_reference_id).'" />';
     $button_code .= '<input type="hidden" name="item_name" value="'.esc_attr($item_name).'" />';
