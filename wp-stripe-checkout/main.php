@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.43
+  Version: 1.2.2.44
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.43';
+    var $plugin_version = '1.2.2.44';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -758,7 +758,12 @@ function wp_stripe_checkout_button_handler($atts) {
     if(isset($atts['payment_method_types']) && !empty($atts['payment_method_types'])){
         $payment_method_types = sanitize_text_field($atts['payment_method_types']);
     }
-    $button_code = '<form action="" method="post">';
+    //target
+    $target= '';
+    if(isset($atts['target']) && $atts['target'] == '_blank'){
+        $target = ' target="_blank"';
+    }
+    $button_code = '<form action="" method="post"'.$target.'>';
     $button_code .= wp_nonce_field('wp_stripe_checkout_button', '_wp_stripe_checkout_button_nonce', true, false);
     $button_code .= '<input type="hidden" name="wpsc_product_id" value="'.esc_attr($atts['id']).'" />';
     $price_input_code = '';

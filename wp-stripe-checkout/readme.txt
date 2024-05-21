@@ -1,10 +1,10 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, checkout, donation, ecommerce, payments
+Tags: stripe, ecommerce, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.5
-Stable tag: 1.2.2.43
+Stable tag: 1.2.2.44
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **consent_collection_promotions** - Specify whether Checkout should automatically collect consent from customers so you can send them promotional emails. (e.g. consent_collection_promotions="auto").
 * **prefill_wp_email** - Specify whether the plugin should automatically pass the user's email address to Stripe. (e.g. prefill_wp_email="true"). This requires the user to be logged in to WordPress.
 * **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
+* **target** - Specify whether the button should open in a new tab. (e.g. target="_blank").
 
 === How to use Stripe Payment Links ===
 
@@ -215,6 +216,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.44 =
+* Added support for the target parameter in the deprecated wp_stripe_checkout shortcode.
 
 = 1.2.2.43 =
 * Added shortcode parameter to open button in a new tab.
