@@ -19,6 +19,33 @@ function wp_stripe_checkout_process_webhook(){
     }
     wp_stripe_checkout_debug_log("Received event notification from Stripe. Event type: ".$event_json->type, true);
     wp_stripe_checkout_debug_log_array($event_json, true);
+    $options = wp_stripe_checkout_get_option();
+    //
+    if(isset($options['stripe_webhook_signing_secret']) && !empty($options['stripe_webhook_signing_secret']))
+    {
+        wp_stripe_checkout_debug_log("Webhook signing secret is specified. This notification needs to be verified.", true);
+        // Retrieve the raw POST body
+        $payload = $body;
+        // Retrieve the Stripe-Signature header
+        $headers = getallheaders();
+        $stripeSignature = '';
+        if(isset($headers['Stripe-Signature']) && !empty($headers['Stripe-Signature'])){
+            $stripeSignature = sanitize_text_field($headers['Stripe-Signature']); 
+        }
+        if(empty($stripeSignature)){
+            wp_stripe_checkout_debug_log("No Stripe-Signature. This notification cannot be verified.", false);
+            return;
+        }
+        wp_stripe_checkout_debug_log("Stripe-Signature: ".$stripeSignature, true);
+        $webhookSecret = $options['stripe_webhook_signing_secret'];
+        if(wp_stripe_checkout_verify_webhook_signature($stripeSignature, $payload, $webhookSecret)){
+            wp_stripe_checkout_debug_log("Signature is valid", true);
+        }else{
+            wp_stripe_checkout_debug_log("Signature is invalid. The notification cannot be processed.", false);
+            return;
+        }
+    }
+    //
     wp_stripe_checkout_debug_log("Payment status: ".$event_json->data->object->payment_status, true);
     if($event_json->type == "checkout.session.async_payment_failed"){
         wp_stripe_checkout_debug_log("This payment was declined, or failed for some other reason. The notification cannot be processed.", false);
@@ -722,4 +749,36 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     }
     wp_stripe_checkout_debug_log("Order processing completed", true, true);
     do_action('wpstripecheckout_payment_completed', $payment_data);
+}
+
+function wp_stripe_checkout_construct_webhook_signature($payload, $secret, $t) {
+    $signedPayload = $t . '.' . $payload;
+    return hash_hmac('sha256', $signedPayload, $secret);
+}
+
+function wp_stripe_checkout_verify_webhook_signature($stripeSignature, $payload, $secret) {
+    if (!$stripeSignature) {
+        return false;
+    }
+
+    $parts = explode(',', $stripeSignature);
+    $timestamp = null;
+    $signature = null;
+
+    foreach ($parts as $part) {
+        list($key, $value) = explode('=', $part);
+        if ($key === 't') {
+            $timestamp = $value;
+        }
+        if ($key === 'v1') {
+            $signature = $value;
+        }
+    }
+
+    if (!$timestamp || !$signature) {
+        return false;
+    }
+
+    $expectedSignature = wp_stripe_checkout_construct_webhook_signature($payload, $secret, $timestamp);
+    return hash_equals($expectedSignature, $signature);
 }

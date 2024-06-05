@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.44
+  Version: 1.2.2.45
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH'))
 
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.44';
+    var $plugin_version = '1.2.2.45';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -327,6 +327,10 @@ class WP_STRIPE_CHECKOUT {
             if(isset($_POST['cancel_url']) && !empty($_POST['cancel_url'])){
                 $cancel_url = esc_url_raw($_POST['cancel_url']);
             }
+            $stripe_webhook_signing_secret = '';
+            if(isset($_POST['stripe_webhook_signing_secret']) && !empty($_POST['stripe_webhook_signing_secret'])){
+                $stripe_webhook_signing_secret = sanitize_text_field($_POST['stripe_webhook_signing_secret']);
+            }
             $verify_front_end_nonces = (isset($_POST['verify_front_end_nonces']) && $_POST['verify_front_end_nonces'] == '1') ? '1' : '';
             update_option('wp_stripe_checkout_verify_front_end_nonces', $verify_front_end_nonces);
             $load_scripts_globally = (isset($_POST['load_scripts_globally']) && $_POST['load_scripts_globally'] == '1') ? '1' : '';
@@ -340,6 +344,7 @@ class WP_STRIPE_CHECKOUT {
             $stripe_options['stripe_currency_code'] = $stripe_currency_code;
             $stripe_options['success_url'] = $success_url;
             $stripe_options['cancel_url'] = $cancel_url;
+            $stripe_options['stripe_webhook_signing_secret'] = $stripe_webhook_signing_secret;
             wp_stripe_checkout_update_option($stripe_options);
             echo '<div id="message" class="updated fade"><p><strong>';
             echo __('Settings Saved', 'wp-stripe-checkout').'!';
@@ -347,6 +352,10 @@ class WP_STRIPE_CHECKOUT {
         }
         
         $stripe_options = wp_stripe_checkout_get_option();
+        $stripe_webhook_signing_secret = '';
+        if(isset($stripe_options['stripe_webhook_signing_secret']) && !empty($stripe_options['stripe_webhook_signing_secret'])){
+            $stripe_webhook_signing_secret = $stripe_options['stripe_webhook_signing_secret'];
+        }
         $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
         if(!isset($verify_front_end_nonces) || empty($verify_front_end_nonces)){
             $verify_front_end_nonces = '';
@@ -439,10 +448,16 @@ class WP_STRIPE_CHECKOUT {
                                     </tr>
                                     
                                     <tr valign="top">
+                                        <th scope="row"><label for="stripe_webhook_signing_secret"><?php _e('Stripe Webhook Signing Secret', 'wp-stripe-checkout');?></label></th>
+                                        <td><input name="stripe_webhook_signing_secret" type="text" id="stripe_webhook_signing_secret" value="<?php echo esc_attr($stripe_webhook_signing_secret); ?>" class="regular-text">
+                                            <p class="description"><?php echo __("Your webhook's signing secret. This will be used to verify each notification. (Optional)", 'wp-stripe-checkout');?></p></td>
+                                    </tr>
+                                    
+                                    <tr valign="top">
                                         <th scope="row"><?php _e('Verify Front-end Nonces', 'wp-stripe-checkout');?></th>
                                         <td> <fieldset><legend class="screen-reader-text"><span>Verify Front-end Nonces</span></legend><label for="verify_front_end_nonces">
                                                     <input name="verify_front_end_nonces" type="checkbox" id="verify_front_end_nonces" <?php if ($verify_front_end_nonces == '1') echo ' checked="checked"'; ?> value="1">
-                                                    <?php _e("Check this option if you want to verify nonces on the front end. Nonces are WordPress's security tokens that can help protect buttons from certain types of misuse.", 'wp-stripe-checkout');?></label>
+                                                    <?php _e("Check this option if you want to verify nonces on the front end. Nonces are WordPress's security tokens that can help protect buttons from certain types of misuse. (Optional)", 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
                                     
@@ -450,7 +465,7 @@ class WP_STRIPE_CHECKOUT {
                                         <th scope="row"><?php _e('Load Scripts Globally', 'wp-stripe-checkout');?></th>
                                         <td> <fieldset><legend class="screen-reader-text"><span>Load Scripts Globally</span></legend><label for="load_scripts_globally">
                                                     <input name="load_scripts_globally" type="checkbox" id="load_scripts_globally" <?php if ($load_scripts_globally == '1') echo ' checked="checked"'; ?> value="1">
-                                                    <?php _e("Check this option if you want to load Stripe scripts on every page. By default, the scripts are loaded only when a shortcode is present.", 'wp-stripe-checkout');?></label>
+                                                    <?php _e("Check this option if you want to load Stripe scripts on every page. By default, the scripts are loaded only when a shortcode is present. (Optional)", 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
 
@@ -1267,6 +1282,7 @@ function wp_stripe_checkout_get_empty_options_array(){
     $options['stripe_currency_code'] = '';
     $options['success_url'] = '';
     $options['cancel_url'] = '';
+    $options['stripe_webhook_signing_secret'] = '';
     $options['enable_debug'] = '';
     return $options;
 }
