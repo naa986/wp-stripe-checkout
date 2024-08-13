@@ -55,6 +55,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_6);
     
+    $addon_7 = array(
+        'name' => 'WP User Tracking',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-wp-user-tracking.png',
+        'description' => 'Track payments made by WordPress users',
+        'page_url' => 'https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/',
+    );
+    array_push($addons_data, $addon_7);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>

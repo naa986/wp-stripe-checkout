@@ -222,6 +222,12 @@ function wp_stripe_checkout_process_webhook(){
         $temp_shipping = $amount_shipping/100;
         $payment_data['amount_shipping'] = number_format($temp_shipping, 2, '.', '');
     }
+    $payment_data['wp_user_id'] = '';
+    $wp_user_id = '';
+    $wp_user_id = apply_filters('wpsc_get_wpuserid_by_client_reference_id', $wp_user_id, $client_reference_id);
+    if(isset($wp_user_id) && !empty($wp_user_id)){
+        $payment_data['wp_user_id'] = $wp_user_id;
+    }
     $args = array(
         'post_type' => 'wpstripeco_order',
         'meta_query' => array(
@@ -256,6 +262,9 @@ function wp_stripe_checkout_process_webhook(){
     }
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
+    }
+    if(!empty($payment_data['wp_user_id'])){
+        $content .= '<strong>WP User ID:</strong> '.$payment_data['wp_user_id'].'<br />'; 
     }
     $payment_data['billing_address'] = '';
     if(!empty($payment_data['billing_address_line1'])){
@@ -335,6 +344,7 @@ function wp_stripe_checkout_process_webhook(){
         update_post_meta($post_id, '_name', $payment_data['billing_name']);
         update_post_meta($post_id, '_amount', $payment_data['price']);
         update_post_meta($post_id, '_email', $payment_data['customer_email']);
+        update_post_meta($post_id, '_wp_user_id', $payment_data['wp_user_id']);
         wp_stripe_checkout_debug_log("Order information updated", true);
         $email_options = wp_stripe_checkout_get_email_option();
         add_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');

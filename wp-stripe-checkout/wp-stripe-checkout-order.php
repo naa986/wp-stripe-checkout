@@ -66,6 +66,7 @@ function wp_stripe_checkout_order_columns($columns) {
         'name' => __('Name', 'wp-stripe-checkout'),
         'email' => __('Email', 'wp-stripe-checkout'),
         'amount' => __('Total', 'wp-stripe-checkout'),
+        'wp_user_id' => __('WP User ID', 'wp-stripe-checkout'),
         'date' => __('Date', 'wp-stripe-checkout')
     );
     return array_merge($columns, $edited_columns);
@@ -74,19 +75,22 @@ function wp_stripe_checkout_order_columns($columns) {
 function wp_stripe_checkout_custom_column($column, $post_id) {
     switch ($column) {
         case 'title' :
-            echo $post_id;
+            echo esc_html($post_id);
             break;
         case 'txn_id' :
-            echo get_post_meta($post_id, '_txn_id', true);
+            echo esc_html(get_post_meta($post_id, '_txn_id', true));
             break;
         case 'name' :
-            echo get_post_meta($post_id, '_name', true);
+            echo esc_html(get_post_meta($post_id, '_name', true));
             break;
         case 'email' :
-            echo get_post_meta($post_id, '_email', true);
+            echo esc_html(get_post_meta($post_id, '_email', true));
             break;
         case 'amount' :
-            echo get_post_meta($post_id, '_amount', true);
+            echo esc_html(get_post_meta($post_id, '_amount', true));
+            break;
+        case 'wp_user_id' :
+            echo esc_html(get_post_meta($post_id, '_wp_user_id', true));
             break;
     }
 }
@@ -120,6 +124,10 @@ function wpstripeco_render_order_data_meta_box($post){
     if(!isset($total_amount) || !is_numeric($total_amount)){
         $total_amount = '';
     }
+    $wp_user_id = get_post_meta($post_id, '_wp_user_id', true);
+    if(!isset($wp_user_id) || empty($wp_user_id)){
+        $wp_user_id = '';
+    }
     ?>
     <table>
         <tbody>
@@ -146,6 +154,10 @@ function wpstripeco_render_order_data_meta_box($post){
                             <tr valign="top">
                                 <th scope="row"><label for="_wpstripeco_order_amount"><?php _e('Total Amount', 'wp-stripe-checkout');?></label></th>
                                 <td><input name="_wpstripeco_order_amount" type="text" id="_wpstripeco_order_amount" value="<?php echo esc_attr($total_amount); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_wp_user_id"><?php _e('WP User ID', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_wp_user_id" type="text" id="_wpstripeco_wp_user_id" value="<?php echo esc_attr($wp_user_id); ?>" class="regular-text"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -190,6 +202,10 @@ function wpstripeco_order_data_meta_box_save($post_id, $post){
     if(isset($_POST['_wpstripeco_order_amount']) && is_numeric($_POST['_wpstripeco_order_amount'])){
         $total_amount = sanitize_text_field($_POST['_wpstripeco_order_amount']);
         update_post_meta($post_id, '_amount', $total_amount);
+    }
+    if(isset($_POST['_wpstripeco_wp_user_id'])){
+        $wp_user_id = sanitize_text_field($_POST['_wpstripeco_wp_user_id']);
+        update_post_meta($post_id, '_wp_user_id', $wp_user_id);
     }
 }
 

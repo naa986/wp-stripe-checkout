@@ -679,7 +679,8 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         '{billing_name}',
         '{billing_address}',
         '{shipping_name}',
-        '{shipping_address}'
+        '{shipping_address}',
+        '{wp_user_id}'
     );
     $replace = array(
         $payment_data['billing_first_name'], 
@@ -698,7 +699,8 @@ function wp_stripe_checkout_do_email_tags($payment_data, $content){
         $payment_data['billing_name'],
         $payment_data['billing_address'],
         $payment_data['shipping_name'],
-        $payment_data['shipping_address']
+        $payment_data['shipping_address'],
+        $payment_data['wp_user_id']
     );
     $content = str_replace($search, $replace, $content);
     return $content;
