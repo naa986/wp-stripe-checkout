@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, ecommerce, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.6
-Stable tag: 1.2.2.46
+Stable tag: 1.2.2.47
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +15,17 @@ Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything i
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
 https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
+
+=== WP Stripe Checkout Add-ons ===
+
+* [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
+* [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
+* [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
+* [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
+* [Payment Link Email](https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/)
+* [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
+* [WP User Tracking](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/)
+* [WP User Only Button](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-only-button/)
 
 === Benefits of Stripe Payments ===
 
@@ -53,16 +64,6 @@ https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 * Send a purchase confirmation email to your customer after a transaction.
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
 * Automatic VAT/tax ID collection at checkout
-
-=== WP Stripe Checkout Add-ons ===
-
-* [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
-* [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
-* [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
-* [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
-* [Payment Link Email](https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/)
-* [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
-* [WP User Tracking](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/)
 
 === WordPress Stripe Plugin Configuration ===
 
@@ -217,6 +218,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.47 =
+* Added support for the WordPress User Only Button add-on.
 
 = 1.2.2.46 =
 * Added an option to manually add WordPress user ID to an order.

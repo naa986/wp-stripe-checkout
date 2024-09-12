@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.46
+  Version: 1.2.2.47
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')){
 }
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.46';
+    var $plugin_version = '1.2.2.47';
     var $db_version = '1.0.10';
     var $plugin_url;
     var $plugin_path;
@@ -231,7 +231,8 @@ class WP_STRIPE_CHECKOUT {
     function options_page() {
         $plugin_tabs = array(
             'wp-stripe-checkout-settings' => __('General', 'wp-stripe-checkout'),
-            'wp-stripe-checkout-settings&tab=emails' => __('Emails', 'wp-stripe-checkout')
+            'wp-stripe-checkout-settings&tab=emails' => __('Emails', 'wp-stripe-checkout'),
+            'wp-stripe-checkout-settings&tab=advanced' => __('Advanced', 'wp-stripe-checkout')
         );
         echo '<div class="wrap"><h2>'.__('WP Stripe Checkout', 'wp-stripe-checkout').' v' . WP_STRIPE_CHECKOUT_VERSION . '</h2>';
         $url = 'https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/';
@@ -281,6 +282,9 @@ class WP_STRIPE_CHECKOUT {
             {
                case 'emails':
                    $this->email_settings();
+                   break;
+               case 'advanced':
+                   $this->advanced_settings();
                    break;
             }
         }
@@ -480,11 +484,8 @@ class WP_STRIPE_CHECKOUT {
                         <h3><?php _e('Need Help?', 'wp-stripe-checkout')?></h3>
                         <ol>
                         <li><?php printf(__('Use the <a href="%s">Debug</a> menu for diagnostics.', 'wp-stripe-checkout'), 'edit.php?post_type=wpstripeco_order&page=wp-stripe-checkout-debug');?></li>
-                        <li><?php printf(__('Check out the <a target="_blank" href="%s">support forum</a> and <a target="_blank" href="%s">FAQ</a>.', 'wp-stripe-checkout'), 'https://wordpress.org/support/plugin/wp-stripe-checkout', 'https://wordpress.org/plugins/wp-stripe-checkout/#faq');?></li>
                         <li><?php printf(__('Visit the <a target="_blank" href="%s">plugin homepage</a>.', 'wp-stripe-checkout'), 'https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/');?></li>
                         </ol>
-                        <h3><?php _e('Rate This Plugin', 'wp-stripe-checkout')?></h3>
-                        <p><?php printf(__('Please <a target="_blank" href="%s">rate us</a> and give feedback.', 'wp-stripe-checkout'), 'https://wordpress.org/support/plugin/wp-stripe-checkout/reviews?rate=5#new-post');?></p>
                         </div>
                     </td>
                 </tr>
@@ -667,17 +668,64 @@ class WP_STRIPE_CHECKOUT {
                         <h3><?php _e('Need Help?', 'wp-stripe-checkout')?></h3>
                         <ol>
                         <li><?php printf(__('Use the <a href="%s">Debug</a> menu for diagnostics.', 'wp-stripe-checkout'), 'edit.php?post_type=wpstripeco_order&page=wp-stripe-checkout-debug');?></li>
-                        <li><?php printf(__('Check out the <a target="_blank" href="%s">support forum</a> and <a target="_blank" href="%s">FAQ</a>.', 'wp-stripe-checkout'), 'https://wordpress.org/support/plugin/wp-stripe-checkout', 'https://wordpress.org/plugins/wp-stripe-checkout/#faq');?></li>
                         <li><?php printf(__('Visit the <a target="_blank" href="%s">plugin homepage</a>.', 'wp-stripe-checkout'), 'https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/');?></li>
                         </ol>
-                        <h3><?php _e('Rate This Plugin', 'wp-stripe-checkout')?></h3>
-                        <p><?php printf(__('Please <a target="_blank" href="%s">rate us</a> and give feedback.', 'wp-stripe-checkout'), 'https://wordpress.org/support/plugin/wp-stripe-checkout/reviews?rate=5#new-post');?></p>
                         </div>
                     </td>
                 </tr>
             </tbody> 
         </table>
         <?php
+    }
+    
+    function advanced_settings(){
+        ?>
+        <div class="update-nag"><?php _e('Settings from add-ons will appear here.', 'wp-stripe-checkout');?></div>
+        <?php 
+        if (isset($_POST['wp_stripe_checkout_update_advanced_settings'])) {
+            $nonce = $_REQUEST['_wpnonce'];
+            if (!wp_verify_nonce($nonce, 'wp_stripe_checkout_advanced_settings')) {
+                wp_die(__('Error! Nonce Security Check Failed! please save the settings again.', 'wp-stripe-checkout'));
+            }
+            $post = $_POST;
+            do_action('wp_stripe_checkout_advanced_settings_submitted', $post);
+            echo '<div id="message" class="updated fade"><p><strong>';
+            echo __('Settings Saved', 'wp-stripe-checkout').'!';
+            echo '</strong></p></div>';
+        }
+        $settings_fields = '';
+        $settings_fields = apply_filters('wp_stripe_checkout_advanced_settings_fields', $settings_fields);
+        if(empty($settings_fields)){
+            return;
+        }
+        ?>
+        <table class="wpsc-advanced-settings-table">
+            <tbody>
+                <tr>
+                    <td valign="top">
+                        <form method="post" action="">
+                            <?php 
+                            wp_nonce_field('wp_stripe_checkout_advanced_settings'); 
+                            if(!empty($settings_fields)){
+                                echo $settings_fields;
+                            }
+                            ?>
+                            
+                            <p class="submit"><input type="submit" name="wp_stripe_checkout_update_advanced_settings" id="wp_stripe_checkout_update_advanced_settings" class="button button-primary" value="<?php _e('Save Changes', 'wp-stripe-checkout');?>"></p></form>
+                    </td>
+                    <td valign="top" style="width: 300px">
+                        <div style="background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px">
+                        <h3><?php _e('Need Help?', 'wp-stripe-checkout')?></h3>
+                        <ol>
+                        <li><?php printf(__('Use the <a href="%s">Debug</a> menu for diagnostics.', 'wp-stripe-checkout'), 'edit.php?post_type=wpstripeco_order&page=wp-stripe-checkout-debug');?></li>
+                        <li><?php printf(__('Visit the <a target="_blank" href="%s">plugin homepage</a>.', 'wp-stripe-checkout'), 'https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/');?></li>
+                        </ol>
+                        </div>
+                    </td>
+                </tr>
+            </tbody> 
+        </table>
+        <?php        
     }
 
     function debug_page() {

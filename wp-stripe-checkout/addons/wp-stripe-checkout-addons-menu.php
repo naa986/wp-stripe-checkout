@@ -63,6 +63,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_7);
     
+    $addon_8 = array(
+        'name' => 'WP User Only Button',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-wp-user-only-button.png',
+        'description' => 'Only allow logged-in WordPress users to view a Stripe payment button',
+        'page_url' => 'https://noorsplugin.com/wp-stripe-checkout-wordpress-user-only-button/',
+    );
+    array_push($addons_data, $addon_8);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>
