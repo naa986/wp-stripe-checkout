@@ -445,6 +445,8 @@ function wp_stripe_checkout_process_session_button() {
         $session_args['consent_collection'] = $consent_collection;
     }   
     //
+    $session_args = apply_filters('wp_stripe_checkout_before_session_creation', $session_args, $_POST);
+    //
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
     $session_url = $response->url;
@@ -647,6 +649,9 @@ function wp_stripe_checkout_process_button() {
     if(isset($tax_id_collection) && $tax_id_collection == '1'){
         $session_args['tax_id_collection'] = array('enabled' => 'true');
     }
+    //
+    $session_args = apply_filters('wp_stripe_checkout_before_session_creation', $session_args, $_POST);
+    //
     wp_stripe_checkout_debug_log("Creating a session", true);
     $response = WP_SC_Stripe_API::request($session_args, 'checkout/sessions');
     $session_url = $response->url;

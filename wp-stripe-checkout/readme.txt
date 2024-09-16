@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, ecommerce, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.6
-Stable tag: 1.2.2.47
+Stable tag: 1.2.2.48
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,6 +218,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.48 =
+* Added a filter before a sessions is created.
 
 = 1.2.2.47 =
 * Added support for the WordPress User Only Button add-on.
