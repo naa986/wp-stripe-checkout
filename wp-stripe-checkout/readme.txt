@@ -3,7 +3,7 @@ Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, ecommerce, apple pay, google pay, credit card
 Requires at least: 5.3
-Tested up to: 6.6
+Tested up to: 6.7
 Stable tag: 1.2.2.48
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
