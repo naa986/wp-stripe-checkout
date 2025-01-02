@@ -1,7 +1,7 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, ecommerce, apple pay, google pay, credit card
+Tags: stripe, email, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.7
 Stable tag: 1.2.2.48
@@ -103,6 +103,15 @@ When this feature is enabled an email is sent to your chosen recipient after com
 * The body of the sale notification email.
 
 You can use various template tags in the body of an email to dynamically change its content. You can find the full list of available template tags in the [Stripe](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
+
+Can the email messages be sent over SMTP? Absolutely. The following SMTP plugins have been tested:
+
+* SMTP Mailer
+* Gmail SMTP
+* WP Mail SMTP
+* Post SMTP
+* FluentSMTP
+* Easy WP SMTP
 
 === Webhook Endpoint ===
 
