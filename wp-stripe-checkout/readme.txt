@@ -4,17 +4,15 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, email, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 1.2.2.48
+Stable tag: 1.2.2.49
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Accept Stripe payments in WordPress with Stripe Checkout plugin. Sell anything in WordPress with Stripe one-time and recurring payments.
+Accept Stripe payments, Stripe Payment Link payments. Accept Apple Pay, Google Pay, debit/credit cards, ACH, Wallets, Bank Transfers, Pay Later.
 
 == Description ==
 
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
-
-https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 
 === WP Stripe Checkout Add-ons ===
 
@@ -227,6 +225,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.49 =
+* File naming changes.
 
 = 1.2.2.48 =
 * Added a filter before a sessions is created.
