@@ -155,8 +155,6 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 
 === How to use Stripe Payment Links ===
 
-https://www.youtube.com/watch?v=M0lMMlJVw4M&rel=0
-
 This method allows you to integrate Stripe payment links with the plugin.
 
 **Step 1: Create a Payment Link**
