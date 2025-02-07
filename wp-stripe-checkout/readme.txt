@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, email, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 1.2.2.49
+Stable tag: 1.2.2.50
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -223,6 +223,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.50 =
+* Fixed an issue with settings link.
 
 = 1.2.2.49 =
 * File naming changes.
