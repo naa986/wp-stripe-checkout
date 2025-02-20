@@ -88,6 +88,16 @@ function wp_stripe_checkout_process_webhook(){
         $product_price = $temp_product_price/100;
         $payment_data['price'] = number_format($product_price, 2, '.', '');
     }
+
+    if (!empty($checkout_session->data[0]->custom_fields)) {
+        foreach ($checkout_session->data[0]->custom_fields as $custom_field) {
+            $payment_data['custom_fields'][$custom_field->key] = [
+                'label' => $custom_field->label->custom,
+                'value' => $custom_field->text->value
+            ];
+        }
+    }
+
     $product_quantity = sanitize_text_field($checkout_session->data[0]->quantity);
     $payment_data['quantity'] = $product_quantity;
     $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
@@ -260,6 +270,7 @@ function wp_stripe_checkout_process_webhook(){
     if(!empty($payment_data['customer_email'])){
         $content .= '<strong>Email:</strong> '.$payment_data['customer_email'].'<br />'; 
     }
+
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
     }
@@ -313,6 +324,16 @@ function wp_stripe_checkout_process_webhook(){
         }
         $content .= '<br />';
     }
+
+    if(!empty($payment_data['custom_fields'])){
+        $content .= '<strong>Custom Fields:</strong><br />';
+        foreach ($payment_data['custom_fields'] as $custom_field){
+            $content .= '<strong>' . $custom_field['label'] . ':</strong> ' .
+                $custom_field['value'].'<br />';
+        }
+        $content .= '<br />';
+    }
+
     $payment_data['order_id'] = '';
     $wp_stripe_checkout_order = array(
         'post_title' => 'order',
