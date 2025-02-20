@@ -91,9 +91,10 @@ function wp_stripe_checkout_process_webhook(){
 
     if (!empty($checkout_session->data[0]->custom_fields)) {
         foreach ($checkout_session->data[0]->custom_fields as $custom_field) {
-            if ($custom_field->key == 'bfsmembershipnoifrenewal') {
-                $payment_data['bfs_membership'] = $custom_field->text->value;
-            }
+            $payment_data['custom_fields'][$custom_field->key] = [
+                'label' => $custom_field->label->custom,
+                'value' => $custom_field->text->value
+            ];
         }
     }
 
@@ -270,10 +271,6 @@ function wp_stripe_checkout_process_webhook(){
         $content .= '<strong>Email:</strong> '.$payment_data['customer_email'].'<br />'; 
     }
 
-    if(!empty($payment_data['bfs_membership'])){
-        $content .= '<strong>BFS Membership ID:</strong> '.$payment_data['bfs_membership'].'<br />';
-    }
-
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
     }
@@ -327,6 +324,16 @@ function wp_stripe_checkout_process_webhook(){
         }
         $content .= '<br />';
     }
+
+    if(!empty($payment_data['custom_fields'])){
+        $content .= '<strong>Custom Fields:</strong><br />';
+        foreach ($payment_data['custom_fields'] as $custom_field){
+            $content .= '<strong>' . $custom_field['label'] . ':</strong> ' .
+                $custom_field['value'].'<br />';
+        }
+        $content .= '<br />';
+    }
+
     $payment_data['order_id'] = '';
     $wp_stripe_checkout_order = array(
         'post_title' => 'order',
