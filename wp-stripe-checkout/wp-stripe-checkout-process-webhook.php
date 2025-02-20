@@ -88,6 +88,15 @@ function wp_stripe_checkout_process_webhook(){
         $product_price = $temp_product_price/100;
         $payment_data['price'] = number_format($product_price, 2, '.', '');
     }
+
+    if (!empty($checkout_session->data[0]->custom_fields)) {
+        foreach ($checkout_session->data[0]->custom_fields as $custom_field) {
+            if ($custom_field->key == 'bfsmembershipnoifrenewal') {
+                $payment_data['bfs_membership'] = $custom_field->text->value;
+            }
+        }
+    }
+
     $product_quantity = sanitize_text_field($checkout_session->data[0]->quantity);
     $payment_data['quantity'] = $product_quantity;
     $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
@@ -260,6 +269,11 @@ function wp_stripe_checkout_process_webhook(){
     if(!empty($payment_data['customer_email'])){
         $content .= '<strong>Email:</strong> '.$payment_data['customer_email'].'<br />'; 
     }
+
+    if(!empty($payment_data['bfs_membership'])){
+        $content .= '<strong>BFS Membership ID:</strong> '.$payment_data['bfs_membership'].'<br />';
+    }
+
     if(!empty($payment_data['stripe_customer_id'])){
         $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
     }
