@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, email, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 1.2.2.50
+Stable tag: 1.2.2.51
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -223,6 +223,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.51 =
+* Custom fields are shown with orders for Stripe payment links (Thanks to Dan Hanly).
 
 = 1.2.2.50 =
 * Fixed an issue with settings link.

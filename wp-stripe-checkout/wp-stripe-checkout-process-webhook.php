@@ -88,16 +88,19 @@ function wp_stripe_checkout_process_webhook(){
         $product_price = $temp_product_price/100;
         $payment_data['price'] = number_format($product_price, 2, '.', '');
     }
-
-    if (!empty($checkout_session->data[0]->custom_fields)) {
-        foreach ($checkout_session->data[0]->custom_fields as $custom_field) {
-            $payment_data['custom_fields'][$custom_field->key] = [
-                'label' => $custom_field->label->custom,
-                'value' => $custom_field->text->value
+    $payment_data['custom_fields'] = [];
+    if(isset($event_json->data->object->custom_fields) && !empty($event_json->data->object->custom_fields)){
+        foreach($event_json->data->object->custom_fields as $custom_field){
+            $custom_field_key = sanitize_text_field($custom_field->key);
+            $custom_field_label = sanitize_text_field($custom_field->label->custom);
+            $custom_field_value = sanitize_text_field($custom_field->text->value);
+            $payment_data['custom_fields'][$custom_field_key] = [
+                'label' => $custom_field_label,
+                'value' => $custom_field_value
             ];
         }
     }
-
+    //
     $product_quantity = sanitize_text_field($checkout_session->data[0]->quantity);
     $payment_data['quantity'] = $product_quantity;
     $stripe_price_id = sanitize_text_field($checkout_session->data[0]->price->id);
@@ -324,16 +327,15 @@ function wp_stripe_checkout_process_webhook(){
         }
         $content .= '<br />';
     }
-
+    //
     if(!empty($payment_data['custom_fields'])){
-        $content .= '<strong>Custom Fields:</strong><br />';
-        foreach ($payment_data['custom_fields'] as $custom_field){
-            $content .= '<strong>' . $custom_field['label'] . ':</strong> ' .
-                $custom_field['value'].'<br />';
+        $content .= '<h2>Custom Fields</h2><br />';
+        foreach($payment_data['custom_fields'] as $custom_field){
+            $content .= '<strong>'.$custom_field['label'].':</strong> '.$custom_field['value'].'<br />';
         }
         $content .= '<br />';
     }
-
+    //
     $payment_data['order_id'] = '';
     $wp_stripe_checkout_order = array(
         'post_title' => 'order',
