@@ -14,6 +14,8 @@ Accept Stripe payments, Stripe Payment Link payments. Accept Apple Pay, Google P
 
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
 
+https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
+
 === WP Stripe Checkout Add-ons ===
 
 * [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
@@ -154,6 +156,8 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 * **target** - Specify whether the button should open in a new tab. (e.g. target="_blank").
 
 === How to use Stripe Payment Links ===
+
+https://www.youtube.com/watch?v=M0lMMlJVw4M&rel=0
 
 This method allows you to integrate Stripe payment links with the plugin.
 
