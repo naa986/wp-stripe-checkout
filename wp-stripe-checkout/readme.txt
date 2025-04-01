@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, email, apple pay, google pay, credit card
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 1.2.2.51
+Stable tag: 1.2.2.52
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,8 +13,6 @@ Accept Stripe payments, Stripe Payment Link payments. Accept Apple Pay, Google P
 == Description ==
 
 [Stripe Checkout](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin for WordPress allows you to accept payments with the Stripe payment gateway. With a simple shortcode, you can quickly start accepting payments on a pre-built, Stripe-hosted form that is SCA-ready and supports 3D Secure 2 authentication. This makes accepting credit card payments easier than ever with very little setup and effort.
-
-https://www.youtube.com/watch?v=ynHVLiiARyQ&rel=0
 
 === WP Stripe Checkout Add-ons ===
 
@@ -157,8 +155,6 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 
 === How to use Stripe Payment Links ===
 
-https://www.youtube.com/watch?v=M0lMMlJVw4M&rel=0
-
 This method allows you to integrate Stripe payment links with the plugin.
 
 **Step 1: Create a Payment Link**
@@ -179,6 +175,7 @@ You can add additional parameters in the shortcode to customize your Stripe paym
 
 * **button_text** - The text displayed inside the button (e.g. button_text="Pay Now"). The default is "Buy Now".
 * **button_image** - The image that will act as the button (e.g. button_image="https://example.com/wp-content/uploads/pay-now-button.png"). The default is a plain button with the text "Buy Now".
+* **class** - Custom CSS classes for the button (e.g. class="btn"). Multiple CSS classes can be added in a space-delimited format (e.g. class="btn btn2 btn3").
 
 For detailed setup instructions please visit the [Stripe payments](https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/) plugin page.
 
@@ -227,6 +224,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.52 =
+* Support for class attribute in the payment link shortcode (Thanks to Dan Hanly).
 
 = 1.2.2.51 =
 * Custom fields are shown with orders for Stripe payment links (Thanks to Dan Hanly).
