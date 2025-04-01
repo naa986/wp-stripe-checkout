@@ -872,6 +872,11 @@ function wp_stripe_checkout_payment_link_button_handler($atts) {
     if(isset($atts['target']) && $atts['target'] == '_blank'){
         $target = ' target="_blank"';
     }
+    //button class
+    $class = '';
+    if(isset($atts['class']) && !empty($atts['class'])){
+        $class = ' class="'.$atts['class'].'"';
+    }
     $client_reference_id = 'wpsc-paymentlink';
     $client_reference_id = apply_filters('wpsc_button_client_reference_id', $client_reference_id, $atts);
     $button_code = '<form action="'.esc_url($atts['url']).'" method="get"'.$target.'>';
@@ -896,10 +901,10 @@ function wp_stripe_checkout_payment_link_button_handler($atts) {
     }
     //
     if(isset($atts['button_image']) && !empty($atts['button_image'])){
-        $button_code .= '<input type="image" src="'.esc_url($atts['button_image']).'" alt="Submit" />';    
+        $button_code .= '<input type="image" src="'.esc_url($atts['button_image']).'" alt="Submit"'.$class.' />';    
     }
     else{
-        $button_code .= '<input type="submit" value="'.esc_attr($button_text).'" />';
+        $button_code .= '<input type="submit" value="'.esc_attr($button_text).'"'.$class.' />';
     }
     $button_code .= '</form>';
     return $button_code;
