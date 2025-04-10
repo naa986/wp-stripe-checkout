@@ -37,7 +37,7 @@ function wp_stripe_checkout_process_webhook(){
             return;
         }
         wp_stripe_checkout_debug_log("Stripe-Signature: ".$stripeSignature, true);
-        $webhookSecret = $options['stripe_webhook_signing_secret'];
+        $webhookSecret = base64_decode($options['stripe_webhook_signing_secret']);
         if(wp_stripe_checkout_verify_webhook_signature($stripeSignature, $payload, $webhookSecret)){
             wp_stripe_checkout_debug_log("Signature is valid", true);
         }else{

@@ -17,9 +17,9 @@ class WP_SC_Stripe_API {
 	public static function get_secret_key(){
             if(!self::$secret_key){
                 $options = wp_stripe_checkout_get_option();
-                $secret_key = $options['stripe_secret_key'];
+                $secret_key = base64_decode($options['stripe_secret_key']);
                 if(WP_STRIPE_CHECKOUT_TESTMODE){
-                    $secret_key = $options['stripe_test_secret_key'];
+                    $secret_key = base64_decode($options['stripe_test_secret_key']);
                 }
                 self::set_secret_key($secret_key);
             }

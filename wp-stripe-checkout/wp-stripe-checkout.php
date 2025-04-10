@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.52
+  Version: 1.2.2.53
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,8 +15,8 @@ if (!defined('ABSPATH')){
 }
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.52';
-    var $db_version = '1.0.10';
+    var $plugin_version = '1.2.2.53';
+    var $db_version = '1.0.11';
     var $plugin_url;
     var $plugin_path;
     
@@ -99,6 +99,42 @@ class WP_STRIPE_CHECKOUT {
                     $options['success_url'] = $options['return_url'];
                     wp_stripe_checkout_update_option($options);
                 }
+                //
+                $api_keys_update = false;
+                if(isset($options['stripe_test_secret_key']) && !empty($options['stripe_test_secret_key'])){
+                    if(substr($options['stripe_test_secret_key'], 0, strlen("sk_test_")) === "sk_test_"){
+                        $options['stripe_test_secret_key'] = base64_encode($options['stripe_test_secret_key']);
+                        $api_keys_update = true;
+                    }
+                }
+                if(isset($options['stripe_test_publishable_key']) && !empty($options['stripe_test_publishable_key'])){
+                    if(substr($options['stripe_test_publishable_key'], 0, strlen("pk_test_")) === "pk_test_"){
+                        $options['stripe_test_publishable_key'] = base64_encode($options['stripe_test_publishable_key']);
+                        $api_keys_update = true;
+                    }
+                }
+                if(isset($options['stripe_secret_key']) && !empty($options['stripe_secret_key'])){
+                    if(substr($options['stripe_secret_key'], 0, strlen("sk_live_")) === "sk_live_"){
+                        $options['stripe_secret_key'] = base64_encode($options['stripe_secret_key']);
+                        $api_keys_update = true;
+                    }
+                }
+                if(isset($options['stripe_publishable_key']) && !empty($options['stripe_publishable_key'])){
+                    if(substr($options['stripe_publishable_key'], 0, strlen("pk_live_")) === "pk_live_"){
+                        $options['stripe_publishable_key'] = base64_encode($options['stripe_publishable_key']);
+                        $api_keys_update = true;
+                    }
+                }
+                if(isset($options['stripe_webhook_signing_secret']) && !empty($options['stripe_webhook_signing_secret'])){
+                    if(substr($options['stripe_webhook_signing_secret'], 0, strlen("whsec_")) === "whsec_"){
+                        $options['stripe_webhook_signing_secret'] = base64_encode($options['stripe_webhook_signing_secret']);
+                        $api_keys_update = true;
+                    }
+                }
+                if($api_keys_update){
+                    wp_stripe_checkout_update_option($options);
+                }
+                //
                 add_option('wp_stripe_checkout_verify_front_end_nonces', '1');
                 wp_stripe_checkout_set_default_email_options();
                 update_option('wp_stripe_checkout_db_version', $this->db_version);
@@ -302,22 +338,35 @@ class WP_STRIPE_CHECKOUT {
             if (!wp_verify_nonce($nonce, 'wp_stripe_checkout_general_settings')) {
                 wp_die(__('Error! Nonce Security Check Failed! please save the general settings again.', 'wp-stripe-checkout'));
             }
+            $api_key_present_msg = 'Saved. Enter only if you need to update.';
             $stripe_testmode = (isset($_POST["stripe_testmode"]) && $_POST["stripe_testmode"] == '1') ? '1' : '';
             $stripe_test_secret_key = '';
-            if(isset($_POST['stripe_test_secret_key']) && !empty($_POST['stripe_test_secret_key'])){
+            $update_test_secret_key = false;
+            if(isset($_POST['stripe_test_secret_key']) && !empty($_POST['stripe_test_secret_key']) && $_POST['stripe_test_secret_key'] != $api_key_present_msg){
                 $stripe_test_secret_key = sanitize_text_field($_POST['stripe_test_secret_key']);
+                $stripe_test_secret_key = base64_encode($stripe_test_secret_key);
+                $update_test_secret_key = true;
             }
             $stripe_test_publishable_key = '';
-            if(isset($_POST['stripe_test_publishable_key']) && !empty($_POST['stripe_test_publishable_key'])){
+            $update_test_publishable_key = false;
+            if(isset($_POST['stripe_test_publishable_key']) && !empty($_POST['stripe_test_publishable_key']) && $_POST['stripe_test_publishable_key'] != $api_key_present_msg){
                 $stripe_test_publishable_key = sanitize_text_field($_POST['stripe_test_publishable_key']);
+                $stripe_test_publishable_key = base64_encode($stripe_test_publishable_key);
+                $update_test_publishable_key = true;
             }
             $stripe_secret_key = '';
-            if(isset($_POST['stripe_secret_key']) && !empty($_POST['stripe_secret_key'])){
+            $update_secret_key = false;
+            if(isset($_POST['stripe_secret_key']) && !empty($_POST['stripe_secret_key']) && $_POST['stripe_secret_key'] != $api_key_present_msg){
                 $stripe_secret_key = sanitize_text_field($_POST['stripe_secret_key']);
+                $stripe_secret_key = base64_encode($stripe_secret_key);
+                $update_secret_key = true;
             }
             $stripe_publishable_key = '';
-            if(isset($_POST['stripe_publishable_key']) && !empty($_POST['stripe_publishable_key'])){
+            $update_publishable_key = false;
+            if(isset($_POST['stripe_publishable_key']) && !empty($_POST['stripe_publishable_key']) && $_POST['stripe_publishable_key'] != $api_key_present_msg){
                 $stripe_publishable_key = sanitize_text_field($_POST['stripe_publishable_key']);
+                $stripe_publishable_key = base64_encode($stripe_publishable_key);
+                $update_publishable_key = true;
             }
             $stripe_currency_code = '';
             if(isset($_POST['stripe_currency_code']) && !empty($_POST['stripe_currency_code'])){
@@ -332,8 +381,11 @@ class WP_STRIPE_CHECKOUT {
                 $cancel_url = esc_url_raw($_POST['cancel_url']);
             }
             $stripe_webhook_signing_secret = '';
-            if(isset($_POST['stripe_webhook_signing_secret']) && !empty($_POST['stripe_webhook_signing_secret'])){
+            $update_webhook_signing_secret = false;
+            if(isset($_POST['stripe_webhook_signing_secret']) && !empty($_POST['stripe_webhook_signing_secret']) && $_POST['stripe_webhook_signing_secret'] != $api_key_present_msg){
                 $stripe_webhook_signing_secret = sanitize_text_field($_POST['stripe_webhook_signing_secret']);
+                $stripe_webhook_signing_secret = base64_encode($stripe_webhook_signing_secret);
+                $update_webhook_signing_secret = true;
             }
             $verify_front_end_nonces = (isset($_POST['verify_front_end_nonces']) && $_POST['verify_front_end_nonces'] == '1') ? '1' : '';
             update_option('wp_stripe_checkout_verify_front_end_nonces', $verify_front_end_nonces);
@@ -341,14 +393,24 @@ class WP_STRIPE_CHECKOUT {
             update_option('wp_stripe_checkout_load_scripts_globally', $load_scripts_globally);
             $stripe_options = array();
             $stripe_options['stripe_testmode'] = $stripe_testmode;
-            $stripe_options['stripe_test_secret_key'] = $stripe_test_secret_key;
-            $stripe_options['stripe_test_publishable_key'] = $stripe_test_publishable_key;
-            $stripe_options['stripe_secret_key'] = $stripe_secret_key;
-            $stripe_options['stripe_publishable_key'] = $stripe_publishable_key;
+            if($update_test_secret_key){
+                $stripe_options['stripe_test_secret_key'] = $stripe_test_secret_key;
+            }
+            if($update_test_publishable_key){
+                $stripe_options['stripe_test_publishable_key'] = $stripe_test_publishable_key;
+            }
+            if($update_secret_key){
+                $stripe_options['stripe_secret_key'] = $stripe_secret_key;
+            }
+            if($update_publishable_key){
+                $stripe_options['stripe_publishable_key'] = $stripe_publishable_key;
+            }
             $stripe_options['stripe_currency_code'] = $stripe_currency_code;
             $stripe_options['success_url'] = $success_url;
             $stripe_options['cancel_url'] = $cancel_url;
-            $stripe_options['stripe_webhook_signing_secret'] = $stripe_webhook_signing_secret;
+            if($update_webhook_signing_secret){
+                $stripe_options['stripe_webhook_signing_secret'] = $stripe_webhook_signing_secret;
+            }
             wp_stripe_checkout_update_option($stripe_options);
             echo '<div id="message" class="updated fade"><p><strong>';
             echo __('Settings Saved', 'wp-stripe-checkout').'!';
@@ -356,9 +418,25 @@ class WP_STRIPE_CHECKOUT {
         }
         
         $stripe_options = wp_stripe_checkout_get_option();
-        $stripe_webhook_signing_secret = '';
+        $stripe_test_secret_key_msg = '';
+        if(isset($stripe_options['stripe_test_secret_key']) && !empty($stripe_options['stripe_test_secret_key'])){
+            $stripe_test_secret_key_msg = 'Saved. Enter only if you need to update.';
+        }
+        $stripe_test_publishable_key_msg = '';
+        if(isset($stripe_options['stripe_test_publishable_key']) && !empty($stripe_options['stripe_test_publishable_key'])){
+            $stripe_test_publishable_key_msg = 'Saved. Enter only if you need to update.';
+        }
+        $stripe_secret_key_msg = '';
+        if(isset($stripe_options['stripe_secret_key']) && !empty($stripe_options['stripe_secret_key'])){
+            $stripe_secret_key_msg = 'Saved. Enter only if you need to update.';
+        }
+        $stripe_publishable_key_msg = '';
+        if(isset($stripe_options['stripe_publishable_key']) && !empty($stripe_options['stripe_publishable_key'])){
+            $stripe_publishable_key_msg = 'Saved. Enter only if you need to update.';
+        }
+        $stripe_webhook_signing_secret_msg = '';
         if(isset($stripe_options['stripe_webhook_signing_secret']) && !empty($stripe_options['stripe_webhook_signing_secret'])){
-            $stripe_webhook_signing_secret = $stripe_options['stripe_webhook_signing_secret'];
+            $stripe_webhook_signing_secret_msg = 'Saved. Enter only if you need to update.';
         }
         $verify_front_end_nonces = get_option('wp_stripe_checkout_verify_front_end_nonces');
         if(!isset($verify_front_end_nonces) || empty($verify_front_end_nonces)){
@@ -405,25 +483,25 @@ class WP_STRIPE_CHECKOUT {
 
                                     <tr valign="top">
                                         <th scope="row"><label for="stripe_test_secret_key"><?php _e('Test Secret Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_test_secret_key" type="text" id="stripe_test_secret_key" value="<?php echo esc_attr($stripe_options['stripe_test_secret_key']); ?>" class="regular-text">
+                                        <td><input name="stripe_test_secret_key" type="text" id="stripe_test_secret_key" value="<?php echo esc_attr($stripe_test_secret_key_msg); ?>" class="regular-text">
                                             <p class="description"><?php echo __('Your Test Secret Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
                                         <th scope="row"><label for="stripe_test_publishable_key"><?php _e('Test Publishable Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_test_publishable_key" type="text" id="stripe_test_publishable_key" value="<?php echo esc_attr($stripe_options['stripe_test_publishable_key']); ?>" class="regular-text">
+                                        <td><input name="stripe_test_publishable_key" type="text" id="stripe_test_publishable_key" value="<?php echo esc_attr($stripe_test_publishable_key_msg); ?>" class="regular-text">
                                             <p class="description"><?php echo __('Your Test Publishable Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
                                         <th scope="row"><label for="stripe_secret_key"><?php _e('Live Secret Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_secret_key" type="text" id="stripe_secret_key" value="<?php echo esc_attr($stripe_options['stripe_secret_key']); ?>" class="regular-text">
+                                        <td><input name="stripe_secret_key" type="text" id="stripe_secret_key" value="<?php echo esc_attr($stripe_secret_key_msg); ?>" class="regular-text">
                                             <p class="description"><?php echo __('Your Secret Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
                                     <tr valign="top">
                                         <th scope="row"><label for="stripe_publishable_key"><?php _e('Live Publishable Key', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_publishable_key" type="text" id="stripe_publishable_key" value="<?php echo esc_attr($stripe_options['stripe_publishable_key']); ?>" class="regular-text">
+                                        <td><input name="stripe_publishable_key" type="text" id="stripe_publishable_key" value="<?php echo esc_attr($stripe_publishable_key_msg); ?>" class="regular-text">
                                             <p class="description"><?php echo __('Your Live Publishable Key.', 'wp-stripe-checkout').' '.wp_kses($api_keys_link, $allowed_html_tags);?></p></td>
                                     </tr>
 
@@ -453,7 +531,7 @@ class WP_STRIPE_CHECKOUT {
                                     
                                     <tr valign="top">
                                         <th scope="row"><label for="stripe_webhook_signing_secret"><?php _e('Stripe Webhook Signing Secret', 'wp-stripe-checkout');?></label></th>
-                                        <td><input name="stripe_webhook_signing_secret" type="text" id="stripe_webhook_signing_secret" value="<?php echo esc_attr($stripe_webhook_signing_secret); ?>" class="regular-text">
+                                        <td><input name="stripe_webhook_signing_secret" type="text" id="stripe_webhook_signing_secret" value="<?php echo esc_attr($stripe_webhook_signing_secret_msg); ?>" class="regular-text">
                                             <p class="description"><?php echo __("Your webhook's signing secret. This will be used to verify each notification. (Optional)", 'wp-stripe-checkout');?></p></td>
                                     </tr>
                                     
@@ -934,7 +1012,11 @@ function wp_stripe_checkout_legacy_checkout_button_handler($atts) {
     if(WP_STRIPE_CHECKOUT_TESTMODE){
         $key = $options['stripe_test_publishable_key'];
     }
-    $atts['key'] = $key;
+    if(!isset($key) || empty($key)){
+        return __('You need to provide your publishable key in the settings', 'wp-stripe-checkout');
+    }
+    
+    $atts['key'] = base64_decode($key);
     //$atts['image'] = "https://stripe.com/img/documentation/checkout/marketplace.png";
     $currency = $options['stripe_currency_code'];
     if(!isset($atts['currency']) || empty($atts['currency'])){
@@ -1023,6 +1105,7 @@ function wp_stripe_checkout_v3_button_handler($atts) {
     if(!isset($key) || empty($key)){
         return __('You need to provide your publishable key in the settings', 'wp-stripe-checkout');
     }
+    $key = base64_decode($key);
     //mode
     $mode = 'payment';
     if(isset($atts['mode']) && 'subscription' == $atts['mode']){
