@@ -134,30 +134,40 @@ function wp_stripe_checkout_process_webhook(){
         $products = WP_SC_Stripe_API::retrieve('products/'.$product_id);
         $payment_data['product_name'] = sanitize_text_field($products->name);       
         $payment_method_id = sanitize_text_field($subscriptions->default_payment_method);
+        //For free trials without payment methods
         if(!isset($payment_method_id) || empty($payment_method_id)){
-            wp_stripe_checkout_debug_log("Payment method could not be found. This notification cannot be processed.", false);
-            return;
+            wp_stripe_checkout_debug_log("Payment method could not be found. Billing information will not be captured.", false);
+            $payment_data['billing_name'] = '';
+            $payment_data['billing_first_name'] = '';
+            $payment_data['billing_last_name'] = '';
+            $payment_data['billing_address_line1'] = '';
+            $payment_data['billing_address_zip'] = '';
+            $payment_data['billing_address_state'] = '';
+            $payment_data['billing_address_city'] = '';
+            $payment_data['billing_address_country'] = '';
         }
-        $payment_methods = WP_SC_Stripe_API::retrieve('payment_methods/'.$payment_method_id);               
-        $billing_name = $payment_methods->billing_details->name;
-        $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
-        $payment_data['billing_first_name'] = '';
-        $payment_data['billing_last_name'] = '';
-        if(!empty($payment_data['billing_name'])){
-            $billing_name_parts = explode(" ", $payment_data['billing_name']);
-            $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
-            $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+        else{
+            $payment_methods = WP_SC_Stripe_API::retrieve('payment_methods/'.$payment_method_id);               
+            $billing_name = $payment_methods->billing_details->name;
+            $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
+            $payment_data['billing_first_name'] = '';
+            $payment_data['billing_last_name'] = '';
+            if(!empty($payment_data['billing_name'])){
+                $billing_name_parts = explode(" ", $payment_data['billing_name']);
+                $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
+                $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+            }
+            $address_line1 = $payment_methods->billing_details->address->line1;
+            $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
+            $address_zip = $payment_methods->billing_details->address->postal_code;
+            $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
+            $address_state = $payment_methods->billing_details->address->state;
+            $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
+            $address_city = $payment_methods->billing_details->address->city;
+            $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
+            $address_country = $payment_methods->billing_details->address->country;
+            $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
         }
-        $address_line1 = $payment_methods->billing_details->address->line1;
-        $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
-        $address_zip = $payment_methods->billing_details->address->postal_code;
-        $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
-        $address_state = $payment_methods->billing_details->address->state;
-        $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
-        $address_city = $payment_methods->billing_details->address->city;
-        $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
-        $address_country = $payment_methods->billing_details->address->country;
-        $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
     }
     else{
         $payment_intent_id = $event_json->data->object->payment_intent;
