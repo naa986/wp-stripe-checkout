@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.54
+  Version: 1.2.2.55
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -970,6 +970,13 @@ function wp_stripe_checkout_payment_link_button_handler($atts) {
                 $current_user = wp_get_current_user();
                 $email_address = $current_user->user_email;
                 $button_code .= '<input type="hidden" name="prefilled_email" value="'.esc_attr($email_address).'" />';
+            }           
+        }
+        else if(isset($atts['lock_prefill_wp_email']) && !empty($atts['lock_prefill_wp_email'])){
+            if(is_user_logged_in()){
+                $current_user = wp_get_current_user();
+                $email_address = $current_user->user_email;
+                $button_code .= '<input type="hidden" name="locked_prefilled_email" value="'.esc_attr($email_address).'" />';
             }           
         }
     }
