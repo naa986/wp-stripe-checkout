@@ -36,7 +36,13 @@ function wp_stripe_checkout_register_product_type() {
         'edit_private_posts' => $capability,
         'edit_published_posts' => $capability
     );
-
+    $show_in_menu = false;
+    if(current_user_can('manage_options')){
+        $show_deprecated_products = get_option('wp_stripe_checkout_show_deprecated_products');
+        if(isset($show_deprecated_products) && !empty($show_deprecated_products)){
+            $show_in_menu = 'edit.php?post_type=wpstripeco_order';
+        }       
+    }
     $args = array(
         'labels' => $labels,
         'public' => false,
@@ -44,7 +50,7 @@ function wp_stripe_checkout_register_product_type() {
         'publicly_queryable' => false,
         'show_ui' => true,
         'show_in_nav_menus' => false,
-        'show_in_menu' => current_user_can('manage_options') ? 'edit.php?post_type=wpstripeco_order' : false,
+        'show_in_menu' => $show_in_menu,
         'query_var' => false,
         'rewrite' => false,
         'capabilities' => $capabilities,

@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.55
+  Version: 1.2.2.56
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')){
 }
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.54';
+    var $plugin_version = '1.2.2.56';
     var $db_version = '1.0.11';
     var $plugin_url;
     var $plugin_path;
@@ -391,6 +391,8 @@ class WP_STRIPE_CHECKOUT {
             update_option('wp_stripe_checkout_verify_front_end_nonces', $verify_front_end_nonces);
             $load_scripts_globally = (isset($_POST['load_scripts_globally']) && $_POST['load_scripts_globally'] == '1') ? '1' : '';
             update_option('wp_stripe_checkout_load_scripts_globally', $load_scripts_globally);
+            $show_deprecated_products = (isset($_POST['show_deprecated_products']) && $_POST['show_deprecated_products'] == '1') ? '1' : '';
+            update_option('wp_stripe_checkout_show_deprecated_products', $show_deprecated_products);
             $stripe_options = array();
             $stripe_options['stripe_testmode'] = $stripe_testmode;
             if($update_test_secret_key){
@@ -445,6 +447,10 @@ class WP_STRIPE_CHECKOUT {
         $load_scripts_globally = get_option('wp_stripe_checkout_load_scripts_globally');
         if(!isset($load_scripts_globally) || empty($load_scripts_globally)){
             $load_scripts_globally = '';
+        }
+        $show_deprecated_products = get_option('wp_stripe_checkout_show_deprecated_products');
+        if(!isset($show_deprecated_products) || empty($show_deprecated_products)){
+            $show_deprecated_products = '';
         }
         $api_keys_url = "https://dashboard.stripe.com/account/apikeys";
         $api_keys_link = sprintf(__('You can get it from your <a target="_blank" href="%s">stripe account</a>.', 'wp-stripe-checkout'), esc_url($api_keys_url));
@@ -548,6 +554,14 @@ class WP_STRIPE_CHECKOUT {
                                         <td> <fieldset><legend class="screen-reader-text"><span>Load Scripts Globally</span></legend><label for="load_scripts_globally">
                                                     <input name="load_scripts_globally" type="checkbox" id="load_scripts_globally" <?php if ($load_scripts_globally == '1') echo ' checked="checked"'; ?> value="1">
                                                     <?php _e("Check this option if you want to load Stripe scripts on every page. By default, the scripts are loaded only when a shortcode is present. (Optional)", 'wp-stripe-checkout');?></label>
+                                            </fieldset></td>
+                                    </tr>
+                                    
+                                    <tr valign="top">
+                                        <th scope="row"><?php _e('Show Deprecated Products', 'wp-stripe-checkout');?></th>
+                                        <td> <fieldset><legend class="screen-reader-text"><span>Show Deprecated Products</span></legend><label for="show_deprecated_products">
+                                                    <input name="show_deprecated_products" type="checkbox" id="show_deprecated_products" <?php if ($show_deprecated_products == '1') echo ' checked="checked"'; ?> value="1">
+                                                    <?php _e("Check this option if you want to show deprecated products in menu. This feature has been discontinued. (Optional)", 'wp-stripe-checkout');?></label>
                                             </fieldset></td>
                                     </tr>
 

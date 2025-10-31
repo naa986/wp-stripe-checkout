@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, stripe payments, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 6.8
-Stable tag: 1.2.2.55
+Stable tag: 1.2.2.56
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,6 +168,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.56 =
+* Removed deprecated products from menu.
 
 = 1.2.2.55 =
 * Added a payment link shortcode parameter to make prefilled email uneditable on the Stripe payment page.
