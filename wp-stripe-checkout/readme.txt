@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, stripe payments, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 6.8
-Stable tag: 1.2.2.56
+Stable tag: 1.2.2.57
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,6 +168,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.57 =
+* Added Italian language translation (submitted by Pippo).
 
 = 1.2.2.56 =
 * Removed deprecated products from menu.
