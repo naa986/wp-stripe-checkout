@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, stripe payments, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 6.9
-Stable tag: 1.2.2.57
+Stable tag: 1.2.2.58
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,17 @@ WP Stripe Checkout is great for:
 * Nonprofits collecting donations
 * Selling goods or services
 * Subscription-based offerings
+
+=== WP Stripe Checkout Add-ons ===
+
+* [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
+* [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
+* [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
+* [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
+* [Payment Link Email](https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/)
+* [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
+* [WP User Tracking](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/)
+* [WP User Only Button](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-only-button/)
 
 === Stripe Checkout Payment Methods ===
 
@@ -65,17 +76,6 @@ WP Stripe Checkout is great for:
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
 * Automatic VAT/tax ID collection at checkout
 * Support orders of free trial payments without payment methods
-
-=== WP Stripe Checkout Add-ons ===
-
-* [Variable Price](https://noorsplugin.com/how-to-add-a-price-field-to-a-stripe-payment-button/)
-* [Variable Quantity](https://noorsplugin.com/how-to-add-a-quantity-field-to-a-stripe-payment-button/)
-* [Submit Type](https://noorsplugin.com/how-to-customize-the-type-of-the-stripe-payment-page-button/)
-* [Terms of Service](https://noorsplugin.com/how-to-show-a-terms-of-service-checkbox-on-the-stripe-payment-page/)
-* [Payment Link Email](https://noorsplugin.com/how-to-prefill-email-addresses-for-stripe-payment-link-buttons/)
-* [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
-* [WP User Tracking](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/)
-* [WP User Only Button](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-only-button/)
 
 === WP Stripe Checkout Configuration ===
 
@@ -168,6 +168,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.58 =
+* Changed order menu icon.
 
 = 1.2.2.57 =
 * Added Italian language translation (submitted by Pippo).
