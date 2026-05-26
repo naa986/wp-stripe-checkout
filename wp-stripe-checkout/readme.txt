@@ -107,6 +107,8 @@ The easiest way to start accepting Stripe payments is to add the following short
 
 Replace the value of "name" with your product name and "price" with the actual product price.
 
+Note: The content of the button (e.g. name, price) is rendered in HTML and can be altered before checkout.
+
 === How to use Stripe Payment Links ===
 
 This method allows you to integrate Stripe payment links with the plugin.
