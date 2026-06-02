@@ -71,6 +71,14 @@ function wp_stripe_checkout_display_addons_menu()
     );
     array_push($addons_data, $addon_8);
     
+    $addon_9 = array(
+        'name' => 'Product SEO',
+        'thumbnail' => WP_STRIPE_CHECKOUT_URL.'/addons/images/wp-stripe-checkout-product-seo.png',
+        'description' => 'Help search engines and AI crawlers discover products',
+        'page_url' => 'https://noorsplugin.com/wp-stripe-checkout-product-seo/',
+    );
+    array_push($addons_data, $addon_9);
+    
     //Display the list
     foreach ($addons_data as $addon) {
         ?>

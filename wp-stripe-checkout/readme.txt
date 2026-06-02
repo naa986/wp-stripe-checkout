@@ -1,10 +1,10 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, stripe payments, ecommerce, credit card
+Tags: stripe, payment, SEO, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 7.0
-Stable tag: 1.2.2.58
+Stable tag: 1.2.2.59
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,7 @@ WP Stripe Checkout is great for:
 * [Variable Currency](https://noorsplugin.com/wp-stripe-checkout-variable-currency/)
 * [WP User Tracking](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-tracking/)
 * [WP User Only Button](https://noorsplugin.com/wp-stripe-checkout-wordpress-user-only-button/)
+* [Product SEO](https://noorsplugin.com/wp-stripe-checkout-product-seo/)
 
 === Stripe Checkout Payment Methods ===
 
@@ -76,6 +77,7 @@ WP Stripe Checkout is great for:
 * Send a sale notification email to a chosen recipient (e.g. the seller) after a transaction.
 * Automatic VAT/tax ID collection at checkout
 * Support orders of free trial payments without payment methods
+* Support Product Schema markup through Product SEO add-on (It can help search engines and AI crawlers discover products)
 
 === WP Stripe Checkout Configuration ===
 
@@ -170,6 +172,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.59 =
+* Added support for Product SEO add-on.
 
 = 1.2.2.58 =
 * Changed order menu icon.
