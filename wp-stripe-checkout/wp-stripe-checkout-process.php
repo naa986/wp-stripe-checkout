@@ -544,6 +544,19 @@ function wp_stripe_checkout_process_button() {
     }
     $options = wp_stripe_checkout_get_option();
     $currency_code = $options['stripe_currency_code'];
+    //
+    $enable_variable_currency = get_post_meta($post_id, '_wpstripeco_product_enable_variable_currency', true);
+    if(defined('WPSTRIPECO_VARIABLE_CURRENCY_VERSION') && isset($enable_variable_currency) && $enable_variable_currency == '1'){
+        if(isset($_POST['wpsc_product_currency']) && !empty($_POST['wpsc_product_currency'])) {
+            $product_currency = sanitize_text_field($_POST['wpsc_product_currency']);
+            if(method_exists(WPSTRIPECO_VARIABLE_CURRENCY::class, 'is_allowed_currency_code') && !WPSTRIPECO_VARIABLE_CURRENCY::is_allowed_currency_code($product_currency)) {
+                $error_msg = __('Currency not valid', 'wp-stripe-checkout');
+                wp_die($error_msg);
+            }
+            $currency_code = $product_currency;
+        }
+    }
+    //
     if(!isset($currency_code) || empty($currency_code)){
         $error_msg = __('Currency could not be found', 'wp-stripe-checkout');
         wp_die($error_msg);

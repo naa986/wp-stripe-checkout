@@ -3,8 +3,8 @@ Contributors: naa986
 Donate link: https://noorsplugin.com/
 Tags: stripe, payment, SEO, ecommerce, credit card
 Requires at least: 5.3
-Tested up to: 7.0
-Stable tag: 1.2.2.59
+Tested up to: 7.1
+Stable tag: 1.2.2.60
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,13 +103,11 @@ You will also need to add the "checkout.session.async_payment_succeeded" and "ch
 
 === How to use Stripe Checkout ===
 
-The easiest way to start accepting Stripe payments is to add the following shortcode to a post/page:
+The easiest way to start accepting Stripe payments is to create a product and add the following shortcode to a post/page:
 
-`[wp_stripe_checkout_session name="My Product" price="2.99"]`
+`[wp_stripe_checkout id="1"]`
 
-Replace the value of "name" with your product name and "price" with the actual product price.
-
-Note: The content of the button (e.g. name, price) is rendered in HTML and can be altered before checkout.
+Replace 1 with the actual product ID.
 
 === How to use Stripe Payment Links ===
 
@@ -172,6 +170,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.60 =
+* Added support for Products.
 
 = 1.2.2.59 =
 * Added support for Product SEO add-on.

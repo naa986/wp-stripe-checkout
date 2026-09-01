@@ -11,7 +11,7 @@ function wp_stripe_checkout_register_order_type() {
         'new_item' => __('New Order', 'wp-stripe-checkout'),
         'edit_item' => __('Edit Order', 'wp-stripe-checkout'),
         'view_item' => __('View Order', 'wp-stripe-checkout'),
-        'all_items' => __('All Orders', 'wp-stripe-checkout'),
+        'all_items' => __('Orders', 'wp-stripe-checkout'),
         'search_items' => __('Search Orders', 'wp-stripe-checkout'),
         'parent_item_colon' => __('Parent Orders:', 'wp-stripe-checkout'),
         'not_found' => __('No Orders found.', 'wp-stripe-checkout'),

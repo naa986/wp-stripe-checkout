@@ -11,7 +11,7 @@ function wp_stripe_checkout_register_product_type() {
         'new_item' => __('New Product', 'wp-stripe-checkout'),
         'edit_item' => __('Edit Product', 'wp-stripe-checkout'),
         'view_item' => __('View Product', 'wp-stripe-checkout'),
-        'all_items' => __('All Products (Deprecated)', 'wp-stripe-checkout'),
+        'all_items' => __('Products', 'wp-stripe-checkout'),
         'search_items' => __('Search Products', 'wp-stripe-checkout'),
         'parent_item_colon' => __('Parent Products:', 'wp-stripe-checkout'),
         'not_found' => __('No Products found.', 'wp-stripe-checkout'),
@@ -38,10 +38,12 @@ function wp_stripe_checkout_register_product_type() {
     );
     $show_in_menu = false;
     if(current_user_can('manage_options')){
+        /*
         $show_deprecated_products = get_option('wp_stripe_checkout_show_deprecated_products');
         if(isset($show_deprecated_products) && !empty($show_deprecated_products)){
             $show_in_menu = 'edit.php?post_type=wpstripeco_order';
-        }       
+        }*/
+        $show_in_menu = 'edit.php?post_type=wpstripeco_order';
     }
     $args = array(
         'labels' => $labels,
@@ -307,7 +309,7 @@ function wpstripeco_product_data_meta_box_save($post_id, $post){
     update_post_meta($post_id, '_wpstripeco_product_phone_number_collection', $phone_number_collection);
     $shipping_address_collection = (isset($_POST['_wpstripeco_product_shipping_address_collection']) && $_POST['_wpstripeco_product_shipping_address_collection'] == '1') ? '1' : '';
     update_post_meta($post_id, '_wpstripeco_product_shipping_address_collection', $shipping_address_collection);
-    if(isset($_POST['_wpstripeco_product_stripe_shipping_rate_id']) && !empty($_POST['_wpstripeco_product_stripe_shipping_rate_id'])){
+    if(isset($_POST['_wpstripeco_product_stripe_shipping_rate_id'])){
         $stripe_shipping_rate_id = sanitize_text_field($_POST['_wpstripeco_product_stripe_shipping_rate_id']);
         update_post_meta($post_id, '_wpstripeco_product_stripe_shipping_rate_id', $stripe_shipping_rate_id);
     }

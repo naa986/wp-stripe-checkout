@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: WP Stripe Checkout
-  Version: 1.2.2.59
+  Version: 1.2.2.60
   Plugin URI: https://noorsplugin.com/stripe-checkout-plugin-for-wordpress/
   Author: naa986
   Author URI: https://noorsplugin.com/
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')){
 }
 class WP_STRIPE_CHECKOUT {
     
-    var $plugin_version = '1.2.2.59';
+    var $plugin_version = '1.2.2.60';
     var $db_version = '1.0.11';
     var $plugin_url;
     var $plugin_path;
@@ -931,9 +931,16 @@ function wp_stripe_checkout_button_handler($atts) {
     if(!empty($quantity_input_code)){
         $button_code .= $quantity_input_code;
     }
+    $currency_input_code = '';
+    $currency_input_code = apply_filters('wp_stripe_checkout_button_currency', $currency_input_code, $button_code, $atts);
+    if(!empty($currency_input_code)){
+        $button_code .= $currency_input_code;
+    }
+    /*
     if(!empty($payment_method_types)){
         $button_code .= '<input type="hidden" name="payment_method_types" value="'.esc_attr($payment_method_types).'" />';
     }
+    */
     $button_code .= '<input type="hidden" name="wp_stripe_checkout_button_input" value="1" />';
     $button_image = get_post_meta($atts['id'], '_wpstripeco_product_button_image', true);
     if(!isset($button_image) || empty($button_image)){
@@ -951,6 +958,7 @@ function wp_stripe_checkout_button_handler($atts) {
     if(isset($atts['template']) && $atts['template'] == '1'){
         $button_code = wp_stripe_checkout_button_get_display_template1($button_code, $atts);
     }
+    $button_code = apply_filters('wp_stripe_checkout_button', $button_code, $atts);
     return $button_code;
 }
 
