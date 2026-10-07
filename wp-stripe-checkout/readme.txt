@@ -1,10 +1,10 @@
 === WP Stripe Checkout ===
 Contributors: naa986
 Donate link: https://noorsplugin.com/
-Tags: stripe, payment, SEO, ecommerce, credit card
+Tags: stripe, payment, payments, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 7.1
-Stable tag: 1.2.2.60
+Stable tag: 1.2.2.61
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -89,7 +89,7 @@ Stripe checkout plugin comes with an "Emails" tab where you will be able to conf
 
 === Stripe Webhook Endpoint ===
 
-Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful.
+Go to "Developers > Webhooks > Add endpoint" and insert the URL shown in the plugin settings. Select this event - "checkout.session.completed" and click "Add endpoint". This is where Stripe will send a notification after a checkout payment is successful. Optionally you can select the "invoice.payment_succeeded" event if you would like to receive notifications for subscription renewal payments.
 
 You will also need to add the "checkout.session.async_payment_succeeded" and "checkout.session.async_payment_failed" events if you plan to use a payment method where there can be a delay in payment confirmation. For example:
 
@@ -115,7 +115,7 @@ This method allows you to integrate Stripe payment links with the plugin.
 
 **Step 1: Create a Payment Link**
 
-Log in to your Stripe account dashboard and navigate to the "Payment links" page (Payments > Payment links). Select an existing product or add a new one to create a payment link.
+Log in to your Stripe account dashboard and navigate to the "Payment links" page (Payments > Payment links). Select an existing product or add a new one to create a payment link (You can create payment links for one-time or recurring subscription payments).
 
 **Step 2: Use the Payment Link in a Shortcode**
 
@@ -170,6 +170,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.61 =
+* Subscription rebill/renewal payments are added to orders when selected.
 
 = 1.2.2.60 =
 * Added support for Products.

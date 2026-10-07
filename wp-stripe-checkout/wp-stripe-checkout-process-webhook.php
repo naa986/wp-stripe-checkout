@@ -12,7 +12,7 @@ function wp_stripe_checkout_process_webhook(){
     // grab the event information
     $event_json = json_decode($body);
 
-    $allowed_events = array("checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed"); //add event types that we want to handle
+    $allowed_events = array("checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed", "invoice.payment_succeeded"); //add event types that we want to handle
     if (!in_array($event_json->type, $allowed_events))   
     {
         return;
@@ -44,6 +44,11 @@ function wp_stripe_checkout_process_webhook(){
             wp_stripe_checkout_debug_log("Signature is invalid. The notification cannot be processed.", false);
             return;
         }
+    }
+    // subscription rebill payments
+    if($event_json->type == "invoice.payment_succeeded"){
+        wp_stripe_checkout_process_invoice_payment_succeeded_event($event_json);
+        return;
     }
     //
     wp_stripe_checkout_debug_log("Payment status: ".$event_json->data->object->payment_status, true);
@@ -110,8 +115,10 @@ function wp_stripe_checkout_process_webhook(){
     $temp_amount_total = sanitize_text_field($event_json->data->object->amount_total);
     $amount_total = $temp_amount_total/100;
     $payment_data['amount_total'] = number_format($amount_total, 2, '.', '');
+    $payment_data['subscription_id'] = '';
     $subscription_id = sanitize_text_field($event_json->data->object->subscription);
     if(isset($subscription_id) && !empty($subscription_id)){
+        $payment_data['subscription_id'] = $subscription_id;
         $payment_data['txn_id'] = $subscription_id;
         wp_stripe_checkout_debug_log("This notification is for a subscription payment.", true);
         $payment_data['stripe_customer_id'] = sanitize_text_field($event_json->data->object->customer);
@@ -378,6 +385,7 @@ function wp_stripe_checkout_process_webhook(){
         update_post_meta($post_id, '_amount', $payment_data['price']);
         update_post_meta($post_id, '_email', $payment_data['customer_email']);
         update_post_meta($post_id, '_wp_user_id', $payment_data['wp_user_id']);
+        update_post_meta($post_id, '_subscription_id', $payment_data['subscription_id']);
         wp_stripe_checkout_debug_log("Order information updated", true);
         $email_options = wp_stripe_checkout_get_email_option();
         add_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');
@@ -792,6 +800,308 @@ function wp_stripe_checkout_process_wpsc_product_webhook($event_json){
     }
     wp_stripe_checkout_debug_log("Order processing completed", true, true);
     do_action('wpstripecheckout_payment_completed', $payment_data);
+}
+
+function wp_stripe_checkout_process_invoice_payment_succeeded_event($event_json){
+    $event_obj = $event_json->data->object;
+    if(!isset($event_obj->subscription) || empty($event_obj->subscription)){
+        wp_stripe_checkout_debug_log("This notification is not related to a subscription and cannot be processed.", false);
+        return;
+    }
+    if(isset($event_obj->billing_reason) && $event_obj->billing_reason == "subscription_cycle"){
+        wp_stripe_checkout_debug_log("This notification is for a rebill payment of a subscription.", true);
+    }
+    else{
+        wp_stripe_checkout_debug_log("This notification is not for a rebill payment of a subscription and cannot be processed.", false);
+        return;
+    }
+    $payment_data = array();
+    $subscription_id = sanitize_text_field($event_obj->subscription);
+    $payment_data['subscription_id'] = $subscription_id;
+    $temp_product_price = sanitize_text_field($event_obj->lines->data[0]->price->unit_amount);
+    $currency = sanitize_text_field($event_obj->currency);
+    $payment_data['currency_code'] = strtoupper($currency);
+    if(wp_stripe_checkout_is_zero_decimal_currency($currency)){
+        $product_price = $temp_product_price;
+        $payment_data['price'] = $product_price;
+    }
+    else{
+        $product_price = $temp_product_price/100;
+        $payment_data['price'] = number_format($product_price, 2, '.', '');
+    }
+    $payment_data['custom_fields'] = [];
+    if(isset($event_obj->custom_fields) && !empty($event_obj->custom_fields)){
+        foreach($event_obj->custom_fields as $custom_field){
+            $custom_field_key = sanitize_text_field($custom_field->key);
+            $custom_field_label = sanitize_text_field($custom_field->label->custom);
+            $custom_field_value = sanitize_text_field($custom_field->text->value);
+            $payment_data['custom_fields'][$custom_field_key] = [
+                'label' => $custom_field_label,
+                'value' => $custom_field_value
+            ];
+        }
+    }
+    //
+    $product_quantity = sanitize_text_field($event_obj->lines->data[0]->quantity);
+    $payment_data['quantity'] = $product_quantity;
+    $stripe_price_id = sanitize_text_field($event_obj->lines->data[0]->price->id);
+    $payment_data['price_id'] = isset($stripe_price_id) && !empty($stripe_price_id) ? $stripe_price_id : '';
+    $stripe_product_id = sanitize_text_field($event_obj->lines->data[0]->price->product);
+    $payment_data['product_id'] = isset($stripe_product_id) && !empty($stripe_product_id) ? $stripe_product_id : '';
+    $temp_amount_total = sanitize_text_field($event_obj->amount_paid);
+    $amount_total = $temp_amount_total/100;
+    $payment_data['amount_total'] = number_format($amount_total, 2, '.', '');
+    $txn_id = sanitize_text_field($event_obj->charge);
+    $payment_data['txn_id'] = $txn_id;
+    $payment_data['stripe_customer_id'] = sanitize_text_field($event_obj->customer);
+    $payment_data['customer_email'] = sanitize_email($event_obj->customer_email);
+    if(!isset($payment_data['customer_email']) || empty($payment_data['customer_email'])){
+        wp_stripe_checkout_debug_log("Customer email could not be found. This notification cannot be processed.", false);
+        return;
+    }
+    $products = WP_SC_Stripe_API::retrieve('products/'.$payment_data['product_id']);
+    $payment_data['product_name'] = sanitize_text_field($products->name);
+    //process billing address          
+    $billing_name = $event_obj->customer_name;
+    $payment_data['billing_name'] = isset($billing_name) && !empty($billing_name) ? sanitize_text_field($billing_name) : '';
+    $payment_data['billing_first_name'] = '';
+    $payment_data['billing_last_name'] = '';
+    if(!empty($payment_data['billing_name'])){
+        $billing_name_parts = explode(" ", $payment_data['billing_name']);
+        $payment_data['billing_first_name'] = isset($billing_name_parts[0]) && !empty($billing_name_parts[0]) ? $billing_name_parts[0] : '';
+        $payment_data['billing_last_name'] = isset($billing_name_parts[1]) && !empty($billing_name_parts[1]) ? array_pop($billing_name_parts) : '';
+    }
+    $address_line1 = $event_obj->customer_address->line1;
+    $payment_data['billing_address_line1'] = isset($address_line1) && !empty($address_line1) ? sanitize_text_field($address_line1) : '';
+    $address_zip = $event_obj->customer_address->postal_code;
+    $payment_data['billing_address_zip'] = isset($address_zip) && !empty($address_zip) ? sanitize_text_field($address_zip) : '';
+    $address_state = $event_obj->customer_address->state;
+    $payment_data['billing_address_state'] = isset($address_state) && !empty($address_state) ? sanitize_text_field($address_state) : '';
+    $address_city = $event_obj->customer_address->city;
+    $payment_data['billing_address_city'] = isset($address_city) && !empty($address_city) ? sanitize_text_field($address_city) : '';
+    $address_country = $event_obj->customer_address->country;
+    $payment_data['billing_address_country'] = isset($address_country) && !empty($address_country) ? sanitize_text_field($address_country) : '';
+    //process shipping address
+    if(isset($event_obj->customer_shipping->address)){
+        $shipping_name = $event_obj->customer_shipping->name;
+        $payment_data['shipping_name'] = isset($shipping_name) && !empty($shipping_name) ? sanitize_text_field($shipping_name) : '';
+        $payment_data['shipping_first_name'] = '';
+        $payment_data['shipping_last_name'] = '';
+        if(!empty($payment_data['shipping_name'])){
+            $shipping_name_parts = explode(" ", $payment_data['shipping_name']);
+            $payment_data['shipping_first_name'] = isset($shipping_name_parts[0]) && !empty($shipping_name_parts[0]) ? $shipping_name_parts[0] : '';
+            $payment_data['shipping_last_name'] = isset($shipping_name_parts[1]) && !empty($shipping_name_parts[1]) ? array_pop($shipping_name_parts) : '';
+        }
+        $shipping_address_line1 = $event_obj->customer_shipping->address->line1;
+        $payment_data['shipping_address_line1'] = isset($shipping_address_line1) && !empty($shipping_address_line1) ? sanitize_text_field($shipping_address_line1) : '';
+        $shipping_address_zip = $event_obj->customer_shipping->address->postal_code;
+        $payment_data['shipping_address_zip'] = isset($shipping_address_zip) && !empty($shipping_address_zip) ? sanitize_text_field($shipping_address_zip) : '';
+        $shipping_address_state = $event_obj->customer_shipping->address->state;
+        $payment_data['shipping_address_state'] = isset($shipping_address_state) && !empty($shipping_address_state) ? sanitize_text_field($shipping_address_state) : '';
+        $shipping_address_city = $event_obj->customer_shipping->address->city;
+        $payment_data['shipping_address_city'] = isset($shipping_address_city) && !empty($shipping_address_city) ? sanitize_text_field($shipping_address_city) : '';
+        $shipping_address_country = $event_obj->customer_shipping->address->country;
+        $payment_data['shipping_address_country'] = isset($shipping_address_country) && !empty($shipping_address_country) ? sanitize_text_field($shipping_address_country) : '';
+    }
+    $amount_shipping = sanitize_text_field($event_obj->total_details->amount_shipping);
+    if(isset($amount_shipping) && is_numeric($amount_shipping)){
+        $temp_shipping = $amount_shipping/100;
+        $payment_data['amount_shipping'] = number_format($temp_shipping, 2, '.', '');
+    }
+    $payment_data['wp_user_id'] = '';
+    $wp_user_id = '';
+    $wp_user_id = apply_filters('wpsc_get_wpuserid_by_client_reference_id', $wp_user_id, $client_reference_id);
+    if(isset($wp_user_id) && !empty($wp_user_id)){
+        $payment_data['wp_user_id'] = $wp_user_id;
+    }
+    $args = array(
+        'post_type' => 'wpstripeco_order',
+        'meta_query' => array(
+            array(
+                'key' => '_txn_id',
+                'value' => $payment_data['txn_id'],
+                'compare' => '=',
+            ),
+        ),
+    );
+    $query = new WP_Query($args);
+    if ($query->have_posts()) {  //a record already exists
+        wp_stripe_checkout_debug_log("An order with this transaction ID already exists. This payment will not be processed.", false);
+        return;
+    }
+    $content = '';
+    $content .= '<strong>Transaction ID:</strong> '.$payment_data['txn_id'].'<br />';
+    $content .= '<strong>Subscription ID:</strong> '.$payment_data['subscription_id'].'<br />';
+    $content .= '<strong>Product name:</strong> '.$payment_data['product_name'].'<br />';
+    if(!empty($payment_data['product_id'])){
+        $content .= '<strong>Product ID:</strong> '.$payment_data['product_id'].'<br />'; 
+    }
+    if(!empty($payment_data['price_id'])){
+        $content .= '<strong>Price ID:</strong> '.$payment_data['price_id'].'<br />'; 
+    }
+    $content .= '<strong>Amount:</strong> '.$payment_data['price'].'<br />';
+    $content .= '<strong>Currency:</strong> '.$payment_data['currency_code'].'<br />';
+    if(!empty($payment_data['billing_name'])){
+        $content .= '<strong>Billing Name:</strong> '.$payment_data['billing_name'].'<br />';
+    }
+    if(!empty($payment_data['customer_email'])){
+        $content .= '<strong>Email:</strong> '.$payment_data['customer_email'].'<br />'; 
+    }
+
+    if(!empty($payment_data['stripe_customer_id'])){
+        $content .= '<strong>Stripe Customer ID:</strong> '.$payment_data['stripe_customer_id'].'<br />'; 
+    }
+    if(!empty($payment_data['wp_user_id'])){
+        $content .= '<strong>WP User ID:</strong> '.$payment_data['wp_user_id'].'<br />'; 
+    }
+    $payment_data['billing_address'] = '';
+    if(!empty($payment_data['billing_address_line1'])){
+        $payment_data['billing_address'] .= $payment_data['billing_address_line1'];
+        $content .= '<strong>Billing Address:</strong> '.$payment_data['billing_address_line1'];
+        if(!empty($payment_data['billing_address_city'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_city'];
+            $content .= ', '.$payment_data['billing_address_city'];
+        }
+        if(!empty($payment_data['billing_address_state'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_state'];
+            $content .= ', '.$payment_data['billing_address_state'];
+        }
+        if(!empty($payment_data['billing_address_zip'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_zip'];
+            $content .= ', '.$payment_data['billing_address_zip'];
+        }
+        if(!empty($payment_data['billing_address_country'])){
+            $payment_data['billing_address'] .= ', '.$payment_data['billing_address_country'];
+            $content .= ', '.$payment_data['billing_address_country'];
+        }
+        $content .= '<br />';
+    }
+    if(!empty($payment_data['shipping_name'])){
+        $content .= '<strong>Shipping Name:</strong> '.$payment_data['shipping_name'].'<br />';
+    }
+    $payment_data['shipping_address'] = '';
+    if(!empty($payment_data['shipping_address_line1'])){
+        $payment_data['shipping_address'] .= $payment_data['shipping_address_line1'];
+        $content .= '<strong>Shipping Address:</strong> '.$payment_data['shipping_address_line1'];
+        if(!empty($payment_data['shipping_address_city'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_city'];
+            $content .= ', '.$payment_data['shipping_address_city'];
+        }
+        if(!empty($payment_data['shipping_address_state'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_state'];
+            $content .= ', '.$payment_data['shipping_address_state'];
+        }
+        if(!empty($payment_data['shipping_address_zip'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_zip'];
+            $content .= ', '.$payment_data['shipping_address_zip'];
+        }
+        if(!empty($payment_data['shipping_address_country'])){
+            $payment_data['shipping_address'] .= ', '.$payment_data['shipping_address_country'];
+            $content .= ', '.$payment_data['shipping_address_country'];
+        }
+        $content .= '<br />';
+    }
+    //
+    if(!empty($payment_data['custom_fields'])){
+        $content .= '<h2>Custom Fields</h2><br />';
+        foreach($payment_data['custom_fields'] as $custom_field){
+            $content .= '<strong>'.$custom_field['label'].':</strong> '.$custom_field['value'].'<br />';
+        }
+        $content .= '<br />';
+    }
+    //
+    $payment_data['order_id'] = '';
+    $wp_stripe_checkout_order = array(
+        'post_title' => 'order',
+        'post_type' => 'wpstripeco_order',
+        'post_content' => '',
+        'post_status' => 'publish',
+    );
+    wp_stripe_checkout_debug_log("Updating order information", true);
+    $post_id = wp_insert_post($wp_stripe_checkout_order);  //insert a new order
+    $post_updated = false;
+    if ($post_id > 0) {
+        $post_content = $content;
+        $updated_post = array(
+            'ID' => $post_id,
+            'post_title' => $post_id,
+            'post_type' => 'wpstripeco_order',
+            'post_content' => $post_content
+        );
+        $updated_post_id = wp_update_post($updated_post);  //update the order
+        if ($updated_post_id > 0) {  //successfully updated
+            $post_updated = true;
+        }
+    }
+    //save order information
+    if ($post_updated) {
+        $payment_data['order_id'] = $post_id;
+        update_post_meta($post_id, '_product_name', $payment_data['product_name']);
+        update_post_meta($post_id, '_txn_id', $payment_data['txn_id']);
+        update_post_meta($post_id, '_name', $payment_data['billing_name']);
+        update_post_meta($post_id, '_amount', $payment_data['price']);
+        update_post_meta($post_id, '_email', $payment_data['customer_email']);
+        update_post_meta($post_id, '_wp_user_id', $payment_data['wp_user_id']);
+        update_post_meta($post_id, '_subscription_id', $payment_data['subscription_id']);
+        wp_stripe_checkout_debug_log("Order information updated", true);
+        /*
+        $email_options = wp_stripe_checkout_get_email_option();
+        add_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');
+        add_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name');
+        if(isset($email_options['purchase_email_enabled']) && !empty($email_options['purchase_email_enabled']) && !empty($payment_data['customer_email'])){
+            $subject = $email_options['purchase_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
+            $type = $email_options['purchase_email_type'];
+            $body = $email_options['purchase_email_body'];
+            $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
+            if($type == "html"){
+                add_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+                $body = apply_filters('wp_stripe_checkout_email_body_wpautop', true) ? wpautop($body) : $body;
+            }
+            wp_stripe_checkout_debug_log("Sending a purchase receipt email to ".$payment_data['customer_email'], true);
+            $mail_sent = wp_mail($payment_data['customer_email'], $subject, $body);
+            if($type == "html"){
+                remove_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+            }
+            if($mail_sent == true){
+                wp_stripe_checkout_debug_log("Email was sent successfully by WordPress", true);
+            }
+            else{
+                wp_stripe_checkout_debug_log("Email could not be sent by WordPress", false);
+            }
+        }
+        if(isset($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_enabled']) && !empty($email_options['sale_notification_email_recipient'])){
+            $subject = $email_options['sale_notification_email_subject'];
+            $subject = wp_stripe_checkout_do_email_tags($payment_data, $subject);
+            $type = $email_options['sale_notification_email_type'];
+            $body = $email_options['sale_notification_email_body'];
+            $body = wp_stripe_checkout_do_email_tags($payment_data, $body);
+            if($type == "html"){
+                add_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+                $body = apply_filters('wp_stripe_checkout_email_body_wpautop', true) ? wpautop($body) : $body;
+            }
+            wp_stripe_checkout_debug_log("Sending a sale notification email to ".$email_options['sale_notification_email_recipient'], true);
+            $mail_sent = wp_mail($email_options['sale_notification_email_recipient'], $subject, $body);
+            if($type == "html"){
+                remove_filter('wp_mail_content_type', 'wp_stripe_checkout_set_html_email_content_type');
+            }
+            if($mail_sent == true){
+                wp_stripe_checkout_debug_log("Email was sent successfully by WordPress", true);
+            }
+            else{
+                wp_stripe_checkout_debug_log("Email could not be sent by WordPress", false);
+            }
+        }
+        remove_filter('wp_mail_from', 'wp_stripe_checkout_set_email_from');
+        remove_filter('wp_mail_from_name', 'wp_stripe_checkout_set_email_from_name'); 
+        */      
+        //do_action('wpstripecheckout_order_processed', $post_id);
+    } else {
+        wp_stripe_checkout_debug_log("Order information could not be updated", false);
+        return;
+    }
+    //wp_stripe_checkout_debug_log("Order processing completed", true, true);
+    //do_action('wpstripecheckout_payment_completed', $payment_data);
 }
 
 function wp_stripe_checkout_construct_webhook_signature($payload, $secret, $t) {

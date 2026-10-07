@@ -68,6 +68,7 @@ function wp_stripe_checkout_order_columns($columns) {
         'email' => __('Email', 'wp-stripe-checkout'),
         'amount' => __('Total', 'wp-stripe-checkout'),
         'wp_user_id' => __('WP User ID', 'wp-stripe-checkout'),
+        'subscription_id' => __('Subscription ID', 'wp-stripe-checkout'),
         'date' => __('Date', 'wp-stripe-checkout')
     );
     return array_merge($columns, $edited_columns);
@@ -92,6 +93,9 @@ function wp_stripe_checkout_custom_column($column, $post_id) {
             break;
         case 'wp_user_id' :
             echo esc_html(get_post_meta($post_id, '_wp_user_id', true));
+            break;
+        case 'subscription_id' :
+            echo esc_html(get_post_meta($post_id, '_subscription_id', true));
             break;
     }
 }
@@ -129,6 +133,10 @@ function wpstripeco_render_order_data_meta_box($post){
     if(!isset($wp_user_id) || empty($wp_user_id)){
         $wp_user_id = '';
     }
+    $subscription_id = get_post_meta($post_id, '_subscription_id', true);
+    if(!isset($subscription_id) || empty($subscription_id)){
+        $subscription_id = '';
+    }
     ?>
     <table>
         <tbody>
@@ -159,6 +167,10 @@ function wpstripeco_render_order_data_meta_box($post){
                             <tr valign="top">
                                 <th scope="row"><label for="_wpstripeco_wp_user_id"><?php _e('WP User ID', 'wp-stripe-checkout');?></label></th>
                                 <td><input name="_wpstripeco_wp_user_id" type="text" id="_wpstripeco_wp_user_id" value="<?php echo esc_attr($wp_user_id); ?>" class="regular-text"></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="_wpstripeco_subscription_id"><?php _e('Subscription ID', 'wp-stripe-checkout');?></label></th>
+                                <td><input name="_wpstripeco_subscription_id" type="text" id="_wpstripeco_subscription_id" value="<?php echo esc_attr($subscription_id); ?>" class="regular-text"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -207,6 +219,10 @@ function wpstripeco_order_data_meta_box_save($post_id, $post){
     if(isset($_POST['_wpstripeco_wp_user_id'])){
         $wp_user_id = sanitize_text_field($_POST['_wpstripeco_wp_user_id']);
         update_post_meta($post_id, '_wp_user_id', $wp_user_id);
+    }
+    if(isset($_POST['_wpstripeco_subscription_id'])){
+        $subscription_id = sanitize_text_field($_POST['_wpstripeco_subscription_id']);
+        update_post_meta($post_id, '_subscription_id', $subscription_id);
     }
 }
 
