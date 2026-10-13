@@ -21,29 +21,30 @@ function wp_stripe_checkout_process_webhook(){
     wp_stripe_checkout_debug_log_array($event_json, true);
     $options = wp_stripe_checkout_get_option();
     //
-    if(isset($options['stripe_webhook_signing_secret']) && !empty($options['stripe_webhook_signing_secret']))
+    if(!isset($options['stripe_webhook_signing_secret']) || empty($options['stripe_webhook_signing_secret']))
     {
-        wp_stripe_checkout_debug_log("Webhook signing secret is specified. This notification needs to be verified.", true);
-        // Retrieve the raw POST body
-        $payload = $body;
-        // Retrieve the Stripe-Signature header
-        $headers = getallheaders();
-        $stripeSignature = '';
-        if(isset($headers['Stripe-Signature']) && !empty($headers['Stripe-Signature'])){
-            $stripeSignature = sanitize_text_field($headers['Stripe-Signature']); 
-        }
-        if(empty($stripeSignature)){
-            wp_stripe_checkout_debug_log("No Stripe-Signature. This notification cannot be verified.", false);
-            return;
-        }
-        wp_stripe_checkout_debug_log("Stripe-Signature: ".$stripeSignature, true);
-        $webhookSecret = base64_decode($options['stripe_webhook_signing_secret']);
-        if(wp_stripe_checkout_verify_webhook_signature($stripeSignature, $payload, $webhookSecret)){
-            wp_stripe_checkout_debug_log("Signature is valid", true);
-        }else{
-            wp_stripe_checkout_debug_log("Signature is invalid. The notification cannot be processed.", false);
-            return;
-        }
+        wp_stripe_checkout_debug_log("Webhook signing secret is not specified. This notification cannot be verified.", false);
+        return;
+    }
+    // Retrieve the raw POST body
+    $payload = $body;
+    // Retrieve the Stripe-Signature header
+    $headers = getallheaders();
+    $stripeSignature = '';
+    if(isset($headers['Stripe-Signature']) && !empty($headers['Stripe-Signature'])){
+        $stripeSignature = sanitize_text_field($headers['Stripe-Signature']); 
+    }
+    if(empty($stripeSignature)){
+        wp_stripe_checkout_debug_log("No Stripe-Signature. This notification cannot be verified.", false);
+        return;
+    }
+    wp_stripe_checkout_debug_log("Stripe-Signature: ".$stripeSignature, true);
+    $webhookSecret = base64_decode($options['stripe_webhook_signing_secret']);
+    if(wp_stripe_checkout_verify_webhook_signature($stripeSignature, $payload, $webhookSecret)){
+        wp_stripe_checkout_debug_log("Signature is valid", true);
+    }else{
+        wp_stripe_checkout_debug_log("Signature is invalid. The notification cannot be processed.", false);
+        return;
     }
     // subscription rebill payments
     if($event_json->type == "invoice.payment_succeeded"){

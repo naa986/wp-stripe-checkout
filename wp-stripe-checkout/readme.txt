@@ -4,7 +4,7 @@ Donate link: https://noorsplugin.com/
 Tags: stripe, payment, payments, ecommerce, credit card
 Requires at least: 5.3
 Tested up to: 7.1
-Stable tag: 1.2.2.61
+Stable tag: 1.2.2.62
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -170,6 +170,9 @@ Yes.
 none
 
 == Changelog ==
+
+= 1.2.2.62 =
+* Made webhook event verification required.
 
 = 1.2.2.61 =
 * Subscription rebill/renewal payments are added to orders when selected.
